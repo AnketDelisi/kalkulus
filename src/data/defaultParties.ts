@@ -47,7 +47,7 @@ export const DEFAULT_PARTIES: PartyConfig[] = [
   {
     id: 'DEM',
     shortName: 'DEM',
-    fullName: 'DEM Parti (Yeşil Sol)',
+    fullName: 'DEM Parti',
     color: '#a855f7',
     allianceId: 'emek',
   },

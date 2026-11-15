@@ -4,7 +4,7 @@ import { DistrictAndClosestRacesTable } from './components/DistrictAndClosestRac
 import { HeaderBar, WorkspaceTab } from './components/HeaderBar';
 import { InputEditorPanel } from './components/InputEditorPanel';
 import { MapPanel } from './components/MapPanel';
-import { ParliamentHemicycle } from './components/ParliamentHemicycle';
+import { NationalResultsTable, ParliamentHemicycle } from './components/ParliamentHemicycle';
 import { ScenarioModal } from './components/ScenarioModal';
 
 export const App: React.FC = () => {
@@ -26,15 +26,16 @@ export const App: React.FC = () => {
       <main className="flex-1 max-w-[1680px] w-full mx-auto px-4 sm:px-6 py-5">
         {activeTab === 'studio' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-            {/* Left Sidebar (4 cols): Streamlined Multi-Layer Input & Turnout Controls */}
-            <div className="lg:col-span-4">
+            {/* Left Sidebar (4 cols): Vote Input + Parliament Diagram */}
+            <div className="lg:col-span-4 flex flex-col gap-5">
               <InputEditorPanel />
+              <ParliamentHemicycle />
             </div>
 
-            {/* Right Main Stage (8 cols): Real GeoJSON Map + 600-Seat Parliament */}
+            {/* Right Main Stage (8 cols): Real GeoJSON Map + National Vote Share Table */}
             <div className="lg:col-span-8 flex flex-col gap-5">
               <MapPanel />
-              <ParliamentHemicycle />
+              <NationalResultsTable />
             </div>
           </div>
         )}

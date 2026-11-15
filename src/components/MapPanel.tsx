@@ -644,7 +644,8 @@ export const MapPanel: React.FC = () => {
                           fill={fill}
                           fillRule="evenodd"
                           stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#090a0f'}
-                          strokeWidth={isSelected ? 2.2 : isLocked ? 1.8 : 0.65}
+                          strokeWidth={isSelected ? 2.2 : isLocked ? 1.8 : 0.95}
+                          strokeLinejoin="round"
                           className="cursor-pointer transition-opacity hover:opacity-85"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -668,7 +669,7 @@ export const MapPanel: React.FC = () => {
                             setHovered({
                               id: ilceId,
                               title: iRes.name,
-                              subtitle: `${zoomedProvResult?.name || ''} • SEÇİM ÇEVRESİ: ${iRes.districtId}`,
+                              subtitle: `${zoomedProvResult?.name || ''} · ${lang === 'tr' ? 'Seçim çevresi' : 'District'}: ${iRes.districtId}`,
                               turnout: iRes.turnout,
                               validVotes: iRes.validVotes,
                               isLocked,
@@ -707,8 +708,9 @@ export const MapPanel: React.FC = () => {
                         d={pathGenerator(feat as any) || ''}
                         fill={fill}
                         fillRule="evenodd"
-                        stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#ffffff'}
-                        strokeWidth={isSelected ? 1.5 : 0.3}
+                        stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#090a0f'}
+                        strokeWidth={isSelected ? 1.6 : 0.55}
+                        strokeLinejoin="round"
                         className="cursor-pointer hover:opacity-85"
                         onClick={(e) => {
                           e.stopPropagation();

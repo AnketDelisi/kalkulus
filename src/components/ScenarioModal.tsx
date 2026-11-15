@@ -115,43 +115,47 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose })
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-      <div className="pixel-box-bright w-full max-w-2xl flex flex-col">
-        <div className="flex items-center justify-between px-4 py-3 border-b-2 border-slate-700 bg-slate-900">
-          <h2 className="font-pixel text-sm text-amber-300">{t.exportImportBtn}</h2>
-          <button onClick={onClose} className="pixel-btn px-2 py-1 text-xs">
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="editorial-card w-full max-w-2xl flex flex-col overflow-hidden shadow-xl">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-white">
+          <h2 className="text-base font-bold text-slate-900">{t.exportImportBtn}</h2>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-900"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="p-4 space-y-4 text-xs">
-          {/* Quick Export Buttons */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <button onClick={handleCopyScenario} className="pixel-btn pixel-btn-amber py-2 px-3">
+        <div className="p-5 space-y-4 text-xs bg-white">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <button
+              onClick={handleCopyScenario}
+              className="editorial-btn editorial-btn-primary py-2.5 px-3"
+            >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               <span>{copied ? 'Panoya Kopyalandı!' : 'Senaryo JSON Kopyala'}</span>
             </button>
 
-            <button onClick={handleDownloadJson} className="pixel-btn pixel-btn-cyan py-2 px-3">
-              <Download className="w-4 h-4" />
+            <button onClick={handleDownloadJson} className="editorial-btn py-2.5 px-3">
+              <Download className="w-4 h-4 text-slate-600" />
               <span>Senaryo (.JSON) İndir</span>
             </button>
 
-            <button onClick={handleDownloadCsv} className="pixel-btn py-2 px-3 text-emerald-300">
-              <Download className="w-4 h-4" />
+            <button onClick={handleDownloadCsv} className="editorial-btn py-2.5 px-3">
+              <Download className="w-4 h-4 text-emerald-600" />
               <span>87 Bölge Tablosu (.CSV)</span>
             </button>
           </div>
 
-          {/* Upload File */}
-          <div className="bg-slate-950 border-2 border-slate-800 p-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FileUp className="w-4 h-4 text-amber-400" />
-              <span className="text-slate-300">
-                Bilgisayardan Senaryo veya Özel Baz Veri (.JSON) Yükle:
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <FileUp className="w-4 h-4 text-slate-600" />
+              <span className="text-slate-700 font-medium">
+                Bilgisayardan Senaryo veya Özel Baz Veri (.JSON) Yükle
               </span>
             </div>
-            <label className="pixel-btn px-3 py-1.5 cursor-pointer">
+            <label className="editorial-btn px-3 py-1.5 cursor-pointer">
               <Upload className="w-3.5 h-3.5" />
               <span>Dosya Seç</span>
               <input
@@ -163,27 +167,26 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose })
             </label>
           </div>
 
-          {/* Paste / Inspect JSON */}
-          <div className="space-y-1.5">
-            <label className="block font-mono text-slate-400">
-              Senaryo JSON Metni (Yapıştırıp Yükleyebilirsiniz):
+          <div className="space-y-2">
+            <label className="block font-medium text-slate-600">
+              Senaryo JSON Metni (Yapıştırıp Yükleyebilirsiniz)
             </label>
             <textarea
               rows={6}
               value={jsonText}
               onChange={(e) => setJsonText(e.target.value)}
               placeholder='{"version": "1.0", "nationalTargetShares": ...}'
-              className="w-full pixel-input p-2 font-mono text-[11px]"
+              className="w-full editorial-input p-2.5 font-mono text-[11px]"
             />
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pt-1">
               {statusMsg ? (
-                <span className="font-mono text-emerald-400 font-bold">{statusMsg}</span>
+                <span className="font-semibold text-emerald-600">{statusMsg}</span>
               ) : (
                 <span />
               )}
               <button
                 onClick={handleImportScenario}
-                className="pixel-btn pixel-btn-amber px-4 py-1.5"
+                className="editorial-btn editorial-btn-primary px-4 py-2"
               >
                 <Upload className="w-3.5 h-3.5" />
                 <span>Metinden Senaryoyu Yükle</span>

@@ -1,24 +1,30 @@
 import React from 'react';
 import {
-  Calculator,
-  Database,
+  BarChart3,
   Download,
   Globe,
+  Landmark,
   Lock,
+  Map,
   RotateCcw,
-  Settings,
-  Sliders,
+  Settings2,
 } from 'lucide-react';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
 import { BaselineId, DHondtMode, SwingMode } from '../types/election';
 
+export type WorkspaceTab = 'studio' | 'parliament' | 'tables';
+
 interface HeaderBarProps {
+  activeTab: WorkspaceTab;
+  onChangeTab: (tab: WorkspaceTab) => void;
   onOpenRulesModal: () => void;
   onOpenScenarioModal: () => void;
 }
 
 export const HeaderBar: React.FC<HeaderBarProps> = ({
+  activeTab,
+  onChangeTab,
   onOpenRulesModal,
   onOpenScenarioModal,
 }) => {
@@ -48,150 +54,169 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   const totalLocks = lockedProvincesCount + lockedDistrictsCount + lockedIlcesCount;
 
   return (
-    <header className="pixel-box border-b-2 border-retro-border px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
-      {/* Brand Title & 8-Bit Icon */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-amber-500 border-2 border-amber-200 shadow-[2px_2px_0px_#000] flex items-center justify-center text-slate-950">
-          <Calculator className="w-6 h-6 stroke-[2.5]" />
-        </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="font-pixel text-xl tracking-wider text-amber-400 drop-shadow-[2px_2px_0px_#000]">
-              {t.appTitle}
-            </h1>
-            <span className="px-1.5 py-0.5 text-[10px] font-pixel bg-cyan-950 text-cyan-300 border border-cyan-600">
-              v1.0 • 8-BIT EDITION
-            </span>
+    <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
+      <div className="max-w-[1680px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        {/* Left: Brand & View Switcher */}
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-sm tracking-tight">
+              K
+            </div>
+            <div>
+              <h1 className="text-base font-extrabold tracking-tight text-slate-900 leading-none">
+                {t.appTitle}
+              </h1>
+              <p className="text-[11px] text-slate-500 font-medium mt-0.5 hidden sm:block">
+                Seçim Simülatörü
+              </p>
+            </div>
           </div>
-          <p className="text-[11px] text-slate-400 font-medium tracking-wide">
-            {t.appSubtitle}
-          </p>
-        </div>
-      </div>
 
-      {/* Electoral Controls Bar */}
-      <div className="flex flex-wrap items-center gap-2 text-xs">
-        {/* Baseline Selector */}
-        <div className="flex items-center gap-1.5 bg-slate-900/90 border-2 border-slate-700 px-2.5 py-1">
-          <Database className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          {/* Primary Workspace Navigation Pills */}
+          <nav className="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200/80 text-xs font-semibold">
+            <button
+              onClick={() => onChangeTab('studio')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                activeTab === 'studio'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Map className="w-3.5 h-3.5" />
+              <span>{lang === 'tr' ? 'Harita & Projeksiyon' : 'Map & Projection'}</span>
+            </button>
+
+            <button
+              onClick={() => onChangeTab('parliament')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                activeTab === 'parliament'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Landmark className="w-3.5 h-3.5" />
+              <span>{lang === 'tr' ? 'TBMM Meclis & İttifaklar' : 'TBMM Parliament'}</span>
+            </button>
+
+            <button
+              onClick={() => onChangeTab('tables')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                activeTab === 'tables'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              <span>{lang === 'tr' ? 'Detaylı Tablolar & Kritik MV' : 'Tables & Closest Races'}</span>
+            </button>
+          </nav>
+        </div>
+
+        {/* Right: Clean Compact Parameters & Actions */}
+        <div className="flex items-center gap-2 text-xs">
+          {/* Baseline Selector */}
           <select
             value={baselineId}
             onChange={(e) => setBaselineId(e.target.value as BaselineId)}
-            className="bg-transparent text-slate-100 font-medium focus:outline-none cursor-pointer"
-            aria-label="Baseline Selector"
+            className="editorial-input px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-slate-50/70 hidden md:block cursor-pointer"
+            title="Baz Seçim Verisi"
           >
-            <option value="2023_general" className="bg-slate-900">
-              {t.baseline2023}
-            </option>
-            <option value="2024_local" className="bg-slate-900">
-              {t.baseline2024}
-            </option>
-            <option value="custom" className="bg-slate-900">
-              {t.baselineCustom}
-            </option>
+            <option value="2023_general">{t.baseline2023}</option>
+            <option value="2024_local">{t.baseline2024}</option>
+            <option value="custom">{t.baselineCustom}</option>
           </select>
-        </div>
 
-        {/* Swing Mode Selector */}
-        <div className="flex items-center gap-1.5 bg-slate-900/90 border-2 border-slate-700 px-2.5 py-1">
-          <Sliders className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+          {/* Swing Mode Selector */}
           <select
             value={swingMode}
             onChange={(e) => setSwingMode(e.target.value as SwingMode)}
-            className="bg-transparent text-slate-100 font-medium focus:outline-none cursor-pointer"
-            aria-label="Swing Mode"
+            className="editorial-input px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-slate-50/70 hidden xl:block cursor-pointer"
+            title="Swing Modeli"
           >
-            <option value="proportional" className="bg-slate-900">
-              {t.swingProportional}
-            </option>
-            <option value="uniform" className="bg-slate-900">
-              {t.swingUniform}
-            </option>
+            <option value="proportional">{t.swingProportional}</option>
+            <option value="uniform">{t.swingUniform}</option>
           </select>
-        </div>
 
-        {/* D'Hondt System Selector */}
-        <div className="flex items-center gap-1.5 bg-slate-900/90 border-2 border-slate-700 px-2.5 py-1">
+          {/* D'Hondt Selector */}
           <select
             value={dhondtMode}
             onChange={(e) => setDHondtMode(e.target.value as DHondtMode)}
-            className="bg-transparent text-slate-100 font-medium focus:outline-none cursor-pointer"
-            aria-label="D'Hondt System"
+            className="editorial-input px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-slate-50/70 hidden 2xl:block cursor-pointer"
+            title="D'Hondt Sistemi"
           >
-            <option value="2022_separate" className="bg-slate-900">
-              {t.dhondt2022}
-            </option>
-            <option value="2018_alliance" className="bg-slate-900">
-              {t.dhondt2018}
-            </option>
+            <option value="2022_separate">{t.dhondt2022}</option>
+            <option value="2018_alliance">{t.dhondt2018}</option>
           </select>
-        </div>
 
-        {/* Threshold (Baraj) Input */}
-        <div className="flex items-center gap-1.5 bg-slate-900/90 border-2 border-slate-700 px-2.5 py-1">
-          <span className="text-slate-400 font-medium">{t.thresholdLabel}:</span>
-          <input
-            type="number"
-            min={0}
-            max={20}
-            step={0.5}
-            value={thresholdPct}
-            onChange={(e) => setThresholdPct( parseFloat(e.target.value) || 0 )}
-            className="w-12 bg-slate-950 border border-slate-700 px-1 py-0.5 text-center font-mono text-amber-400 font-bold focus:outline-none focus:border-amber-400"
-          />
-          <span className="text-slate-400 font-mono">%</span>
-        </div>
+          {/* Threshold Pill */}
+          <div className="hidden lg:flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1">
+            <span className="text-slate-500 font-medium">{t.thresholdLabel}:</span>
+            <input
+              type="number"
+              min={0}
+              max={20}
+              step={0.5}
+              value={thresholdPct}
+              onChange={(e) => setThresholdPct(parseFloat(e.target.value) || 0)}
+              className="w-11 text-right font-mono font-semibold text-slate-900 bg-transparent focus:outline-none"
+            />
+            <span className="text-slate-500 font-mono">%</span>
+          </div>
 
-        {/* Locked Units Badge */}
-        {totalLocks > 0 && (
+          {/* Locked Units Counter */}
+          {totalLocks > 0 && (
+            <button
+              onClick={resetAllLocks}
+              title={t.resetAllLocks}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 font-medium hover:bg-amber-100 transition-colors"
+            >
+              <Lock className="w-3.5 h-3.5 text-amber-600" />
+              <span className="font-mono font-semibold">{totalLocks}</span>
+              <span className="hidden sm:inline">{t.lockedCountLabel}</span>
+              <span className="text-amber-500">×</span>
+            </button>
+          )}
+
+          {/* Settings / Alliances & Rules */}
           <button
-            onClick={resetAllLocks}
-            title={t.resetAllLocks}
-            className="pixel-btn px-2.5 py-1 border-amber-500/80 bg-amber-950/60 text-amber-300 text-xs"
+            onClick={onOpenRulesModal}
+            className="editorial-btn px-2.5 py-1.5 text-xs"
+            title={t.rulesAndAlliancesBtn}
           >
-            <Lock className="w-3.5 h-3.5 text-amber-400" />
-            <span className="font-mono font-bold">{totalLocks}</span>
-            <span>{t.lockedCountLabel} (×)</span>
+            <Settings2 className="w-3.5 h-3.5 text-slate-600" />
+            <span className="hidden sm:inline">{lang === 'tr' ? 'Ayarlar & İttifak' : 'Rules & Alliances'}</span>
           </button>
-        )}
 
-        {/* Alliances, Parties & MP Seat Rules Modal Button */}
-        <button
-          onClick={onOpenRulesModal}
-          className="pixel-btn pixel-btn-cyan px-2.5 py-1.5 text-xs"
-        >
-          <Settings className="w-3.5 h-3.5" />
-          <span>{t.rulesAndAlliancesBtn}</span>
-        </button>
+          {/* Save / Load */}
+          <button
+            onClick={onOpenScenarioModal}
+            className="editorial-btn px-2.5 py-1.5 text-xs"
+            title={t.exportImportBtn}
+          >
+            <Download className="w-3.5 h-3.5 text-slate-600" />
+            <span className="hidden sm:inline">{lang === 'tr' ? 'Kaydet / Yükle' : 'Save / Load'}</span>
+          </button>
 
-        {/* Save / Load Scenario Modal Button */}
-        <button
-          onClick={onOpenScenarioModal}
-          className="pixel-btn px-2.5 py-1.5 text-xs"
-        >
-          <Download className="w-3.5 h-3.5 text-emerald-400" />
-          <span>{t.exportImportBtn}</span>
-        </button>
+          {/* Reset */}
+          <button
+            onClick={resetAllToBaseline}
+            className="editorial-btn px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-50 hover:border-rose-200"
+            title={t.resetToBaseline}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">{t.resetToBaseline}</span>
+          </button>
 
-        {/* Reset to Baseline */}
-        <button
-          onClick={resetAllToBaseline}
-          className="pixel-btn px-2.5 py-1.5 text-xs text-rose-300 hover:border-rose-500"
-          title={t.resetToBaseline}
-        >
-          <RotateCcw className="w-3.5 h-3.5 text-rose-400" />
-          <span className="hidden xl:inline">{t.resetToBaseline}</span>
-        </button>
-
-        {/* Language Toggle */}
-        <button
-          onClick={() => setLanguage(lang === 'tr' ? 'en' : 'tr')}
-          className="pixel-btn px-2 py-1.5 text-xs font-pixel text-amber-300"
-          title="Dil / Language"
-        >
-          <Globe className="w-3.5 h-3.5" />
-          <span>{lang.toUpperCase()}</span>
-        </button>
+          {/* Language Toggle */}
+          <button
+            onClick={() => setLanguage(lang === 'tr' ? 'en' : 'tr')}
+            className="editorial-btn px-2 py-1.5 text-xs font-mono font-semibold text-slate-700"
+            title="Dil / Language"
+          >
+            <Globe className="w-3.5 h-3.5 text-slate-500" />
+            <span>{lang.toUpperCase()}</span>
+          </button>
+        </div>
       </div>
     </header>
   );

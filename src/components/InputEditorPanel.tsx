@@ -1,11 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   Globe2,
   Landmark,
   Lock,
   MapPin,
-  Percent,
   Sparkles,
   Unlock,
   Users,
@@ -55,13 +56,14 @@ export const InputEditorPanel: React.FC = () => {
     unlockIlce,
   } = useElectionStore();
 
+  const [showVoterDetails, setShowVoterDetails] = useState(false);
+
   const t = translations[lang];
   const activeDataset =
     baselineId === 'custom' && customBaseline
       ? customBaseline
       : BASELINES[baselineId] || BASELINES['2023_general'];
 
-  // Resolve current scope's metadata, shares, turnout, voters, and lock state
   const scopeData = useMemo(() => {
     if (activeScope.type === 'national') {
       const shares = nationalTargetShares;
@@ -77,6 +79,7 @@ export const InputEditorPanel: React.FC = () => {
         validVotes: projection.domesticValidVotes,
         shares,
         baseShares,
+        partySeats: projection.partyTotalSeats,
         sum,
       };
     }
@@ -97,6 +100,7 @@ export const InputEditorPanel: React.FC = () => {
         validVotes: projection.abroadValidVotes,
         shares,
         baseShares,
+        partySeats: undefined,
         sum,
       };
     }
@@ -109,7 +113,7 @@ export const InputEditorPanel: React.FC = () => {
       const baseShares = basePRes?.partyShares || {};
       const sum = Object.values(shares).reduce((a, b) => a + (Number(b) || 0), 0);
       return {
-        title: `${pRes?.plateCode || activeScope.ilId} - ${pRes?.name || ''}`,
+        title: `${pRes?.plateCode || activeScope.ilId} • ${pRes?.name || ''}`,
         subtitle: `${t.provinceScope} • ${pRes?.mpCount || 0} Milletvekili`,
         isLocked: Boolean(ovr?.isLocked),
         canLock: true,
@@ -118,6 +122,7 @@ export const InputEditorPanel: React.FC = () => {
         validVotes: pRes?.totalValidVotes ?? 0,
         shares,
         baseShares,
+        partySeats: pRes?.partySeats,
         sum,
       };
     }
@@ -139,11 +144,11 @@ export const InputEditorPanel: React.FC = () => {
         validVotes: dRes?.totalValidVotes ?? 0,
         shares,
         baseShares,
+        partySeats: dRes?.partySeats,
         sum,
       };
     }
 
-    // activeScope.type === 'ilce'
     const iRes = projection.ilceResults[activeScope.ilceId];
     const baseIRes = baselineProjection.ilceResults[activeScope.ilceId];
     const ovr = ilceOverrides[activeScope.ilceId];
@@ -161,6 +166,7 @@ export const InputEditorPanel: React.FC = () => {
       validVotes: iRes?.validVotes ?? 0,
       shares,
       baseShares,
+      partySeats: undefined,
       sum,
     };
   }, [
@@ -235,15 +241,15 @@ export const InputEditorPanel: React.FC = () => {
   const isSumBalanced = Math.abs(sumDiff) < 0.08;
 
   return (
-    <div className="pixel-box p-3 flex flex-col gap-3 h-full">
-      {/* Scope Switcher Tabs (National / Abroad / Active Local Selection) */}
-      <div className="grid grid-cols-2 gap-1.5">
+    <div className="editorial-card p-4 flex flex-col gap-3.5">
+      {/* Scope Switcher Pills (National vs Abroad vs Local Unit Selector) */}
+      <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200/80 text-xs font-semibold">
         <button
           onClick={() => setActiveScope({ type: 'national' })}
-          className={`pixel-btn py-1.5 px-2 text-xs ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md transition-all ${
             activeScope.type === 'national'
-              ? 'pixel-btn-amber'
-              : 'bg-slate-900 text-slate-300'
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           <Landmark className="w-3.5 h-3.5" />
@@ -252,10 +258,10 @@ export const InputEditorPanel: React.FC = () => {
 
         <button
           onClick={() => setActiveScope({ type: 'abroad' })}
-          className={`pixel-btn py-1.5 px-2 text-xs ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md transition-all ${
             activeScope.type === 'abroad'
-              ? 'pixel-btn-amber'
-              : 'bg-slate-900 text-slate-300'
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           <Globe2 className="w-3.5 h-3.5" />
@@ -263,296 +269,308 @@ export const InputEditorPanel: React.FC = () => {
         </button>
       </div>
 
-      {/* Quick Selector for Any İl / Seçim Çevresi / İlçe */}
-      <div className="grid grid-cols-2 gap-1.5 bg-slate-950/90 border-2 border-slate-800 p-2 text-xs">
-        <div>
-          <label className="block text-[10px] font-mono text-slate-400 mb-1">
-            İL / SEÇİM ÇEVRESİ SEÇ:
-          </label>
-          <select
-            value={
-              activeScope.type === 'district'
-                ? `d:${activeScope.districtId}`
-                : activeScope.type === 'province'
-                ? `p:${activeScope.ilId}`
-                : ''
-            }
-            onChange={(e) => {
-              const val = e.target.value;
-              if (!val) {
-                setActiveScope({ type: 'national' });
-              } else if (val.startsWith('p:')) {
-                setActiveScope({ type: 'province', ilId: val.slice(2) });
-              } else if (val.startsWith('d:')) {
-                setActiveScope({ type: 'district', districtId: val.slice(2) });
-              }
-            }}
-            className="w-full pixel-input px-2 py-1 text-xs"
-          >
-            <option value="">-- Türkiye Geneli --</option>
-            <optgroup label="87 Seçim Çevresi">
-              {activeDataset.districts.map((d) => (
-                <option key={d.id} value={`d:${d.id}`}>
-                  {d.id} - {d.name} ({projection.districtResults[d.id]?.mpCount || d.mpCount} MV)
-                </option>
-              ))}
-            </optgroup>
-            <optgroup label="81 İl">
-              {activeDataset.provinces.map((p) => (
-                <option key={p.id} value={`p:${p.id}`}>
-                  {p.id} - {p.name}
-                </option>
-              ))}
-            </optgroup>
-          </select>
-        </div>
+      {/* Clean Dropdowns to Jump Directly to Any Province / District / İlçe */}
+      <div className="grid grid-cols-2 gap-2">
+        <select
+          value={
+            activeScope.type === 'district'
+              ? `d:${activeScope.districtId}`
+              : activeScope.type === 'province'
+              ? `p:${activeScope.ilId}`
+              : ''
+          }
+          onChange={(e) => {
+            const val = e.target.value;
+            if (!val) setActiveScope({ type: 'national' });
+            else if (val.startsWith('p:')) setActiveScope({ type: 'province', ilId: val.slice(2) });
+            else if (val.startsWith('d:'))
+              setActiveScope({ type: 'district', districtId: val.slice(2) });
+          }}
+          className="editorial-input px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-slate-50/70"
+        >
+          <option value="">İl veya Bölge Seçin...</option>
+          <optgroup label="81 İl">
+            {activeDataset.provinces.map((p) => (
+              <option key={p.id} value={`p:${p.id}`}>
+                {p.id} - {p.name}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="87 Seçim Çevresi">
+            {activeDataset.districts.map((d) => (
+              <option key={d.id} value={`d:${d.id}`}>
+                {d.id} - {d.name} ({projection.districtResults[d.id]?.mpCount || d.mpCount} MV)
+              </option>
+            ))}
+          </optgroup>
+        </select>
 
-        <div>
-          <label className="block text-[10px] font-mono text-slate-400 mb-1">
-            İLÇE SEÇ (973 İLÇE):
-          </label>
-          <select
-            value={activeScope.type === 'ilce' ? activeScope.ilceId : ''}
-            onChange={(e) => {
-              if (e.target.value) {
-                setActiveScope({ type: 'ilce', ilceId: e.target.value });
+        <select
+          value={activeScope.type === 'ilce' ? activeScope.ilceId : ''}
+          onChange={(e) => {
+            if (e.target.value) setActiveScope({ type: 'ilce', ilceId: e.target.value });
+          }}
+          className="editorial-input px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-slate-50/70"
+        >
+          <option value="">İlçe Seçin (973 İlçe)...</option>
+          {activeDataset.ilceler
+            .filter((ilce) => {
+              if (activeScope.type === 'province') return ilce.ilId === activeScope.ilId;
+              if (activeScope.type === 'district') return ilce.districtId === activeScope.districtId;
+              if (activeScope.type === 'ilce') {
+                const cur = projection.ilceResults[activeScope.ilceId];
+                return cur ? ilce.ilId === cur.ilId : true;
               }
-            }}
-            className="w-full pixel-input px-2 py-1 text-xs"
-          >
-            <option value="">-- İlçe Seçin --</option>
-            {activeDataset.ilceler
-              .filter((ilce) => {
-                if (activeScope.type === 'province') return ilce.ilId === activeScope.ilId;
-                if (activeScope.type === 'district') return ilce.districtId === activeScope.districtId;
-                if (activeScope.type === 'ilce') {
-                  const cur = projection.ilceResults[activeScope.ilceId];
-                  return cur ? ilce.ilId === cur.ilId : true;
-                }
-                return true;
-              })
-              .slice(0, 300)
-              .map((ilce) => (
-                <option key={ilce.id} value={ilce.id}>
-                  {ilce.name} ({ilce.districtId})
-                </option>
-              ))}
-          </select>
-        </div>
+              return true;
+            })
+            .slice(0, 300)
+            .map((ilce) => (
+              <option key={ilce.id} value={ilce.id}>
+                {ilce.name} ({ilce.districtId})
+              </option>
+            ))}
+        </select>
       </div>
 
-      {/* Active Unit Title Banner & Lock Status */}
-      <div className="bg-slate-900 border-2 border-slate-700 p-2.5 flex items-center justify-between gap-2">
+      {/* Active Unit Title & Lock Indicator */}
+      <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-200">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <MapPin className="w-4 h-4 text-amber-400 shrink-0" />
-            <h3 className="font-pixel text-xs text-white truncate">{scopeData.title}</h3>
+            <MapPin className="w-4 h-4 text-slate-700 shrink-0" />
+            <h2 className="text-sm font-bold text-slate-900 truncate">{scopeData.title}</h2>
           </div>
-          <p className="text-[11px] text-slate-400 font-mono mt-0.5">{scopeData.subtitle}</p>
+          <p className="text-[11px] text-slate-500 mt-0.5">{scopeData.subtitle}</p>
         </div>
 
         {scopeData.canLock && (
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="shrink-0">
             {scopeData.isLocked ? (
               <button
                 onClick={handleUnlockActive}
-                className="pixel-btn px-2 py-1 text-[10px] border-amber-500 bg-amber-950/80 text-amber-300"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100"
                 title={t.resetUnitLock}
               >
-                <Lock className="w-3 h-3 text-amber-400" />
-                <span>{t.lockedUnitBadge} (×)</span>
+                <Lock className="w-3 h-3 text-amber-600" />
+                <span>Özel Giriş (Kilidi Aç)</span>
               </button>
             ) : (
-              <span className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-mono bg-slate-950 border border-slate-700 text-slate-400">
-                <Unlock className="w-3 h-3 text-cyan-400" />
-                {t.unlockedUnitBadge}
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600">
+                <Unlock className="w-3 h-3 text-slate-400" />
+                <span>Otomatik Swing</span>
               </span>
             )}
           </div>
         )}
       </div>
 
-      {/* Abroad specific toggles */}
+      {/* Abroad Specific Checkboxes */}
       {activeScope.type === 'abroad' && (
-        <div className="bg-slate-950 border-2 border-slate-800 p-2 flex flex-col gap-1.5 text-xs">
-          <label className="flex items-center gap-2 cursor-pointer">
+        <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex flex-col gap-1.5 text-xs">
+          <label className="flex items-center gap-2 cursor-pointer font-medium text-slate-800">
             <input
               type="checkbox"
               checked={abroadConfig.enabled}
               onChange={(e) => updateAbroadConfig({ enabled: e.target.checked })}
-              className="accent-amber-500 w-4 h-4"
+              className="rounded accent-slate-900 w-3.5 h-3.5"
             />
-            <span className="font-medium text-slate-200">{t.abroadEnabledLabel}</span>
+            <span>{t.abroadEnabledLabel}</span>
           </label>
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex items-center gap-2 cursor-pointer text-slate-600">
             <input
               type="checkbox"
               checked={abroadConfig.syncWithNationalSwing}
               onChange={(e) => updateAbroadConfig({ syncWithNationalSwing: e.target.checked })}
-              className="accent-cyan-500 w-4 h-4"
+              className="rounded accent-slate-900 w-3.5 h-3.5"
             />
-            <span className="text-slate-300">{t.abroadSyncLabel}</span>
+            <span>{t.abroadSyncLabel}</span>
           </label>
         </div>
       )}
 
-      {/* Turnout (%) & Registered Voters (Seçmen) Controls */}
-      <div className="grid grid-cols-3 gap-2 bg-slate-950/90 border-2 border-slate-800 p-2.5 text-xs">
-        <div>
-          <label className="flex items-center gap-1 text-[10px] font-mono text-slate-400 mb-1">
-            <Users className="w-3 h-3 text-cyan-400" />
-            {t.registeredVoters}
-          </label>
-          <input
-            type="number"
-            min={0}
-            step={1000}
-            value={Math.round(scopeData.registeredVoters)}
-            onChange={(e) => handleVotersChange(Math.max(0, parseInt(e.target.value, 10) || 0))}
-            className="w-full pixel-input px-1.5 py-1 text-xs font-bold text-slate-100"
-          />
-        </div>
-
-        <div>
-          <label className="flex items-center gap-1 text-[10px] font-mono text-slate-400 mb-1">
-            <Percent className="w-3 h-3 text-amber-400" />
-            {t.turnoutPct}
-          </label>
-          <div className="flex items-center gap-1">
-            <input
-              type="number"
-              min={1}
-              max={100}
-              step={0.1}
-              value={Number(scopeData.turnout.toFixed(2))}
-              onChange={(e) => handleTurnoutChange(parseFloat(e.target.value) || 0)}
-              className="w-full pixel-input px-1.5 py-1 text-xs font-bold text-amber-400"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-[10px] font-mono text-slate-400 mb-1">
-            {t.validVotes}
-          </label>
-          <div className="px-2 py-1 bg-slate-900 border-2 border-slate-800 font-mono text-xs font-bold text-emerald-400 truncate">
-            {scopeData.validVotes.toLocaleString('tr-TR')}
-          </div>
-        </div>
-      </div>
-
-      {/* Live Total Percentage Bar & Normalization Helper Buttons */}
-      <div className="bg-slate-900 border-2 border-slate-700 p-2 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5">
+      {/* Total Share Indicator & Normalization Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-50 border border-slate-200/90 rounded-lg px-3 py-2">
+        <div className="flex items-center gap-1.5 text-xs">
           <CheckCircle2
             className={`w-4 h-4 ${
-              isSumBalanced ? 'text-emerald-400' : 'text-amber-400'
+              isSumBalanced ? 'text-emerald-600' : 'text-amber-600'
             }`}
           />
-          <span className="text-xs font-mono text-slate-300">{t.totalShareSum}:</span>
+          <span className="text-slate-600 font-medium">{t.totalShareSum}:</span>
           <span
-            className={`font-mono text-xs font-bold px-1.5 py-0.5 border ${
-              isSumBalanced
-                ? 'bg-emerald-950/70 border-emerald-600 text-emerald-300'
-                : 'bg-amber-950/80 border-amber-500 text-amber-300'
+            className={`font-mono font-bold ${
+              isSumBalanced ? 'text-emerald-700' : 'text-amber-700'
             }`}
           >
-            %{scopeData.sum.toFixed(2)} ({sumDiff >= 0 ? `+${sumDiff.toFixed(2)}` : sumDiff.toFixed(2)}%)
+            %{scopeData.sum.toFixed(1)}
           </span>
+          {!isSumBalanced && (
+            <span className="text-[11px] font-mono text-amber-600">
+              ({sumDiff >= 0 ? `+${sumDiff.toFixed(1)}` : sumDiff.toFixed(1)}%)
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-1.5">
           <button
             onClick={normalizeActiveScopeShares}
-            className="pixel-btn px-2 py-1 text-[11px] text-cyan-300 border-cyan-600"
+            className="editorial-btn px-2 py-1 text-[11px]"
           >
-            <Sparkles className="w-3 h-3" />
+            <Sparkles className="w-3 h-3 text-slate-500" />
             <span>{t.normalize100}</span>
           </button>
           <button
             onClick={sendActiveScopeRemainderToOther}
-            className="pixel-btn px-2 py-1 text-[11px] text-amber-300 border-amber-600"
+            className="editorial-btn px-2 py-1 text-[11px]"
           >
             <span>{t.sendToOther}</span>
           </button>
         </div>
       </div>
 
-      {/* Party Share Sliders & Direct Inputs */}
-      <div className="flex-1 overflow-y-auto space-y-2 pr-1 max-h-[440px]">
+      {/* Compact Single-Row Party Sliders */}
+      <div className="space-y-2">
         {parties.map((party) => {
           const val = Number((scopeData.shares[party.id] ?? 0).toFixed(2));
           const baseVal = Number((scopeData.baseShares[party.id] ?? 0).toFixed(2));
           const delta = val - baseVal;
-          const rawVotes = Math.round(scopeData.validVotes * (val / 100));
+          const seats = scopeData.partySeats ? scopeData.partySeats[party.id] ?? 0 : undefined;
 
           return (
             <div
               key={party.id}
-              className="bg-slate-950/90 border-2 border-slate-800 hover:border-slate-700 p-2 transition-colors"
+              className="group flex items-center gap-2.5 py-1.5 px-2.5 rounded-lg border border-transparent hover:border-slate-200 hover:bg-slate-50/70 transition-all"
             >
-              <div className="flex items-center justify-between gap-2 mb-1.5">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span
-                    className="w-3.5 h-3.5 shrink-0 border border-slate-950 shadow-[1px_1px_0px_#000]"
-                    style={{ backgroundColor: party.color }}
-                  />
-                  <span className="font-pixel text-xs text-white">{party.shortName}</span>
-                  <span className="text-[11px] text-slate-400 truncate hidden sm:inline">
-                    {party.fullName}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  {/* Raw Vote Count Estimate */}
-                  <span className="text-[10px] font-mono text-slate-400">
-                    {rawVotes.toLocaleString('tr-TR')} oy
-                  </span>
-
-                  {/* Delta vs Baseline */}
-                  <span
-                    className={`text-[10px] font-mono px-1 py-0.5 font-semibold ${
-                      delta > 0.05
-                        ? 'text-emerald-400 bg-emerald-950/50'
-                        : delta < -0.05
-                        ? 'text-rose-400 bg-rose-950/50'
-                        : 'text-slate-500'
-                    }`}
-                  >
-                    {delta >= 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1)}%
-                  </span>
-
-                  {/* Numeric Input */}
-                  <div className="flex items-center">
-                    <input
-                      type="number"
-                      min={0}
-                      max={100}
-                      step={0.1}
-                      value={val}
-                      onChange={(e) => handleShareChange(party.id, parseFloat(e.target.value) || 0)}
-                      className="w-16 pixel-input px-1.5 py-0.5 text-right text-xs font-bold text-amber-300"
-                    />
-                    <span className="ml-1 text-xs font-mono text-slate-400">%</span>
-                  </div>
-                </div>
+              {/* Party Badge */}
+              <div className="flex items-center gap-2 w-20 shrink-0">
+                <span
+                  className="w-3 h-3 rounded-full shrink-0 shadow-sm"
+                  style={{ backgroundColor: party.color }}
+                />
+                <span className="font-bold text-xs text-slate-900 truncate" title={party.fullName}>
+                  {party.shortName}
+                </span>
               </div>
 
-              {/* Range Slider */}
-              <div className="flex items-center gap-2">
+              {/* Smooth Range Slider */}
+              <div className="flex-1 flex items-center">
                 <input
                   type="range"
                   min={0}
-                  max={75}
+                  max={70}
                   step={0.1}
-                  value={Math.min(75, val)}
+                  value={Math.min(70, val)}
                   onChange={(e) => handleShareChange(party.id, parseFloat(e.target.value) || 0)}
-                  className="w-full pixel-slider"
+                  className="w-full editorial-slider"
                 />
               </div>
+
+              {/* Delta Badge */}
+              <span
+                className={`w-12 text-right font-mono text-[11px] font-medium shrink-0 ${
+                  delta > 0.05
+                    ? 'text-emerald-600'
+                    : delta < -0.05
+                    ? 'text-rose-600'
+                    : 'text-slate-400'
+                }`}
+              >
+                {delta >= 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1)}
+              </span>
+
+              {/* Direct Percentage Input */}
+              <div className="relative flex items-center shrink-0">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={0.1}
+                  value={val}
+                  onChange={(e) => handleShareChange(party.id, parseFloat(e.target.value) || 0)}
+                  className="w-16 editorial-input pr-4 pl-1.5 py-1 text-right font-mono text-xs font-semibold text-slate-900"
+                />
+                <span className="absolute right-1.5 text-[10px] font-mono text-slate-400 pointer-events-none">
+                  %
+                </span>
+              </div>
+
+              {/* Projected Seats Pill */}
+              {seats !== undefined && (
+                <span
+                  className={`w-12 text-center py-0.5 rounded-md font-mono text-[11px] font-semibold shrink-0 ${
+                    seats > 0
+                      ? 'bg-slate-900 text-white'
+                      : 'bg-slate-100 text-slate-400'
+                  }`}
+                >
+                  {seats} MV
+                </span>
+              )}
             </div>
           );
         })}
+      </div>
+
+      {/* Expandable Turnout & Registered Voters Section */}
+      <div className="border-t border-slate-200 pt-2.5">
+        <button
+          onClick={() => setShowVoterDetails((v) => !v)}
+          className="w-full flex items-center justify-between text-xs font-semibold text-slate-600 hover:text-slate-900 py-1"
+        >
+          <div className="flex items-center gap-1.5">
+            <Users className="w-3.5 h-3.5 text-slate-500" />
+            <span>
+              Katılım (%{scopeData.turnout.toFixed(1)}) & Seçmen Verileri (
+              {scopeData.validVotes.toLocaleString('tr-TR')} Geçerli Oy)
+            </span>
+          </div>
+          {showVoterDetails ? (
+            <ChevronUp className="w-4 h-4 text-slate-400" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-slate-400" />
+          )}
+        </button>
+
+        {showVoterDetails && (
+          <div className="mt-2.5 grid grid-cols-3 gap-2.5 bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs">
+            <div>
+              <label className="block text-[11px] font-medium text-slate-500 mb-1">
+                {t.registeredVoters}
+              </label>
+              <input
+                type="number"
+                min={0}
+                step={1000}
+                value={Math.round(scopeData.registeredVoters)}
+                onChange={(e) => handleVotersChange(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                className="w-full editorial-input px-2 py-1 font-mono text-xs font-semibold"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-medium text-slate-500 mb-1">
+                {t.turnoutPct}
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={100}
+                step={0.1}
+                value={Number(scopeData.turnout.toFixed(2))}
+                onChange={(e) => handleTurnoutChange(parseFloat(e.target.value) || 0)}
+                className="w-full editorial-input px-2 py-1 font-mono text-xs font-semibold"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-medium text-slate-500 mb-1">
+                {t.validVotes}
+              </label>
+              <div className="px-2 py-1.5 bg-white border border-slate-200 rounded-lg font-mono text-xs font-semibold text-slate-800 truncate">
+                {scopeData.validVotes.toLocaleString('tr-TR')}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

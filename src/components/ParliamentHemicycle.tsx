@@ -189,10 +189,21 @@ export const NationalResultsTable: React.FC = () => {
                 <tr key={p.id} className="hover:bg-[#F4F5F7] transition-colors">
                   <td className="py-2.5 px-2 flex items-center gap-2">
                     {p.logoUrl ? (
-                      <img
-                        src={p.logoUrl}
-                        alt={p.shortName}
-                        className="w-4 h-4 object-contain shrink-0"
+                      <span
+                        role="img"
+                        aria-label={p.shortName}
+                        className="w-5 h-5 shrink-0 inline-block"
+                        style={{
+                          backgroundColor: p.color,
+                          WebkitMaskImage: `url(${p.logoUrl})`,
+                          maskImage: `url(${p.logoUrl})`,
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
                       />
                     ) : (
                       <span
@@ -200,10 +211,6 @@ export const NationalResultsTable: React.FC = () => {
                         style={{ backgroundColor: p.color }}
                       />
                     )}
-                    <span
-                      className="w-2 h-2 rounded-full shrink-0"
-                      style={{ backgroundColor: p.color }}
-                    />
                     <span className="font-bold text-[#090A0F]">{p.shortName}</span>
                     <span className="text-slate-500 text-micro truncate max-w-[180px] hidden sm:inline">
                       {p.fullName}

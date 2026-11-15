@@ -5,6 +5,48 @@ import { BaselineDataset, BaselineId, IlceData } from '../types/election';
 const BASELINE_2023 = baseline2023Raw as unknown as BaselineDataset;
 const BASELINE_2024 = baseline2024Raw as unknown as BaselineDataset;
 
+const JOINT_2023_PROVINCE_SPLITS: Record<
+  string,
+  { withdrawn: string; host: string; withdrawnRatio: number }
+> = {
+  // 7 provinces where CHP = 0% in 2023 (ran on IYI list)
+  '68': { withdrawn: 'CHP', host: 'IYI', withdrawnRatio: 0.3778 }, // Aksaray
+  '69': { withdrawn: 'CHP', host: 'IYI', withdrawnRatio: 0.5842 }, // Bayburt
+  '13': { withdrawn: 'CHP', host: 'IYI', withdrawnRatio: 0.4241 }, // Bitlis
+  '18': { withdrawn: 'CHP', host: 'IYI', withdrawnRatio: 0.6860 }, // Çankırı
+  '29': { withdrawn: 'CHP', host: 'IYI', withdrawnRatio: 0.6510 }, // Gümüşhane
+  '49': { withdrawn: 'CHP', host: 'IYI', withdrawnRatio: 0.5351 }, // Muş
+  '66': { withdrawn: 'CHP', host: 'IYI', withdrawnRatio: 0.6908 }, // Yozgat
+  // 9 provinces where IYI = 0% in 2023 (ran on CHP list)
+  '02': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.0253 }, // Adıyaman
+  '74': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.0541 }, // Bartın
+  '72': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.1145 }, // Batman
+  '19': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.1322 }, // Çorum
+  '81': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.2743 }, // Düzce
+  '24': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.1171 }, // Erzincan
+  '30': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.0826 }, // Hakkari
+  '53': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.1576 }, // Rize
+  '65': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.1514 }, // Van
+};
+
+function dealias2023IlceShares(ilce: IlceData): Record<string, number> {
+  const split = JOINT_2023_PROVINCE_SPLITS[ilce.ilId];
+  if (!split) return ilce.partyShares;
+
+  const withdrawnVal = ilce.partyShares[split.withdrawn] ?? 0;
+  const hostVal = ilce.partyShares[split.host] ?? 0;
+  if (withdrawnVal === 0 && hostVal > 0) {
+    const withdrawnShare = Number((hostVal * split.withdrawnRatio).toFixed(2));
+    const hostShare = Number((hostVal - withdrawnShare).toFixed(2));
+    return {
+      ...ilce.partyShares,
+      [split.withdrawn]: withdrawnShare,
+      [split.host]: hostShare,
+    };
+  }
+  return ilce.partyShares;
+}
+
 function buildBlendedBaseline(
   base23: BaselineDataset,
   base24: BaselineDataset,
@@ -17,18 +59,24 @@ function buildBlendedBaseline(
   }
 
   const blendedIlceler: IlceData[] = base23.ilceler.map((i23) => {
+    const baseShares23 = dealias2023IlceShares(i23);
     const i24 = ilce24Map.get(i23.id);
-    if (!i24) return i23;
+    if (!i24) {
+      return {
+        ...i23,
+        partyShares: baseShares23,
+      };
+    }
 
     const allPartyIds = new Set<string>([
-      ...Object.keys(i23.partyShares),
+      ...Object.keys(baseShares23),
       ...Object.keys(i24.partyShares),
     ]);
 
     const rawShares: Record<string, number> = {};
     let sum = 0;
     for (const pid of allPartyIds) {
-      const s23 = i23.partyShares[pid] ?? 0;
+      const s23 = baseShares23[pid] ?? 0;
       const s24 = i24.partyShares[pid] ?? 0;
       const blended = weight23 * s23 + weight24 * s24;
       if (blended > 0) {
@@ -43,7 +91,7 @@ function buildBlendedBaseline(
         partyShares[pid] = (val / sum) * 100;
       }
     } else {
-      Object.assign(partyShares, i23.partyShares);
+      Object.assign(partyShares, baseShares23);
     }
 
     return {

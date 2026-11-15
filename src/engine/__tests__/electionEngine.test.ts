@@ -689,4 +689,33 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     useElectionStore.getState().setBaselineId('blended_90_10');
     useElectionStore.getState().resetAllToBaseline();
   });
+
+  it('retains non-vanishing CHP and YENI shares in Yozgat (66) and 2023 joint-list provinces under blended_90_10', () => {
+    useElectionStore.getState().setBaselineId('blended_90_10');
+    useElectionStore.getState().setNationalSharesBulk({
+      AKP: 28.68,
+      CHP: 2.96,
+      MHP: 7.25,
+      IYI: 4.96,
+      DEM: 8.41,
+      YRP: 4.09,
+      ZP: 3.01,
+      TIP: 1.92,
+      A: 4.04,
+      YENI: 32.61,
+      SAADET: 1.02,
+      BBP: 1.03,
+      OTHER: 0.02,
+    });
+    const state = useElectionStore.getState();
+
+    const yozgat = state.projection.provinceResults['66'];
+    const rize = state.projection.provinceResults['53'];
+    const bayburt = state.projection.provinceResults['69'];
+
+    expect(yozgat.partyShares['YENI']).toBeGreaterThan(10);
+    expect(yozgat.partyShares['CHP']).toBeGreaterThan(0.5);
+    expect(bayburt.partyShares['YENI']).toBeGreaterThan(5);
+    expect(rize.partyShares['IYI']).toBeGreaterThan(0.5);
+  });
 });

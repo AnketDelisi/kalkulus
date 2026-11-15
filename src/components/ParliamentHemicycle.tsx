@@ -66,7 +66,7 @@ export const ParliamentHemicycle: React.FC<ParliamentHemicycleProps> = ({
     const dots = rawCoords.map((pt, idx) => ({
       x: pt.x,
       y: pt.y,
-      color: seatColors[idx]?.color || '#cbd5e1',
+      color: seatColors[idx]?.color || '#D4D6DC',
       partyName: seatColors[idx]?.partyName || '',
     }));
 
@@ -78,19 +78,20 @@ export const ParliamentHemicycle: React.FC<ParliamentHemicycleProps> = ({
   // COMPACT MODE: Sleek 600-MP Majority Bar + Top Party Seat Cards under the map
   if (compact) {
     return (
-      <div className="editorial-card p-4 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+      <div className="studio-panel studio-crosshair p-4 flex flex-col gap-3.5">
+        <div className="flex items-center justify-between border-b border-[#090A0F]/15 pb-2.5">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 bg-[#090A0F]" />
+            <h3 className="font-display text-xs font-bold uppercase tracking-widest text-[#090A0F]">
               {t.tbmmTitle}
             </h3>
           </div>
           {onInspectFullParliament && (
             <button
               onClick={onInspectFullParliament}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-slate-900"
+              className="studio-btn px-2.5 py-1 text-[11px] uppercase tracking-wider"
             >
-              <span>Meclis Hemicycle & İttifak Detayı</span>
+              <span>MECLİS HEMICYCLE & İTTİFAKLAR</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           )}
@@ -98,7 +99,7 @@ export const ParliamentHemicycle: React.FC<ParliamentHemicycleProps> = ({
 
         {/* Stacked 600-MP Bar with 301 / 360 / 400 Markers */}
         <div className="space-y-1.5">
-          <div className="relative h-6 w-full bg-slate-100 rounded-lg overflow-hidden flex border border-slate-200">
+          <div className="relative h-7 w-full bg-[#ECEEF2] overflow-hidden flex border-[1.5px] border-[#090A0F]">
             {orderedParties.map((p) => {
               const seats = projection.partyTotalSeats[p.id] || 0;
               const pct = (seats / totalSeats) * 100;
@@ -107,38 +108,38 @@ export const ParliamentHemicycle: React.FC<ParliamentHemicycleProps> = ({
                 <div
                   key={p.id}
                   style={{ width: `${pct}%`, backgroundColor: p.color }}
-                  className="h-full border-r border-white/60 transition-all duration-200"
+                  className="h-full border-r border-[#090A0F]/40 transition-all duration-200"
                   title={`${p.shortName}: ${seats} MV (%${pct.toFixed(1)})`}
                 />
               );
             })}
             <div
               style={{ left: `${(301 / totalSeats) * 100}%` }}
-              className="absolute top-0 bottom-0 w-0.5 bg-slate-900 z-10"
+              className="absolute top-0 bottom-0 w-[2px] bg-[#090A0F] z-10"
               title={t.simpleMajority}
             />
             <div
               style={{ left: `${(360 / totalSeats) * 100}%` }}
-              className="absolute top-0 bottom-0 w-0.5 bg-slate-700/70 z-10"
+              className="absolute top-0 bottom-0 w-[1.5px] bg-[#090A0F]/70 z-10"
               title={t.referendumMajority}
             />
             <div
               style={{ left: `${(400 / totalSeats) * 100}%` }}
-              className="absolute top-0 bottom-0 w-0.5 bg-slate-700/70 z-10"
+              className="absolute top-0 bottom-0 w-[1.5px] bg-[#090A0F]/70 z-10"
               title={t.constitutionalMajority}
             />
           </div>
 
-          <div className="flex justify-between text-[11px] font-mono text-slate-500 px-0.5">
+          <div className="flex justify-between text-[10px] font-mono uppercase tracking-wider text-slate-600 px-0.5">
             <span>0 MV</span>
-            <span className="font-semibold text-slate-800">▲ 301 Salt Çoğunluk</span>
-            <span>▲ 360 Referandum</span>
-            <span>▲ 400 Anayasa</span>
-            <span>{totalSeats} MV</span>
+            <span className="font-bold text-[#090A0F]">▲ 301 SALT ÇOĞUNLUK</span>
+            <span>▲ 360 REFERANDUM</span>
+            <span>▲ 400 ANAYASA</span>
+            <span className="font-bold text-[#090A0F]">{totalSeats} MV</span>
           </div>
         </div>
 
-        {/* Party Seat Pills Row */}
+        {/* Party Seat Blocks Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 pt-1">
           {parties
             .filter((p) => !p.isOther)
@@ -153,33 +154,32 @@ export const ParliamentHemicycle: React.FC<ParliamentHemicycleProps> = ({
               return (
                 <div
                   key={p.id}
-                  className="bg-slate-50 border border-slate-200/80 rounded-lg px-2.5 py-2 flex flex-col justify-between"
+                  className="bg-[#F9FAFB] border-[1.5px] border-[#090A0F] px-2.5 py-2 flex flex-col justify-between"
+                  style={{ borderTopWidth: '4px', borderTopColor: p.color }}
                 >
                   <div className="flex items-center justify-between gap-1">
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full"
-                        style={{ backgroundColor: p.color }}
-                      />
-                      <span className="font-bold text-xs text-slate-900">{p.shortName}</span>
-                    </div>
-                    <span className="font-mono text-[11px] text-slate-500">
+                    <span className="font-display font-bold text-xs text-[#090A0F]">
+                      {p.shortName}
+                    </span>
+                    <span className="font-mono text-[10px] text-slate-500">
                       %{share.toFixed(1)}
                     </span>
                   </div>
 
                   <div className="mt-1.5 flex items-baseline justify-between">
                     <span
-                      className={`font-mono text-base font-extrabold ${
-                        passed ? 'text-slate-900' : 'text-slate-400'
+                      className={`font-mono text-base font-bold ${
+                        passed ? 'text-[#090A0F]' : 'text-slate-400'
                       }`}
                     >
-                      {seats} <span className="text-[10px] font-semibold text-slate-500">MV</span>
+                      {seats} <span className="text-[10px] font-normal text-slate-500">MV</span>
                     </span>
                     {diff !== 0 && (
                       <span
-                        className={`font-mono text-[11px] font-semibold ${
-                          diff > 0 ? 'text-emerald-600' : 'text-rose-600'
+                        className={`font-mono text-[10px] font-bold px-1 py-0.5 ${
+                          diff > 0
+                            ? 'bg-emerald-950 text-emerald-300'
+                            : 'bg-rose-950 text-rose-300'
                         }`}
                       >
                         {diff > 0 ? `+${diff}` : diff}
@@ -196,59 +196,64 @@ export const ParliamentHemicycle: React.FC<ParliamentHemicycleProps> = ({
 
   // FULL PARLIAMENT VIEW: Large Hemicycle + Alliance Cards + Full National Table
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
       {/* Left 6 cols: Large 600-Seat Hemicycle & Alliance Cards */}
-      <div className="lg:col-span-6 editorial-card p-6 flex flex-col justify-between gap-6">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+      <div className="lg:col-span-6 studio-panel studio-crosshair p-5 flex flex-col justify-between gap-6">
+        <div className="flex items-center justify-between border-b-[1.5px] border-[#090A0F] pb-3">
           <div>
-            <h2 className="text-base font-bold text-slate-900">{t.tbmmTitle}</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              D’Hondt sistemi ve baraj kurallarına göre 87 seçim çevresi toplamı
-            </p>
+            <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
+              PARLAMENTO SİMÜLASYONU // D&apos;HONDT
+            </div>
+            <h2 className="font-display text-base font-bold uppercase tracking-tight text-[#090A0F]">
+              {t.tbmmTitle}
+            </h2>
           </div>
-          <span className="px-3 py-1 rounded-full bg-slate-900 text-white font-mono text-xs font-bold">
-            {totalSeats} Milletvekili
+          <span className="px-3 py-1 bg-[#090A0F] text-white font-mono text-xs font-bold uppercase tracking-wider">
+            {totalSeats} MV
           </span>
         </div>
 
-        <div className="flex flex-col items-center py-2">
+        <div className="flex flex-col items-center py-2 studio-map-grid border border-[#090A0F]/15 p-4">
           <svg viewBox="0 0 420 215" className="w-full max-w-[460px] h-auto overflow-visible">
             <line
               x1="210"
               y1="10"
               x2="210"
               y2="138"
-              stroke="#0f172a"
+              stroke="#090A0F"
               strokeWidth="1.5"
-              strokeDasharray="4 4"
+              strokeDasharray="3 3"
             />
             <text
               x="210"
               y="6"
               textAnchor="middle"
-              className="fill-slate-700 font-sans font-bold text-[9px]"
+              className="fill-[#090A0F] font-mono font-bold text-[9px]"
             >
               301 SALT ÇOĞUNLUK
             </text>
 
             {seatDots.map((dot, idx) => (
-              <circle
+              <rect
                 key={idx}
-                cx={dot.x}
-                cy={dot.y}
-                r={3.5}
+                x={dot.x - 3.2}
+                y={dot.y - 3.2}
+                width={6.4}
+                height={6.4}
                 fill={dot.color}
+                stroke="#090A0F"
+                strokeWidth="0.4"
                 className="transition-colors duration-150"
               >
                 <title>{dot.partyName}</title>
-              </circle>
+              </rect>
             ))}
 
             <text
               x="210"
               y="172"
               textAnchor="middle"
-              className="fill-slate-900 font-sans text-2xl font-extrabold"
+              className="fill-[#090A0F] font-mono text-2xl font-bold"
             >
               {totalSeats}
             </text>
@@ -256,7 +261,7 @@ export const ParliamentHemicycle: React.FC<ParliamentHemicycleProps> = ({
               x="210"
               y="188"
               textAnchor="middle"
-              className="fill-slate-500 font-sans text-[10px] font-semibold tracking-wider"
+              className="fill-slate-600 font-mono text-[10px] font-bold tracking-widest"
             >
               TBMM GENEL KURULU
             </text>
@@ -273,23 +278,25 @@ export const ParliamentHemicycle: React.FC<ParliamentHemicycleProps> = ({
             return (
               <div
                 key={a.id}
-                className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-between"
-                style={{ borderTopColor: a.color, borderTopWidth: '3px' }}
+                className="bg-[#F9FAFB] border-[1.5px] border-[#090A0F] p-3 flex flex-col justify-between"
+                style={{ borderTopColor: a.color, borderTopWidth: '4px' }}
               >
                 <div className="flex items-center justify-between gap-1">
-                  <span className="font-bold text-xs text-slate-900 truncate">{a.shortName}</span>
+                  <span className="font-display font-bold text-xs text-[#090A0F] uppercase truncate">
+                    {a.shortName}
+                  </span>
                   <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-semibold ${
+                    className={`text-[10px] px-1.5 py-0.5 font-mono font-bold ${
                       passed
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-rose-100 text-rose-800'
+                        ? 'bg-[#090A0F] text-emerald-300'
+                        : 'bg-rose-950 text-rose-300'
                     }`}
                   >
                     %{voteShare.toFixed(1)}
                   </span>
                 </div>
                 <div className="mt-2 flex items-baseline justify-between">
-                  <span className="font-mono text-lg font-extrabold text-slate-900">
+                  <span className="font-mono text-lg font-bold text-[#090A0F]">
                     {seats} MV
                   </span>
                   <span className="text-[11px] font-mono text-slate-500">
@@ -303,30 +310,30 @@ export const ParliamentHemicycle: React.FC<ParliamentHemicycleProps> = ({
       </div>
 
       {/* Right 6 cols: Detailed National Party Results Table */}
-      <div className="lg:col-span-6 editorial-card p-6 flex flex-col gap-4">
-        <div className="border-b border-slate-200 pb-3">
-          <h2 className="text-base font-bold text-slate-900">
+      <div className="lg:col-span-6 studio-panel studio-crosshair p-5 flex flex-col gap-4">
+        <div className="border-b-[1.5px] border-[#090A0F] pb-3">
+          <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
+            ULUSAL TELEMETRİ MATRİSİ
+          </div>
+          <h2 className="font-display text-base font-bold uppercase tracking-tight text-[#090A0F]">
             Ulusal Oy Dağılımı & Milletvekili Tablosu
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Yurt içi ve yurt dışı toplam geçerli oylar, baraj durumu ve baz seçime göre sandalye farkları
-          </p>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 text-slate-500 font-semibold">
-                <th className="py-2.5 text-left">{t.partyCol}</th>
-                <th className="py-2.5 text-center">Baraj</th>
-                <th className="py-2.5 text-right">{t.voteShareCol}</th>
-                <th className="py-2.5 text-right">{t.votesCol}</th>
-                <th className="py-2.5 text-right">{t.seatsCol}</th>
-                <th className="py-2.5 text-right">Meclis %</th>
-                <th className="py-2.5 text-right">±Baz MV</th>
+              <tr className="border-b-[1.5px] border-[#090A0F] bg-[#F4F5F7] text-[#090A0F] font-mono uppercase text-[10px] tracking-wider">
+                <th className="py-2.5 px-2 text-left">{t.partyCol}</th>
+                <th className="py-2.5 px-2 text-center">BARAJ</th>
+                <th className="py-2.5 px-2 text-right">{t.voteShareCol}</th>
+                <th className="py-2.5 px-2 text-right">{t.votesCol}</th>
+                <th className="py-2.5 px-2 text-right">{t.seatsCol}</th>
+                <th className="py-2.5 px-2 text-right">MECLİS %</th>
+                <th className="py-2.5 px-2 text-right">±BAZ MV</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 font-mono">
+            <tbody className="divide-y divide-[#090A0F]/15 font-mono">
               {parties.map((p) => {
                 const share = projection.nationalPartyShares[p.id] || 0;
                 const votes = projection.nationalPartyVotes[p.id] || 0;
@@ -336,47 +343,47 @@ export const ParliamentHemicycle: React.FC<ParliamentHemicycleProps> = ({
                 const passed = projection.partyPassedThreshold[p.id];
 
                 return (
-                  <tr key={p.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-2.5 flex items-center gap-2 font-sans">
+                  <tr key={p.id} className="hover:bg-[#F4F5F7] transition-colors">
+                    <td className="py-2.5 px-2 flex items-center gap-2 font-sans">
                       <span
-                        className="w-3 h-3 rounded-full shrink-0"
+                        className="w-3 h-3 border border-[#090A0F] shrink-0"
                         style={{ backgroundColor: p.color }}
                       />
-                      <span className="font-bold text-slate-900">{p.shortName}</span>
-                      <span className="text-slate-400 text-[11px] truncate max-w-[140px] hidden sm:inline">
+                      <span className="font-display font-bold text-[#090A0F]">{p.shortName}</span>
+                      <span className="text-slate-500 text-[11px] truncate max-w-[140px] hidden sm:inline">
                         {p.fullName}
                       </span>
                     </td>
-                    <td className="py-2.5 text-center font-sans">
+                    <td className="py-2.5 px-2 text-center">
                       {!p.isOther && (
                         <span
-                          className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                          className={`text-[10px] px-1.5 py-0.5 font-mono font-bold uppercase ${
                             passed
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : 'bg-rose-50 text-rose-700 border border-rose-200'
+                              ? 'bg-[#090A0F] text-emerald-300'
+                              : 'bg-slate-200 text-slate-600'
                           }`}
                         >
-                          {passed ? 'Geçti' : 'Altında'}
+                          {passed ? 'GEÇTİ' : 'ALTI'}
                         </span>
                       )}
                     </td>
-                    <td className="py-2.5 text-right font-semibold text-slate-900">
+                    <td className="py-2.5 px-2 text-right font-bold text-[#090A0F]">
                       %{share.toFixed(2)}
                     </td>
-                    <td className="py-2.5 text-right text-slate-600">
+                    <td className="py-2.5 px-2 text-right text-slate-600">
                       {votes.toLocaleString('tr-TR')}
                     </td>
-                    <td className="py-2.5 text-right font-extrabold text-slate-900 text-sm">
+                    <td className="py-2.5 px-2 text-right font-bold text-[#090A0F] text-sm">
                       {seats}
                     </td>
-                    <td className="py-2.5 text-right text-slate-500">
+                    <td className="py-2.5 px-2 text-right text-slate-500">
                       %{((seats / totalSeats) * 100).toFixed(1)}
                     </td>
-                    <td className="py-2.5 text-right font-semibold">
+                    <td className="py-2.5 px-2 text-right font-bold">
                       {seatDiff > 0 ? (
-                        <span className="text-emerald-600">+{seatDiff}</span>
+                        <span className="text-emerald-700">+{seatDiff}</span>
                       ) : seatDiff < 0 ? (
-                        <span className="text-rose-600">{seatDiff}</span>
+                        <span className="text-rose-700">{seatDiff}</span>
                       ) : (
                         <span className="text-slate-400">0</span>
                       )}

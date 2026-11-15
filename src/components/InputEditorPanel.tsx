@@ -71,7 +71,7 @@ export const InputEditorPanel: React.FC = () => {
       const sum = Object.values(shares).reduce((a, b) => a + (Number(b) || 0), 0);
       return {
         title: t.nationalScope,
-        subtitle: '81 İl • 87 Seçim Çevresi • 973 İlçe',
+        subtitle: '81 İL // 87 SEÇİM ÇEVRESİ // 973 İLÇE',
         isLocked: false,
         canLock: false,
         registeredVoters: projection.domesticRegisteredVoters,
@@ -92,7 +92,7 @@ export const InputEditorPanel: React.FC = () => {
       const sum = Object.values(shares).reduce((a, b) => a + (Number(b) || 0), 0);
       return {
         title: t.abroadScope,
-        subtitle: 'YSK 87 Seçim Çevresine Oransal Dağıtım',
+        subtitle: 'YSK 87 SEÇİM ÇEVRESİNE ORANSAL DAĞITIM',
         isLocked: !abroadConfig.syncWithNationalSwing,
         canLock: true,
         registeredVoters: abroadConfig.registeredVoters,
@@ -113,8 +113,8 @@ export const InputEditorPanel: React.FC = () => {
       const baseShares = basePRes?.partyShares || {};
       const sum = Object.values(shares).reduce((a, b) => a + (Number(b) || 0), 0);
       return {
-        title: `${pRes?.plateCode || activeScope.ilId} • ${pRes?.name || ''}`,
-        subtitle: `${t.provinceScope} • ${pRes?.mpCount || 0} Milletvekili`,
+        title: `${pRes?.plateCode || activeScope.ilId} // ${pRes?.name || ''}`,
+        subtitle: `${t.provinceScope} • ${pRes?.mpCount || 0} MİLLETVEKİLİ`,
         isLocked: Boolean(ovr?.isLocked),
         canLock: true,
         registeredVoters: ovr?.registeredVoters ?? pRes?.registeredVoters ?? 0,
@@ -135,8 +135,8 @@ export const InputEditorPanel: React.FC = () => {
       const baseShares = baseDRes?.domesticPartyShares || {};
       const sum = Object.values(shares).reduce((a, b) => a + (Number(b) || 0), 0);
       return {
-        title: dRes?.name || activeScope.districtId,
-        subtitle: `${t.districtScope} • ${dRes?.mpCount || 0} Milletvekili`,
+        title: `${activeScope.districtId} // ${dRes?.name || ''}`,
+        subtitle: `${t.districtScope} • ${dRes?.mpCount || 0} MİLLETVEKİLİ`,
         isLocked: Boolean(ovr?.isLocked),
         canLock: true,
         registeredVoters: ovr?.registeredVoters ?? dRes?.registeredVoters ?? 0,
@@ -158,7 +158,7 @@ export const InputEditorPanel: React.FC = () => {
     const sum = Object.values(shares).reduce((a, b) => a + (Number(b) || 0), 0);
     return {
       title: `${iRes?.name || activeScope.ilceId} (${provName})`,
-      subtitle: `${t.ilceScope} • Bölge: ${iRes?.districtId || ''}`,
+      subtitle: `${t.ilceScope} • BÖLGE: ${iRes?.districtId || ''}`,
       isLocked: Boolean(ovr?.isLocked),
       canLock: true,
       registeredVoters: ovr?.registeredVoters ?? iRes?.registeredVoters ?? 0,
@@ -241,15 +241,15 @@ export const InputEditorPanel: React.FC = () => {
   const isSumBalanced = Math.abs(sumDiff) < 0.08;
 
   return (
-    <div className="editorial-card p-4 flex flex-col gap-3.5">
-      {/* Scope Switcher Pills (National vs Abroad vs Local Unit Selector) */}
-      <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200/80 text-xs font-semibold">
+    <div className="studio-panel studio-crosshair p-4 flex flex-col gap-3.5">
+      {/* Top Scope Selector Tabs (National vs Abroad) */}
+      <div className="grid grid-cols-2 border-[1.5px] border-[#090A0F] bg-white text-xs font-display font-bold">
         <button
           onClick={() => setActiveScope({ type: 'national' })}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md transition-all ${
+          className={`flex items-center justify-center gap-1.5 py-2 px-2 border-r border-[#090A0F] transition-colors ${
             activeScope.type === 'national'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
+              ? 'bg-[#090A0F] text-white'
+              : 'text-[#090A0F] hover:bg-slate-100'
           }`}
         >
           <Landmark className="w-3.5 h-3.5" />
@@ -258,10 +258,10 @@ export const InputEditorPanel: React.FC = () => {
 
         <button
           onClick={() => setActiveScope({ type: 'abroad' })}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md transition-all ${
+          className={`flex items-center justify-center gap-1.5 py-2 px-2 transition-colors ${
             activeScope.type === 'abroad'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
+              ? 'bg-[#090A0F] text-white'
+              : 'text-[#090A0F] hover:bg-slate-100'
           }`}
         >
           <Globe2 className="w-3.5 h-3.5" />
@@ -269,7 +269,7 @@ export const InputEditorPanel: React.FC = () => {
         </button>
       </div>
 
-      {/* Clean Dropdowns to Jump Directly to Any Province / District / İlçe */}
+      {/* Direct Jump Selectors for 87 Electoral Regions / 81 Provinces & 973 İlçeler */}
       <div className="grid grid-cols-2 gap-2">
         <select
           value={
@@ -286,20 +286,20 @@ export const InputEditorPanel: React.FC = () => {
             else if (val.startsWith('d:'))
               setActiveScope({ type: 'district', districtId: val.slice(2) });
           }}
-          className="editorial-input px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-slate-50/70"
+          className="studio-input border-[#090A0F] px-2.5 py-1.5 text-xs font-mono font-semibold text-[#090A0F]"
         >
-          <option value="">İl veya Bölge Seçin...</option>
-          <optgroup label="81 İl">
-            {activeDataset.provinces.map((p) => (
-              <option key={p.id} value={`p:${p.id}`}>
-                {p.id} - {p.name}
-              </option>
-            ))}
-          </optgroup>
+          <option value="">BÖLGE / İL SEÇİN...</option>
           <optgroup label="87 Seçim Çevresi">
             {activeDataset.districts.map((d) => (
               <option key={d.id} value={`d:${d.id}`}>
                 {d.id} - {d.name} ({projection.districtResults[d.id]?.mpCount || d.mpCount} MV)
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="81 İl">
+            {activeDataset.provinces.map((p) => (
+              <option key={p.id} value={`p:${p.id}`}>
+                {p.id} - {p.name}
               </option>
             ))}
           </optgroup>
@@ -310,9 +310,9 @@ export const InputEditorPanel: React.FC = () => {
           onChange={(e) => {
             if (e.target.value) setActiveScope({ type: 'ilce', ilceId: e.target.value });
           }}
-          className="editorial-input px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-slate-50/70"
+          className="studio-input border-[#090A0F] px-2.5 py-1.5 text-xs font-mono font-semibold text-[#090A0F]"
         >
-          <option value="">İlçe Seçin (973 İlçe)...</option>
+          <option value="">İLÇE SEÇİN (973)...</option>
           {activeDataset.ilceler
             .filter((ilce) => {
               if (activeScope.type === 'province') return ilce.ilId === activeScope.ilId;
@@ -332,14 +332,16 @@ export const InputEditorPanel: React.FC = () => {
         </select>
       </div>
 
-      {/* Active Unit Title & Lock Indicator */}
-      <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-200">
+      {/* Active Unit Monochrome Banner */}
+      <div className="bg-[#090A0F] text-white p-3 flex items-center justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <MapPin className="w-4 h-4 text-slate-700 shrink-0" />
-            <h2 className="text-sm font-bold text-slate-900 truncate">{scopeData.title}</h2>
+            <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <h2 className="font-display text-sm font-bold tracking-tight uppercase truncate">
+              {scopeData.title}
+            </h2>
           </div>
-          <p className="text-[11px] text-slate-500 mt-0.5">{scopeData.subtitle}</p>
+          <p className="text-[10px] font-mono text-slate-400 mt-0.5">{scopeData.subtitle}</p>
         </div>
 
         {scopeData.canLock && (
@@ -347,31 +349,31 @@ export const InputEditorPanel: React.FC = () => {
             {scopeData.isLocked ? (
               <button
                 onClick={handleUnlockActive}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100"
+                className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-mono font-bold bg-amber-400 text-[#090A0F] hover:bg-amber-300"
                 title={t.resetUnitLock}
               >
-                <Lock className="w-3 h-3 text-amber-600" />
-                <span>Özel Giriş (Kilidi Aç)</span>
+                <Lock className="w-3 h-3" />
+                <span>KİLİTLİ ×</span>
               </button>
             ) : (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600">
+              <span className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-mono border border-slate-700 text-slate-300">
                 <Unlock className="w-3 h-3 text-slate-400" />
-                <span>Otomatik Swing</span>
+                <span>OTO SWING</span>
               </span>
             )}
           </div>
         )}
       </div>
 
-      {/* Abroad Specific Checkboxes */}
+      {/* Abroad Checkboxes */}
       {activeScope.type === 'abroad' && (
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex flex-col gap-1.5 text-xs">
-          <label className="flex items-center gap-2 cursor-pointer font-medium text-slate-800">
+        <div className="bg-slate-50 border border-[#090A0F] p-2.5 flex flex-col gap-1.5 text-xs font-mono">
+          <label className="flex items-center gap-2 cursor-pointer font-semibold text-[#090A0F]">
             <input
               type="checkbox"
               checked={abroadConfig.enabled}
               onChange={(e) => updateAbroadConfig({ enabled: e.target.checked })}
-              className="rounded accent-slate-900 w-3.5 h-3.5"
+              className="accent-[#090A0F] w-3.5 h-3.5"
             />
             <span>{t.abroadEnabledLabel}</span>
           </label>
@@ -380,7 +382,7 @@ export const InputEditorPanel: React.FC = () => {
               type="checkbox"
               checked={abroadConfig.syncWithNationalSwing}
               onChange={(e) => updateAbroadConfig({ syncWithNationalSwing: e.target.checked })}
-              className="rounded accent-slate-900 w-3.5 h-3.5"
+              className="accent-[#090A0F] w-3.5 h-3.5"
             />
             <span>{t.abroadSyncLabel}</span>
           </label>
@@ -388,23 +390,23 @@ export const InputEditorPanel: React.FC = () => {
       )}
 
       {/* Total Share Indicator & Normalization Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-50 border border-slate-200/90 rounded-lg px-3 py-2">
-        <div className="flex items-center gap-1.5 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-100 border border-[#090A0F] px-3 py-2">
+        <div className="flex items-center gap-1.5 text-xs font-mono">
           <CheckCircle2
             className={`w-4 h-4 ${
               isSumBalanced ? 'text-emerald-600' : 'text-amber-600'
             }`}
           />
-          <span className="text-slate-600 font-medium">{t.totalShareSum}:</span>
+          <span className="text-slate-600 font-semibold">TOPLAM:</span>
           <span
-            className={`font-mono font-bold ${
-              isSumBalanced ? 'text-emerald-700' : 'text-amber-700'
+            className={`font-bold ${
+              isSumBalanced ? 'text-[#090A0F]' : 'text-amber-700'
             }`}
           >
             %{scopeData.sum.toFixed(1)}
           </span>
           {!isSumBalanced && (
-            <span className="text-[11px] font-mono text-amber-600">
+            <span className="text-[11px] font-bold text-amber-700">
               ({sumDiff >= 0 ? `+${sumDiff.toFixed(1)}` : sumDiff.toFixed(1)}%)
             </span>
           )}
@@ -413,22 +415,22 @@ export const InputEditorPanel: React.FC = () => {
         <div className="flex items-center gap-1.5">
           <button
             onClick={normalizeActiveScopeShares}
-            className="editorial-btn px-2 py-1 text-[11px]"
+            className="studio-btn px-2 py-1 text-[10px] font-mono uppercase"
           >
-            <Sparkles className="w-3 h-3 text-slate-500" />
-            <span>{t.normalize100}</span>
+            <Sparkles className="w-3 h-3" />
+            <span>100%'E TAMAMLA</span>
           </button>
           <button
             onClick={sendActiveScopeRemainderToOther}
-            className="editorial-btn px-2 py-1 text-[11px]"
+            className="studio-btn px-2 py-1 text-[10px] font-mono uppercase"
           >
-            <span>{t.sendToOther}</span>
+            <span>DİĞER'E AKTAR</span>
           </button>
         </div>
       </div>
 
-      {/* Compact Single-Row Party Sliders */}
-      <div className="space-y-2">
+      {/* Sharp Single-Row Party Signal Sliders */}
+      <div className="divide-y divide-slate-200 border-t border-b border-slate-200">
         {parties.map((party) => {
           const val = Number((scopeData.shares[party.id] ?? 0).toFixed(2));
           const baseVal = Number((scopeData.baseShares[party.id] ?? 0).toFixed(2));
@@ -438,20 +440,23 @@ export const InputEditorPanel: React.FC = () => {
           return (
             <div
               key={party.id}
-              className="group flex items-center gap-2.5 py-1.5 px-2.5 rounded-lg border border-transparent hover:border-slate-200 hover:bg-slate-50/70 transition-all"
+              className="group flex items-center gap-2.5 py-2 px-1 hover:bg-slate-50 transition-colors"
             >
-              {/* Party Badge */}
+              {/* High-Saturation Neon Signal Block + Party Code */}
               <div className="flex items-center gap-2 w-20 shrink-0">
                 <span
-                  className="w-3 h-3 rounded-full shrink-0 shadow-sm"
+                  className="w-3.5 h-3.5 shrink-0 border border-[#090A0F]"
                   style={{ backgroundColor: party.color }}
                 />
-                <span className="font-bold text-xs text-slate-900 truncate" title={party.fullName}>
+                <span
+                  className="font-display font-bold text-xs text-[#090A0F] tracking-tight truncate"
+                  title={party.fullName}
+                >
                   {party.shortName}
                 </span>
               </div>
 
-              {/* Smooth Range Slider */}
+              {/* Precision Range Slider */}
               <div className="flex-1 flex items-center">
                 <input
                   type="range"
@@ -460,13 +465,13 @@ export const InputEditorPanel: React.FC = () => {
                   step={0.1}
                   value={Math.min(70, val)}
                   onChange={(e) => handleShareChange(party.id, parseFloat(e.target.value) || 0)}
-                  className="w-full editorial-slider"
+                  className="w-full studio-slider"
                 />
               </div>
 
               {/* Delta Badge */}
               <span
-                className={`w-12 text-right font-mono text-[11px] font-medium shrink-0 ${
+                className={`w-11 text-right font-mono text-[11px] font-semibold shrink-0 ${
                   delta > 0.05
                     ? 'text-emerald-600'
                     : delta < -0.05
@@ -477,7 +482,7 @@ export const InputEditorPanel: React.FC = () => {
                 {delta >= 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1)}
               </span>
 
-              {/* Direct Percentage Input */}
+              {/* Sharp Numeric Input */}
               <div className="relative flex items-center shrink-0">
                 <input
                   type="number"
@@ -486,7 +491,7 @@ export const InputEditorPanel: React.FC = () => {
                   step={0.1}
                   value={val}
                   onChange={(e) => handleShareChange(party.id, parseFloat(e.target.value) || 0)}
-                  className="w-16 editorial-input pr-4 pl-1.5 py-1 text-right font-mono text-xs font-semibold text-slate-900"
+                  className="w-16 studio-input border-[#090A0F] pr-4 pl-1.5 py-1 text-right font-mono text-xs font-bold text-[#090A0F]"
                 />
                 <span className="absolute right-1.5 text-[10px] font-mono text-slate-400 pointer-events-none">
                   %
@@ -496,10 +501,10 @@ export const InputEditorPanel: React.FC = () => {
               {/* Projected Seats Pill */}
               {seats !== undefined && (
                 <span
-                  className={`w-12 text-center py-0.5 rounded-md font-mono text-[11px] font-semibold shrink-0 ${
+                  className={`w-12 text-center py-1 font-mono text-[11px] font-bold shrink-0 border ${
                     seats > 0
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-slate-100 text-slate-400'
+                      ? 'bg-[#090A0F] text-white border-[#090A0F]'
+                      : 'bg-slate-100 text-slate-400 border-slate-200'
                   }`}
                 >
                   {seats} MV
@@ -511,29 +516,29 @@ export const InputEditorPanel: React.FC = () => {
       </div>
 
       {/* Expandable Turnout & Registered Voters Section */}
-      <div className="border-t border-slate-200 pt-2.5">
+      <div className="pt-1">
         <button
           onClick={() => setShowVoterDetails((v) => !v)}
-          className="w-full flex items-center justify-between text-xs font-semibold text-slate-600 hover:text-slate-900 py-1"
+          className="w-full flex items-center justify-between text-xs font-mono font-bold text-[#090A0F] hover:bg-slate-100 px-2 py-1.5 border border-slate-300"
         >
           <div className="flex items-center gap-1.5">
-            <Users className="w-3.5 h-3.5 text-slate-500" />
+            <Users className="w-3.5 h-3.5" />
             <span>
-              Katılım (%{scopeData.turnout.toFixed(1)}) & Seçmen Verileri (
-              {scopeData.validVotes.toLocaleString('tr-TR')} Geçerli Oy)
+              KATILIM: %{scopeData.turnout.toFixed(1)} // GEÇERLİ OY:{' '}
+              {scopeData.validVotes.toLocaleString('tr-TR')}
             </span>
           </div>
           {showVoterDetails ? (
-            <ChevronUp className="w-4 h-4 text-slate-400" />
+            <ChevronUp className="w-4 h-4" />
           ) : (
-            <ChevronDown className="w-4 h-4 text-slate-400" />
+            <ChevronDown className="w-4 h-4" />
           )}
         </button>
 
         {showVoterDetails && (
-          <div className="mt-2.5 grid grid-cols-3 gap-2.5 bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs">
+          <div className="mt-2 grid grid-cols-3 gap-2 bg-slate-50 border border-[#090A0F] p-2.5 text-xs font-mono">
             <div>
-              <label className="block text-[11px] font-medium text-slate-500 mb-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
                 {t.registeredVoters}
               </label>
               <input
@@ -542,12 +547,12 @@ export const InputEditorPanel: React.FC = () => {
                 step={1000}
                 value={Math.round(scopeData.registeredVoters)}
                 onChange={(e) => handleVotersChange(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                className="w-full editorial-input px-2 py-1 font-mono text-xs font-semibold"
+                className="w-full studio-input border-[#090A0F] px-2 py-1 text-xs font-bold"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-medium text-slate-500 mb-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
                 {t.turnoutPct}
               </label>
               <input
@@ -557,15 +562,15 @@ export const InputEditorPanel: React.FC = () => {
                 step={0.1}
                 value={Number(scopeData.turnout.toFixed(2))}
                 onChange={(e) => handleTurnoutChange(parseFloat(e.target.value) || 0)}
-                className="w-full editorial-input px-2 py-1 font-mono text-xs font-semibold"
+                className="w-full studio-input border-[#090A0F] px-2 py-1 text-xs font-bold"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-medium text-slate-500 mb-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
                 {t.validVotes}
               </label>
-              <div className="px-2 py-1.5 bg-white border border-slate-200 rounded-lg font-mono text-xs font-semibold text-slate-800 truncate">
+              <div className="px-2 py-1 bg-white border border-[#090A0F] text-xs font-bold text-[#090A0F] truncate">
                 {scopeData.validVotes.toLocaleString('tr-TR')}
               </div>
             </div>

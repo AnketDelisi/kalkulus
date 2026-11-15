@@ -13,8 +13,8 @@ export const App: React.FC = () => {
   const [scenarioModalOpen, setScenarioModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
-      {/* Clean Editorial Header with Top-Level View Switcher */}
+    <div className="min-h-screen flex flex-col bg-[#F4F5F7] text-[#090A0F]">
+      {/* High-Contrast Monochrome & Neon Signal Studio Header */}
       <HeaderBar
         activeTab={activeTab}
         onChangeTab={setActiveTab}

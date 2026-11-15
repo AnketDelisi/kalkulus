@@ -4,7 +4,6 @@ import {
   Landmark,
   Plus,
   Shield,
-  Sliders,
   Trash2,
   Users,
   X,
@@ -71,32 +70,34 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
   const t = translations[lang];
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="editorial-card w-full max-w-4xl max-h-[88vh] flex flex-col overflow-hidden shadow-xl">
+    <div className="fixed inset-0 z-50 bg-[#090A0F]/70 flex items-center justify-center p-4">
+      <div className="studio-panel w-full max-w-4xl max-h-[88vh] flex flex-col overflow-hidden">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-white">
+        <div className="flex items-center justify-between px-5 py-3.5 bg-[#090A0F] text-white">
           <div className="flex items-center gap-2.5">
-            <Shield className="w-5 h-5 text-slate-800" />
-            <h2 className="text-base font-bold text-slate-900">{t.rulesAndAlliancesBtn}</h2>
+            <Shield className="w-4 h-4 text-[#00F5D4]" />
+            <h2 className="font-display text-sm font-bold uppercase tracking-wider">
+              {t.rulesAndAlliancesBtn}
+            </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-900"
+            className="p-1 border border-white/25 hover:bg-white hover:text-[#090A0F] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Global Electoral System Parameters Banner */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-5 py-3 bg-slate-50 border-b border-slate-200 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-5 py-3.5 bg-[#F4F5F7] border-b-[1.5px] border-[#090A0F] text-xs">
           <div>
-            <label className="block text-[11px] font-medium text-slate-500 mb-1">
-              Baz Seçim Verisi
+            <label className="block text-[10px] font-mono uppercase tracking-wider text-slate-600 mb-1">
+              BAZ SEÇİM VERİSİ
             </label>
             <select
               value={baselineId}
               onChange={(e) => setBaselineId(e.target.value as BaselineId)}
-              className="w-full editorial-input px-2 py-1.5 font-medium"
+              className="w-full studio-input px-2 py-1.5 font-mono text-xs font-semibold"
             >
               <option value="2023_general">{t.baseline2023}</option>
               <option value="2024_local">{t.baseline2024}</option>
@@ -105,13 +106,13 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-slate-500 mb-1">
-              Swing Modeli
+            <label className="block text-[10px] font-mono uppercase tracking-wider text-slate-600 mb-1">
+              SWING MODELİ
             </label>
             <select
               value={swingMode}
               onChange={(e) => setSwingMode(e.target.value as SwingMode)}
-              className="w-full editorial-input px-2 py-1.5 font-medium"
+              className="w-full studio-input px-2 py-1.5 font-mono text-xs font-semibold"
             >
               <option value="proportional">{t.swingProportional}</option>
               <option value="uniform">{t.swingUniform}</option>
@@ -119,13 +120,13 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-slate-500 mb-1">
-              D’Hondt Sistemi
+            <label className="block text-[10px] font-mono uppercase tracking-wider text-slate-600 mb-1">
+              D’HONDT SİSTEMİ
             </label>
             <select
               value={dhondtMode}
               onChange={(e) => setDHondtMode(e.target.value as DHondtMode)}
-              className="w-full editorial-input px-2 py-1.5 font-medium"
+              className="w-full studio-input px-2 py-1.5 font-mono text-xs font-semibold"
             >
               <option value="2022_separate">{t.dhondt2022}</option>
               <option value="2018_alliance">{t.dhondt2018}</option>
@@ -133,7 +134,7 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-slate-500 mb-1">
+            <label className="block text-[10px] font-mono uppercase tracking-wider text-slate-600 mb-1">
               {t.thresholdLabel} (%)
             </label>
             <input
@@ -143,30 +144,26 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
               step={0.5}
               value={thresholdPct}
               onChange={(e) => setThresholdPct(parseFloat(e.target.value) || 0)}
-              className="w-full editorial-input px-2.5 py-1.5 font-mono font-semibold"
+              className="w-full studio-input px-2.5 py-1.5 font-mono font-bold"
             />
           </div>
         </div>
 
         {/* Sub-navigation Tabs */}
-        <div className="flex gap-2 px-5 py-2.5 bg-white border-b border-slate-200 text-xs font-semibold">
+        <div className="flex gap-2 px-5 py-2.5 bg-white border-b-[1.5px] border-[#090A0F] text-xs font-display font-bold uppercase tracking-wider">
           <button
             onClick={() => setActiveTab('parties')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${
-              activeTab === 'parties'
-                ? 'bg-slate-900 text-white'
-                : 'text-slate-600 hover:bg-slate-100'
+            className={`studio-btn px-3 py-1.5 ${
+              activeTab === 'parties' ? 'studio-btn-primary' : ''
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            <span>Partiler & İttifaklar</span>
+            <span>PARTİLER & İTTİFAKLAR</span>
           </button>
           <button
             onClick={() => setActiveTab('joint')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${
-              activeTab === 'joint'
-                ? 'bg-slate-900 text-white'
-                : 'text-slate-600 hover:bg-slate-100'
+            className={`studio-btn px-3 py-1.5 ${
+              activeTab === 'joint' ? 'studio-btn-primary' : ''
             }`}
           >
             <GitMerge className="w-3.5 h-3.5" />
@@ -174,14 +171,12 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('seats')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${
-              activeTab === 'seats'
-                ? 'bg-slate-900 text-white'
-                : 'text-slate-600 hover:bg-slate-100'
+            className={`studio-btn px-3 py-1.5 ${
+              activeTab === 'seats' ? 'studio-btn-primary' : ''
             }`}
           >
             <Landmark className="w-3.5 h-3.5" />
-            <span>87 Seçim Çevresi MV Sayıları ({projection.totalSeatsAllocated} MV)</span>
+            <span>87 SEÇİM ÇEVRESİ MV ({projection.totalSeatsAllocated} MV)</span>
           </button>
         </div>
 
@@ -190,25 +185,27 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
           {activeTab === 'parties' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Party Alliance Assignment & Colors */}
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
-                <h3 className="font-bold text-slate-900">Parti İttifak Atamaları & Renkler</h3>
+              <div className="bg-[#F4F5F7] border-[1.5px] border-[#090A0F] p-4 space-y-3">
+                <h3 className="font-display font-bold uppercase tracking-wider text-[#090A0F]">
+                  Parti İttifak Atamaları & Renkler
+                </h3>
                 <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                   {parties
                     .filter((p) => !p.isOther)
                     .map((p) => (
                       <div
                         key={p.id}
-                        className="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2"
+                        className="flex items-center justify-between gap-2 bg-white border border-[#090A0F] px-3 py-2"
                       >
                         <div className="flex items-center gap-2.5">
                           <input
                             type="color"
                             value={p.color}
                             onChange={(e) => updatePartyConfig(p.id, { color: e.target.value })}
-                            className="w-6 h-6 rounded border-0 cursor-pointer"
+                            className="w-6 h-6 border border-[#090A0F] cursor-pointer"
                           />
                           <div>
-                            <div className="font-bold text-slate-900">{p.shortName}</div>
+                            <div className="font-display font-bold text-[#090A0F]">{p.shortName}</div>
                             <div className="text-[11px] text-slate-500">{p.fullName}</div>
                           </div>
                         </div>
@@ -220,7 +217,7 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                               allianceId: e.target.value ? e.target.value : null,
                             })
                           }
-                          className="editorial-input px-2.5 py-1 text-xs font-medium"
+                          className="studio-input px-2.5 py-1 text-xs font-mono"
                         >
                           <option value="">Bağımsız (İttifaksız)</option>
                           {alliances.map((a) => (
@@ -236,27 +233,29 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
 
               {/* Add Custom Party & Add New Alliance */}
               <div className="space-y-4">
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
-                  <h3 className="font-bold text-slate-900">{t.addCustomParty}</h3>
+                <div className="bg-[#F4F5F7] border-[1.5px] border-[#090A0F] p-4 space-y-3">
+                  <h3 className="font-display font-bold uppercase tracking-wider text-[#090A0F]">
+                    {t.addCustomParty}
+                  </h3>
                   <div className="grid grid-cols-2 gap-2.5">
                     <input
                       type="text"
                       placeholder="Kısa Ad (Örn: DEVA)"
                       value={newPartyShort}
                       onChange={(e) => setNewPartyShort(e.target.value)}
-                      className="editorial-input px-2.5 py-1.5"
+                      className="studio-input px-2.5 py-1.5"
                     />
                     <input
                       type="text"
                       placeholder="Tam Parti Adı"
                       value={newPartyFull}
                       onChange={(e) => setNewPartyFull(e.target.value)}
-                      className="editorial-input px-2.5 py-1.5"
+                      className="studio-input px-2.5 py-1.5"
                     />
                     <select
                       value={newPartyAlliance}
                       onChange={(e) => setNewPartyAlliance(e.target.value)}
-                      className="editorial-input px-2.5 py-1.5"
+                      className="studio-input px-2.5 py-1.5"
                     >
                       <option value="">İttifaksız</option>
                       {alliances.map((a) => (
@@ -270,7 +269,7 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                         type="color"
                         value={newPartyColor}
                         onChange={(e) => setNewPartyColor(e.target.value)}
-                        className="w-8 h-8 rounded cursor-pointer"
+                        className="w-8 h-8 border border-[#090A0F] cursor-pointer"
                       />
                       <button
                         onClick={() => {
@@ -284,38 +283,40 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                           setNewPartyShort('');
                           setNewPartyFull('');
                         }}
-                        className="editorial-btn editorial-btn-primary px-3 py-1.5 flex-1"
+                        className="studio-btn studio-btn-primary px-3 py-1.5 flex-1 uppercase"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>Parti Ekle</span>
+                        <span>PARTİ EKLE</span>
                       </button>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
-                  <h3 className="font-bold text-slate-900">Yeni İttifak Oluştur</h3>
+                <div className="bg-[#F4F5F7] border-[1.5px] border-[#090A0F] p-4 space-y-3">
+                  <h3 className="font-display font-bold uppercase tracking-wider text-[#090A0F]">
+                    Yeni İttifak Oluştur
+                  </h3>
                   <div className="grid grid-cols-2 gap-2.5">
                     <input
                       type="text"
                       placeholder="Kısa Kod (Örn: MERKEZ)"
                       value={newAllianceShort}
                       onChange={(e) => setNewAllianceShort(e.target.value)}
-                      className="editorial-input px-2.5 py-1.5"
+                      className="studio-input px-2.5 py-1.5"
                     />
                     <input
                       type="text"
                       placeholder="İttifak Tam Adı"
                       value={newAllianceName}
                       onChange={(e) => setNewAllianceName(e.target.value)}
-                      className="editorial-input px-2.5 py-1.5"
+                      className="studio-input px-2.5 py-1.5"
                     />
                     <div className="col-span-2 flex items-center gap-2">
                       <input
                         type="color"
                         value={newAllianceColor}
                         onChange={(e) => setNewAllianceColor(e.target.value)}
-                        className="w-8 h-8 rounded cursor-pointer"
+                        className="w-8 h-8 border border-[#090A0F] cursor-pointer"
                       />
                       <button
                         onClick={() => {
@@ -328,10 +329,10 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                           setNewAllianceShort('');
                           setNewAllianceName('');
                         }}
-                        className="editorial-btn editorial-btn-primary px-3 py-1.5 flex-1"
+                        className="studio-btn studio-btn-primary px-3 py-1.5 flex-1 uppercase"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>İttifak Ekle</span>
+                        <span>İTTİFAK EKLE</span>
                       </button>
                     </div>
                   </div>
@@ -342,24 +343,24 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
 
           {activeTab === 'joint' && (
             <div className="space-y-4">
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
-                <h3 className="font-bold text-slate-900">
+              <div className="bg-[#F4F5F7] border-[1.5px] border-[#090A0F] p-4 space-y-3">
+                <h3 className="font-display font-bold uppercase tracking-wider text-[#090A0F]">
                   Ortak Aday Listesi / Taktik Oy Transferi Ekle
                 </h3>
-                <p className="text-slate-500">
+                <p className="text-slate-600">
                   Belirli seçim çevrelerinde bir partinin seçime ayrı liste yerine başka bir partinin
                   listesinden girmesini ve seçilen kontenjan vekillerinin aktarılmasını simüle eder.
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      Çekilen / Misafir Parti
+                    <label className="block text-[10px] font-mono uppercase text-slate-600 mb-1">
+                      ÇEKİLEN / MİSAFİR PARTİ
                     </label>
                     <select
                       value={jlSource}
                       onChange={(e) => setJlSource(e.target.value)}
-                      className="w-full editorial-input px-2.5 py-1.5"
+                      className="w-full studio-input px-2.5 py-1.5"
                     >
                       {parties
                         .filter((p) => !p.isOther)
@@ -372,13 +373,13 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      Çatı / Ev Sahibi Liste Partisi
+                    <label className="block text-[10px] font-mono uppercase text-slate-600 mb-1">
+                      ÇATI / EV SAHİBİ LİSTE PARTİSİ
                     </label>
                     <select
                       value={jlTarget}
                       onChange={(e) => setJlTarget(e.target.value)}
-                      className="w-full editorial-input px-2.5 py-1.5"
+                      className="w-full studio-input px-2.5 py-1.5"
                     >
                       {parties
                         .filter((p) => !p.isOther)
@@ -391,8 +392,8 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      Oy Geçiş Verimi (%)
+                    <label className="block text-[10px] font-mono uppercase text-slate-600 mb-1">
+                      OY GEÇİŞ VERİMİ (%)
                     </label>
                     <input
                       type="number"
@@ -400,18 +401,18 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                       max={100}
                       value={jlEfficiency}
                       onChange={(e) => setJlEfficiency(parseInt(e.target.value, 10) || 0)}
-                      className="w-full editorial-input px-2.5 py-1.5 font-mono"
+                      className="w-full studio-input px-2.5 py-1.5 font-mono"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      Uygulanacak Seçim Çevreleri
+                    <label className="block text-[10px] font-mono uppercase text-slate-600 mb-1">
+                      UYGULANACAK SEÇİM ÇEVRELERİ
                     </label>
                     <select
                       value={jlDistrictMode}
                       onChange={(e) => setJlDistrictMode(e.target.value as any)}
-                      className="w-full editorial-input px-2.5 py-1.5"
+                      className="w-full studio-input px-2.5 py-1.5"
                     >
                       <option value="SMALL">Küçük Seçim Çevrelerinde (MV Sayısına Göre)</option>
                       <option value="ALL">Tüm 87 Seçim Çevresinde</option>
@@ -421,8 +422,8 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
 
                   {jlDistrictMode === 'SMALL' && (
                     <div>
-                      <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                        En Fazla Kaç MV Çıkaran İller? (≤ N MV)
+                      <label className="block text-[10px] font-mono uppercase text-slate-600 mb-1">
+                        EN FAZLA KAÇ MV ÇIKARAN İLLER? (≤ N MV)
                       </label>
                       <input
                         type="number"
@@ -430,28 +431,28 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                         max={36}
                         value={jlMaxMp}
                         onChange={(e) => setJlMaxMp(parseInt(e.target.value, 10) || 5)}
-                        className="w-full editorial-input px-2.5 py-1.5 font-mono"
+                        className="w-full studio-input px-2.5 py-1.5 font-mono"
                       />
                     </div>
                   )}
 
                   {jlDistrictMode === 'CUSTOM' && (
                     <div>
-                      <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                        Bölge Kodları (Örn: 01, 06-1, 34-2)
+                      <label className="block text-[10px] font-mono uppercase text-slate-600 mb-1">
+                        BÖLGE KODLARI (ÖRN: 01, 06-1, 34-2)
                       </label>
                       <input
                         type="text"
                         value={jlCustomDistricts}
                         onChange={(e) => setJlCustomDistricts(e.target.value)}
-                        className="w-full editorial-input px-2.5 py-1.5 font-mono"
+                        className="w-full studio-input px-2.5 py-1.5 font-mono"
                       />
                     </div>
                   )}
 
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                      Bölge Başına Garantili Kontenjan MV
+                    <label className="block text-[10px] font-mono uppercase text-slate-600 mb-1">
+                      BÖLGE BAŞINA GARANTİLİ KONTENJAN MV
                     </label>
                     <input
                       type="number"
@@ -459,7 +460,7 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                       max={10}
                       value={jlReserved}
                       onChange={(e) => setJlReserved(parseInt(e.target.value, 10) || 0)}
-                      className="w-full editorial-input px-2.5 py-1.5 font-mono"
+                      className="w-full studio-input px-2.5 py-1.5 font-mono"
                     />
                   </div>
                 </div>
@@ -485,7 +486,7 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                       reservedSeatsPerDistrict: jlReserved,
                     });
                   }}
-                  className="editorial-btn editorial-btn-primary px-4 py-1.5"
+                  className="studio-btn studio-btn-primary px-4 py-1.5 uppercase"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>{t.addJointRule}</span>
@@ -497,31 +498,31 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                 {jointListRules.map((rule) => (
                   <div
                     key={rule.id}
-                    className="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-2"
+                    className="bg-white border-[1.5px] border-[#090A0F] p-3 flex items-center justify-between gap-2"
                   >
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2.5 font-mono">
                       <input
                         type="checkbox"
                         checked={rule.enabled}
                         onChange={(e) => updateJointListRule(rule.id, { enabled: e.target.checked })}
-                        className="rounded accent-slate-900 w-4 h-4"
+                        className="accent-[#090A0F] w-4 h-4"
                       />
-                      <span className="font-bold text-slate-900">
-                        {rule.sourcePartyId} → {rule.targetPartyId} Listesi
+                      <span className="font-bold text-[#090A0F]">
+                        {rule.sourcePartyId} → {rule.targetPartyId} LİSTESİ
                       </span>
-                      <span className="text-slate-500">
-                        (Verim: %{rule.transferEfficiency}, Kontenjan: {rule.reservedSeatsPerDistrict} MV/bölge,{' '}
+                      <span className="text-slate-600">
+                        (VERİM: %{rule.transferEfficiency}, KONTENJAN: {rule.reservedSeatsPerDistrict} MV/BÖLGE,{' '}
                         {rule.districtIds.includes('ALL')
-                          ? '87 Bölge'
+                          ? '87 BÖLGE'
                           : rule.maxDistrictMpThreshold
-                          ? `≤${rule.maxDistrictMpThreshold} MV Bölgeler`
+                          ? `≤${rule.maxDistrictMpThreshold} MV BÖLGELER`
                           : rule.districtIds.join(', ')}
                         )
                       </span>
                     </div>
                     <button
                       onClick={() => removeJointListRule(rule.id)}
-                      className="p-1.5 rounded-lg hover:bg-rose-50 text-rose-600"
+                      className="studio-btn p-1.5 text-rose-700"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -533,7 +534,7 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
 
           {activeTab === 'seats' && (
             <div className="space-y-3">
-              <p className="text-slate-500">
+              <p className="text-slate-600 font-mono text-[11px]">
                 87 Seçim Çevresinin çıkardığı milletvekili sayılarını YSK güncellemelerine veya özel
                 senaryolara göre aşağıdan değiştirebilirsiniz.
               </p>
@@ -543,11 +544,11 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                   return (
                     <div
                       key={d.id}
-                      className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 flex items-center justify-between gap-2"
+                      className="bg-[#F4F5F7] border border-[#090A0F] px-3 py-2 flex items-center justify-between gap-2"
                     >
                       <div className="truncate">
-                        <span className="font-mono text-slate-400 font-bold mr-1.5">{d.id}</span>
-                        <span className="font-medium text-slate-800">{d.name}</span>
+                        <span className="font-mono text-slate-500 font-bold mr-1.5">{d.id}</span>
+                        <span className="font-display font-bold text-[#090A0F]">{d.name}</span>
                       </div>
                       <input
                         type="number"
@@ -557,7 +558,7 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                         onChange={(e) =>
                           updateDistrictMpCount(d.id, parseInt(e.target.value, 10) || 1)
                         }
-                        className="w-14 editorial-input px-2 py-1 text-right font-mono font-bold text-slate-900"
+                        className="w-14 studio-input px-2 py-1 text-right font-mono font-bold text-[#090A0F]"
                       />
                     </div>
                   );

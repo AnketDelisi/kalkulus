@@ -22,6 +22,7 @@ interface GeoFeature {
     districtIds?: string[];
     ilId?: string;
     districtId?: string;
+    mpCount?: number;
     lat: number;
     lng: number;
   };
@@ -51,7 +52,6 @@ interface HoverTooltip {
   clientY: number;
 }
 
-// Blend a hex color with white for subtle margin/choropleth shading
 function blendHexWithWhite(hex: string, alpha: number): string {
   const clean = hex.replace('#', '');
   if (clean.length !== 6) return hex;
@@ -83,10 +83,10 @@ export const MapPanel: React.FC = () => {
   } = useElectionStore();
 
   const [provincesGeo, setProvincesGeo] = useState<GeoCollection | null>(null);
+  const [districts87Geo, setDistricts87Geo] = useState<GeoCollection | null>(null);
   const [ilcelerGeo, setIlcelerGeo] = useState<GeoCollection | null>(null);
   const [hovered, setHovered] = useState<HoverTooltip | null>(null);
 
-  // Pan & Zoom state for smooth interactive inspection
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -100,13 +100,17 @@ export const MapPanel: React.FC = () => {
       .then((data) => setProvincesGeo(data))
       .catch(() => {});
 
+    fetch(`${import.meta.env.BASE_URL}tr-districts-87.geojson`)
+      .then((r) => r.json())
+      .then((data) => setDistricts87Geo(data))
+      .catch(() => {});
+
     fetch(`${import.meta.env.BASE_URL}tr-ilceler.geojson`)
       .then((r) => r.json())
       .then((data) => setIlcelerGeo(data))
       .catch(() => {});
   }, []);
 
-  // Reset pan/zoom when switching zoomedProvinceId
   useEffect(() => {
     setZoom(1);
     setPan({ x: 0, y: 0 });
@@ -124,8 +128,7 @@ export const MapPanel: React.FC = () => {
     return m;
   }, [alliances]);
 
-  // Compute D3 GeoPath generator fitted either to all of Turkey or to the zoomed province
-  const { pathGenerator, activeZoomedProvinceFeature } = useMemo(() => {
+  const { pathGenerator } = useMemo(() => {
     const width = 980;
     const height = 470;
     const proj = geoMercator();
@@ -140,30 +143,25 @@ export const MapPanel: React.FC = () => {
           ],
           pFeat as any
         );
-        return {
-          pathGenerator: geoPath().projection(proj),
-          activeZoomedProvinceFeature: pFeat,
-        };
+        return { pathGenerator: geoPath().projection(proj) };
       }
     }
 
-    if (provincesGeo) {
+    const baseGeo = districts87Geo || provincesGeo;
+    if (baseGeo) {
       proj.fitExtent(
         [
-          [24, 20],
-          [width - 24, height - 20],
+          [22, 18],
+          [width - 22, height - 18],
         ],
-        provincesGeo as any
+        baseGeo as any
       );
     } else {
       proj.center([35.3, 39.0]).scale(2500).translate([width / 2, height / 2]);
     }
 
-    return {
-      pathGenerator: geoPath().projection(proj),
-      activeZoomedProvinceFeature: null,
-    };
-  }, [provincesGeo, zoomedProvinceId]);
+    return { pathGenerator: geoPath().projection(proj) };
+  }, [provincesGeo, districts87Geo, zoomedProvinceId]);
 
   const getFillColor = (
     leadingPartyId: string,
@@ -173,10 +171,10 @@ export const MapPanel: React.FC = () => {
     turnout: number
   ): string => {
     const leader = partyMap[leadingPartyId];
-    const baseHex = leader?.color || '#94a3b8';
+    const baseHex = leader?.color || '#64748b';
 
     if (mapColorMode === 'leader') {
-      const intensity = Math.min(0.95, Math.max(0.55, 0.52 + marginPct / 45));
+      const intensity = Math.min(0.96, Math.max(0.72, 0.68 + marginPct / 45));
       return blendHexWithWhite(baseHex, intensity);
     }
     if (mapColorMode === 'alliance') {
@@ -184,17 +182,17 @@ export const MapPanel: React.FC = () => {
         leader?.allianceId && allianceMap[leader.allianceId]
           ? allianceMap[leader.allianceId].color
           : baseHex;
-      return blendHexWithWhite(aHex, 0.82);
+      return blendHexWithWhite(aHex, 0.88);
     }
     if (mapColorMode === 'margin') {
-      const intensity = Math.min(0.98, Math.max(0.22, marginPct / 30));
+      const intensity = Math.min(0.98, Math.max(0.24, marginPct / 28));
       return blendHexWithWhite(baseHex, intensity);
     }
     if (mapColorMode === 'turnout') {
-      if (turnout >= 90) return '#0f766e';
-      if (turnout >= 87) return '#14b8a6';
-      if (turnout >= 84) return '#5eead4';
-      if (turnout >= 80) return '#bae6fd';
+      if (turnout >= 90) return '#090a0f';
+      if (turnout >= 87) return '#334155';
+      if (turnout >= 84) return '#64748b';
+      if (turnout >= 80) return '#94a3b8';
       return '#cbd5e1';
     }
     // Swing mode
@@ -208,13 +206,12 @@ export const MapPanel: React.FC = () => {
         bestSwingPartyId = p.id;
       }
     }
-    if (Math.abs(maxSwing) < 0.15) return '#f1f5f9';
+    if (Math.abs(maxSwing) < 0.15) return '#e2e8f0';
     const swHex = partyMap[bestSwingPartyId]?.color || '#64748b';
-    const swAlpha = Math.min(0.95, Math.max(0.35, Math.abs(maxSwing) / 12));
+    const swAlpha = Math.min(0.96, Math.max(0.4, Math.abs(maxSwing) / 10));
     return blendHexWithWhite(swHex, swAlpha);
   };
 
-  // Breadcrumb state
   const zoomedProvResult = zoomedProvinceId
     ? projection.provinceResults[zoomedProvinceId]
     : null;
@@ -231,26 +228,24 @@ export const MapPanel: React.FC = () => {
       ? projection.provinceResults[selectedIlceResult.ilId]
       : zoomedProvResult;
 
-  const multiDistrictProvIds = new Set(['06', '16', '34', '35']);
-
   return (
-    <div className="editorial-card flex flex-col overflow-hidden">
-      {/* Top Map Header: Breadcrumb Navigation + Layer & Color Controls */}
-      <div className="px-4 py-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-white">
+    <div className="studio-panel studio-crosshair flex flex-col overflow-hidden">
+      {/* Top Map Header: Architectural Breadcrumb + Layer & Color Controls */}
+      <div className="px-4 py-2.5 border-b-[1.5px] border-[#090A0F] flex flex-wrap items-center justify-between gap-3 bg-white">
         {/* Interactive Breadcrumb Trail */}
-        <div className="flex items-center gap-1.5 text-xs font-medium">
+        <div className="flex items-center gap-1.5 text-xs font-mono font-semibold">
           <button
             onClick={() => {
               setZoomedProvinceId(null);
               setActiveScope({ type: 'national' });
             }}
-            className={`px-2 py-1 rounded-md transition-colors ${
+            className={`px-2 py-1 border transition-colors ${
               !zoomedProvinceId && activeScope.type === 'national'
-                ? 'bg-slate-900 text-white font-semibold'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                ? 'bg-[#090A0F] text-white border-[#090A0F]'
+                : 'border-transparent text-slate-600 hover:border-[#090A0F] hover:text-[#090A0F]'
             }`}
           >
-            Türkiye
+            TÜRKİYE
           </button>
 
           {selectedProvResult && (
@@ -260,13 +255,13 @@ export const MapPanel: React.FC = () => {
                 onClick={() => {
                   setActiveScope({ type: 'province', ilId: selectedProvResult.id });
                 }}
-                className={`px-2 py-1 rounded-md transition-colors ${
+                className={`px-2 py-1 border transition-colors uppercase ${
                   activeScope.type === 'province' && !selectedIlceResult
-                    ? 'bg-slate-900 text-white font-semibold'
-                    : 'text-slate-700 hover:bg-slate-100'
+                    ? 'bg-[#090A0F] text-white border-[#090A0F]'
+                    : 'border-transparent text-slate-700 hover:border-[#090A0F]'
                 }`}
               >
-                {selectedProvResult.name} ({selectedProvResult.mpCount} MV)
+                {selectedProvResult.id} • {selectedProvResult.name} ({selectedProvResult.mpCount} MV)
               </button>
             </>
           )}
@@ -274,7 +269,7 @@ export const MapPanel: React.FC = () => {
           {activeScope.type === 'district' && (
             <>
               <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              <span className="px-2 py-1 rounded-md bg-slate-900 text-white font-semibold">
+              <span className="px-2 py-1 bg-[#090A0F] text-white uppercase">
                 {projection.districtResults[activeScope.districtId]?.name}
               </span>
             </>
@@ -283,55 +278,55 @@ export const MapPanel: React.FC = () => {
           {selectedIlceResult && (
             <>
               <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              <span className="px-2 py-1 rounded-md bg-slate-900 text-white font-semibold">
+              <span className="px-2 py-1 bg-[#090A0F] text-white uppercase">
                 {selectedIlceResult.name}
               </span>
             </>
           )}
 
-          {/* Action button to drill-down into İlçeler or return to Turkey map */}
           {selectedProvResult && !zoomedProvinceId && (
             <button
               onClick={() => setZoomedProvinceId(selectedProvResult.id)}
-              className="ml-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs transition-colors"
+              className="ml-2 studio-btn px-2.5 py-1 text-[11px]"
             >
-              <ZoomIn className="w-3.5 h-3.5 text-slate-600" />
-              <span>{selectedProvResult.name} İlçelerine Yakınlaş</span>
+              <ZoomIn className="w-3 h-3" />
+              <span>İLÇE SINIRLARINA YAKINLAŞ</span>
             </button>
           )}
 
           {zoomedProvinceId && (
             <button
               onClick={() => setZoomedProvinceId(null)}
-              className="ml-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs transition-colors"
+              className="ml-2 studio-btn px-2.5 py-1 text-[11px]"
             >
-              <RotateCcw className="w-3 h-3 text-slate-600" />
-              <span>Tüm Türkiye Haritası</span>
+              <RotateCcw className="w-3 h-3" />
+              <span>TÜM TÜRKİYE HARİTASI</span>
             </button>
           )}
         </div>
 
         {/* Right Toolbar: Layer Toggle + Color Mode */}
         <div className="flex flex-wrap items-center gap-2 text-xs">
-          {/* Layer Segmented Control */}
-          <div className="inline-flex bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+          <div className="inline-flex border-[1.5px] border-[#090A0F] bg-white font-mono text-[11px] font-bold">
             {(
               [
-                ['81_il', '81 İl'],
-                ['87_district', '87 Bölge'],
-                ['973_ilce', '973 İlçe'],
+                ['87_district', '87 SEÇİM ÇEVRESİ'],
+                ['81_il', '81 İL'],
+                ['973_ilce', '973 İLÇE'],
               ] as [MapLayerMode, string][]
-            ).map(([lKey, label]) => (
+            ).map(([lKey, label], idx) => (
               <button
                 key={lKey}
                 onClick={() => {
                   setMapLayer(lKey);
                   if (lKey !== '973_ilce') setZoomedProvinceId(null);
                 }}
-                className={`px-2.5 py-1 rounded-md font-medium transition-all ${
+                className={`px-2.5 py-1 transition-colors ${
+                  idx > 0 ? 'border-l border-[#090A0F]' : ''
+                } ${
                   mapLayer === lKey && !zoomedProvinceId
-                    ? 'bg-white text-slate-900 shadow-sm font-semibold'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-[#090A0F] text-white'
+                    : 'text-[#090A0F] hover:bg-slate-100'
                 }`}
               >
                 {label}
@@ -339,11 +334,10 @@ export const MapPanel: React.FC = () => {
             ))}
           </div>
 
-          {/* Color Mode Selector */}
           <select
             value={mapColorMode}
             onChange={(e) => setMapColorMode(e.target.value as MapColorMode)}
-            className="editorial-input px-2.5 py-1 text-xs font-medium text-slate-700 bg-slate-50 cursor-pointer"
+            className="studio-input border-[#090A0F] px-2.5 py-1 text-[11px] font-mono font-bold text-[#090A0F] uppercase cursor-pointer"
           >
             <option value="leader">{t.colorLeader}</option>
             <option value="alliance">{t.colorAlliance}</option>
@@ -354,9 +348,9 @@ export const MapPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Vector Map Canvas */}
+      {/* Main Vector Map Canvas (No cluttered text labels on provinces/districts!) */}
       <div
-        className="relative w-full bg-[#f1f5f9] overflow-hidden select-none"
+        className="relative w-full studio-map-grid overflow-hidden select-none"
         onMouseLeave={() => {
           setHovered(null);
           setIsDragging(false);
@@ -376,10 +370,26 @@ export const MapPanel: React.FC = () => {
         }}
         onMouseUp={() => setIsDragging(false)}
       >
-        {/* Loading indicator if GeoJSON is still fetching */}
-        {!provincesGeo ? (
-          <div className="h-[460px] flex items-center justify-center text-sm text-slate-500 font-medium">
-            Harita verileri yükleniyor...
+        {/* Top-Left Technical Coordinate Telemetry Tag */}
+        <div className="absolute top-2.5 left-3 z-10 pointer-events-none flex items-center gap-2 font-mono text-[10px] text-slate-500">
+          <span className="px-1.5 py-0.5 bg-white/90 border border-slate-300 text-[#090A0F] font-semibold">
+            PROJ: MERCATOR // TR-87
+          </span>
+          <span>
+            KATMAN:{' '}
+            {zoomedProvinceId
+              ? `${zoomedProvResult?.name.toUpperCase()} İLÇELERİ`
+              : mapLayer === '87_district'
+              ? '87 SEÇİM ÇEVRESİ (BİRLEŞTİRİLMİŞ)'
+              : mapLayer === '81_il'
+              ? '81 İL SINIRI'
+              : '973 İLÇE SINIRI'}
+          </span>
+        </div>
+
+        {!provincesGeo || !districts87Geo ? (
+          <div className="h-[460px] flex items-center justify-center text-xs font-mono uppercase tracking-wider text-slate-500">
+            HARİTA VEKTÖRLERİ YÜKLENİYOR...
           </div>
         ) : (
           <svg
@@ -395,20 +405,18 @@ export const MapPanel: React.FC = () => {
               {/* CASE 1: Zoomed into a Single Province's Real İlçe Polygons */}
               {zoomedProvinceId && ilcelerGeo ? (
                 <g>
-                  {/* Neighboring provinces as subtle context */}
                   {provincesGeo.features
                     .filter((f) => f.properties.id !== zoomedProvinceId)
                     .map((f) => (
                       <path
                         key={`ctx-${f.properties.id}`}
                         d={pathGenerator(f as any) || ''}
-                        fill="#e2e8f0"
+                        fill="#dfe3ea"
                         stroke="#cbd5e1"
-                        strokeWidth={0.8}
+                        strokeWidth={0.7}
                       />
                     ))}
 
-                  {/* Target Province's Real İlçe Polygons */}
                   {ilcelerGeo.features
                     .filter((f) => f.properties.ilId === zoomedProvinceId)
                     .map((feat, idx) => {
@@ -427,65 +435,46 @@ export const MapPanel: React.FC = () => {
                       const isSelected =
                         activeScope.type === 'ilce' && activeScope.ilceId === ilceId;
                       const isLocked = Boolean(ilceOverrides[ilceId]?.isLocked);
-                      const centroid = pathGenerator.centroid(feat as any);
 
                       return (
-                        <g key={`${ilceId}-${idx}`}>
-                          <path
-                            d={pathGenerator(feat as any) || ''}
-                            fill={fill}
-                            stroke={isSelected ? '#0f172a' : isLocked ? '#d97706' : '#ffffff'}
-                            strokeWidth={isSelected ? 2.2 : isLocked ? 1.8 : 0.9}
-                            className="cursor-pointer transition-opacity hover:opacity-90"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setActiveScope({ type: 'ilce', ilceId });
-                            }}
-                            onMouseMove={(e) => {
-                              const top = [...parties]
-                                .filter((p) => !p.isOther)
-                                .sort(
-                                  (a, b) =>
-                                    (iRes.partyVotes[b.id] || 0) - (iRes.partyVotes[a.id] || 0)
-                                )
-                                .slice(0, 4)
-                                .map((p) => ({
-                                  shortName: p.shortName,
-                                  color: p.color,
-                                  share: iRes.partyShares[p.id] || 0,
-                                  votes: iRes.partyVotes[p.id] || 0,
-                                }));
-                              setHovered({
-                                id: ilceId,
-                                title: iRes.name,
-                                subtitle: `${zoomedProvResult?.name || ''} • Bölge: ${iRes.districtId}`,
-                                turnout: iRes.turnout,
-                                validVotes: iRes.validVotes,
-                                isLocked,
-                                topParties: top,
-                                clientX: e.clientX,
-                                clientY: e.clientY,
-                              });
-                            }}
-                          />
-                          {!isNaN(centroid[0]) && !isNaN(centroid[1]) && (
-                            <text
-                              x={centroid[0]}
-                              y={centroid[1]}
-                              textAnchor="middle"
-                              className="fill-slate-900 font-sans font-semibold text-[9px] pointer-events-none"
-                              style={{
-                                paintOrder: 'stroke',
-                                stroke: '#ffffff',
-                                strokeWidth: '2.5px',
-                                strokeLinecap: 'round',
-                                strokeLinejoin: 'round',
-                              }}
-                            >
-                              {iRes.name}
-                            </text>
-                          )}
-                        </g>
+                        <path
+                          key={`${ilceId}-${idx}`}
+                          d={pathGenerator(feat as any) || ''}
+                          fill={fill}
+                          stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#090a0f'}
+                          strokeWidth={isSelected ? 2.2 : isLocked ? 1.8 : 0.65}
+                          className="cursor-pointer transition-opacity hover:opacity-85"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveScope({ type: 'ilce', ilceId });
+                          }}
+                          onMouseMove={(e) => {
+                            const top = [...parties]
+                              .filter((p) => !p.isOther)
+                              .sort(
+                                (a, b) =>
+                                  (iRes.partyVotes[b.id] || 0) - (iRes.partyVotes[a.id] || 0)
+                              )
+                              .slice(0, 4)
+                              .map((p) => ({
+                                shortName: p.shortName,
+                                color: p.color,
+                                share: iRes.partyShares[p.id] || 0,
+                                votes: iRes.partyVotes[p.id] || 0,
+                              }));
+                            setHovered({
+                              id: ilceId,
+                              title: iRes.name,
+                              subtitle: `${zoomedProvResult?.name || ''} • SEÇİM ÇEVRESİ: ${iRes.districtId}`,
+                              turnout: iRes.turnout,
+                              validVotes: iRes.validVotes,
+                              isLocked,
+                              topParties: top,
+                              clientX: e.clientX,
+                              clientY: e.clientY,
+                            });
+                          }}
+                        />
                       );
                     })}
                 </g>
@@ -514,8 +503,8 @@ export const MapPanel: React.FC = () => {
                         key={`${ilceId}-${idx}`}
                         d={pathGenerator(feat as any) || ''}
                         fill={fill}
-                        stroke={isSelected ? '#0f172a' : isLocked ? '#d97706' : '#ffffff'}
-                        strokeWidth={isSelected ? 1.5 : 0.35}
+                        stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#ffffff'}
+                        strokeWidth={isSelected ? 1.5 : 0.3}
                         className="cursor-pointer hover:opacity-85"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -540,7 +529,7 @@ export const MapPanel: React.FC = () => {
                           setHovered({
                             id: ilceId,
                             title: `${iRes.name} (${provName})`,
-                            subtitle: `Seçim Çevresi: ${iRes.districtId}`,
+                            subtitle: `SEÇİM ÇEVRESİ: ${iRes.districtId}`,
                             turnout: iRes.turnout,
                             validVotes: iRes.validVotes,
                             isLocked,
@@ -552,154 +541,85 @@ export const MapPanel: React.FC = () => {
                       />
                     );
                   })}
-                  {/* Crisp Province Borders Overlay */}
-                  {provincesGeo.features.map((pFeat) => (
+                  {/* Crisp 87 Electoral District Borders Overlay */}
+                  {districts87Geo.features.map((dFeat) => (
                     <path
-                      key={`pborder-${pFeat.properties.id}`}
-                      d={pathGenerator(pFeat as any) || ''}
+                      key={`dborder-${dFeat.properties.id}`}
+                      d={pathGenerator(dFeat as any) || ''}
                       fill="none"
-                      stroke="#334155"
+                      stroke="#090a0f"
                       strokeWidth={0.75}
                       pointerEvents="none"
                     />
                   ))}
                 </g>
-              ) : mapLayer === '87_district' && ilcelerGeo ? (
-                /* CASE 3: 87 Electoral Districts Map (Single-district provinces + multi-district ilçe groupings for 06, 16, 34, 35) */
+              ) : mapLayer === '87_district' ? (
+                /* CASE 3 (Default): Unified 87 Electoral Regions (Dissolved from İlçeler, Zero Clutter, No Labels) */
                 <g>
-                  {/* 77 Single-District Provinces */}
-                  {provincesGeo.features
-                    .filter((f) => !multiDistrictProvIds.has(f.properties.id))
-                    .map((feat) => {
-                      const dId = feat.properties.id;
-                      const dRes = projection.districtResults[dId];
-                      const baseDRes = baselineProjection.districtResults[dId];
-                      if (!dRes) return null;
+                  {districts87Geo.features.map((feat) => {
+                    const dId = feat.properties.id;
+                    const dRes = projection.districtResults[dId];
+                    const baseDRes = baselineProjection.districtResults[dId];
+                    if (!dRes) return null;
 
-                      const fill = getFillColor(
-                        dRes.leadingPartyId,
-                        dRes.partyShares,
-                        baseDRes?.partyShares || {},
-                        dRes.marginPct,
-                        dRes.turnout
-                      );
-                      const isSelected =
-                        activeScope.type === 'district' && activeScope.districtId === dId;
-                      const isLocked = Boolean(districtOverrides[dId]?.isLocked);
+                    const fill = getFillColor(
+                      dRes.leadingPartyId,
+                      dRes.partyShares,
+                      baseDRes?.partyShares || {},
+                      dRes.marginPct,
+                      dRes.turnout
+                    );
+                    const isSelected =
+                      activeScope.type === 'district' && activeScope.districtId === dId;
+                    const isLocked = Boolean(districtOverrides[dId]?.isLocked);
 
-                      return (
-                        <path
-                          key={dId}
-                          d={pathGenerator(feat as any) || ''}
-                          fill={fill}
-                          stroke={isSelected ? '#0f172a' : isLocked ? '#d97706' : '#ffffff'}
-                          strokeWidth={isSelected ? 2.2 : 0.85}
-                          className="cursor-pointer transition-opacity hover:opacity-90"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveScope({ type: 'district', districtId: dId });
-                          }}
-                          onDoubleClick={() => setZoomedProvinceId(feat.properties.id)}
-                          onMouseMove={(e) => {
-                            const top = [...parties]
-                              .filter((p) => !p.isOther)
-                              .sort(
-                                (a, b) =>
-                                  (dRes.totalPartyVotes[b.id] || 0) -
-                                  (dRes.totalPartyVotes[a.id] || 0)
-                              )
-                              .slice(0, 4)
-                              .map((p) => ({
-                                shortName: p.shortName,
-                                color: p.color,
-                                share: dRes.partyShares[p.id] || 0,
-                                votes: dRes.totalPartyVotes[p.id] || 0,
-                                seats: dRes.partySeats[p.id] || 0,
-                              }));
-                            setHovered({
-                              id: dId,
-                              title: dRes.name,
-                              subtitle: `${dRes.mpCount} Milletvekili`,
-                              turnout: dRes.turnout,
-                              validVotes: dRes.totalValidVotes,
-                              isLocked,
-                              topParties: top,
-                              clientX: e.clientX,
-                              clientY: e.clientY,
-                            });
-                          }}
-                        />
-                      );
-                    })}
-
-                  {/* Multi-District Provinces (İstanbul 1-2-3, Ankara 1-2-3, İzmir 1-2, Bursa 1-2) rendered via their real electoral district assignments */}
-                  {ilcelerGeo.features
-                    .filter((f) => multiDistrictProvIds.has(f.properties.ilId || ''))
-                    .map((feat, idx) => {
-                      const dId = feat.properties.districtId || feat.properties.ilId || '';
-                      const dRes = projection.districtResults[dId];
-                      const baseDRes = baselineProjection.districtResults[dId];
-                      if (!dRes) return null;
-
-                      const fill = getFillColor(
-                        dRes.leadingPartyId,
-                        dRes.partyShares,
-                        baseDRes?.partyShares || {},
-                        dRes.marginPct,
-                        dRes.turnout
-                      );
-                      const isSelected =
-                        activeScope.type === 'district' && activeScope.districtId === dId;
-
-                      return (
-                        <path
-                          key={`md-${feat.properties.id}-${idx}`}
-                          d={pathGenerator(feat as any) || ''}
-                          fill={fill}
-                          stroke={isSelected ? '#0f172a' : '#ffffff'}
-                          strokeWidth={isSelected ? 1.4 : 0.4}
-                          className="cursor-pointer hover:opacity-90"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveScope({ type: 'district', districtId: dId });
-                          }}
-                          onDoubleClick={() =>
-                            setZoomedProvinceId(feat.properties.ilId || null)
-                          }
-                          onMouseMove={(e) => {
-                            const top = [...parties]
-                              .filter((p) => !p.isOther)
-                              .sort(
-                                (a, b) =>
-                                  (dRes.totalPartyVotes[b.id] || 0) -
-                                  (dRes.totalPartyVotes[a.id] || 0)
-                              )
-                              .slice(0, 4)
-                              .map((p) => ({
-                                shortName: p.shortName,
-                                color: p.color,
-                                share: dRes.partyShares[p.id] || 0,
-                                votes: dRes.totalPartyVotes[p.id] || 0,
-                                seats: dRes.partySeats[p.id] || 0,
-                              }));
-                            setHovered({
-                              id: dId,
-                              title: dRes.name,
-                              subtitle: `${dRes.mpCount} Milletvekili (${feat.properties.name})`,
-                              turnout: dRes.turnout,
-                              validVotes: dRes.totalValidVotes,
-                              isLocked: Boolean(districtOverrides[dId]?.isLocked),
-                              topParties: top,
-                              clientX: e.clientX,
-                              clientY: e.clientY,
-                            });
-                          }}
-                        />
-                      );
-                    })}
+                    return (
+                      <path
+                        key={dId}
+                        d={pathGenerator(feat as any) || ''}
+                        fill={fill}
+                        stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#090a0f'}
+                        strokeWidth={isSelected ? 2.2 : isLocked ? 1.8 : 0.65}
+                        className="cursor-pointer transition-opacity hover:opacity-85"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveScope({ type: 'district', districtId: dId });
+                        }}
+                        onDoubleClick={() => setZoomedProvinceId(dRes.ilId)}
+                        onMouseMove={(e) => {
+                          const top = [...parties]
+                            .filter((p) => !p.isOther)
+                            .sort(
+                              (a, b) =>
+                                (dRes.totalPartyVotes[b.id] || 0) -
+                                (dRes.totalPartyVotes[a.id] || 0)
+                            )
+                            .slice(0, 5)
+                            .map((p) => ({
+                              shortName: p.shortName,
+                              color: p.color,
+                              share: dRes.partyShares[p.id] || 0,
+                              votes: dRes.totalPartyVotes[p.id] || 0,
+                              seats: dRes.partySeats[p.id] || 0,
+                            }));
+                          setHovered({
+                            id: dId,
+                            title: `${dId} // ${dRes.name}`,
+                            subtitle: `${dRes.mpCount} MİLLETVEKİLİ • ÇİFT TIKLA: İLÇELER`,
+                            turnout: dRes.turnout,
+                            validVotes: dRes.totalValidVotes,
+                            isLocked,
+                            topParties: top,
+                            clientX: e.clientX,
+                            clientY: e.clientY,
+                          });
+                        }}
+                      />
+                    );
+                  })}
                 </g>
               ) : (
-                /* CASE 4 (Default): Real 81 Provinces Vector Map */
+                /* CASE 4: 81 Provinces Vector Map (No Text Labels) */
                 <g>
                   {provincesGeo.features.map((feat) => {
                     const ilId = feat.properties.id;
@@ -717,65 +637,48 @@ export const MapPanel: React.FC = () => {
                     const isSelected =
                       activeScope.type === 'province' && activeScope.ilId === ilId;
                     const isLocked = Boolean(provinceOverrides[ilId]?.isLocked);
-                    const centroid = pathGenerator.centroid(feat as any);
 
                     return (
-                      <g key={ilId}>
-                        <path
-                          d={pathGenerator(feat as any) || ''}
-                          fill={fill}
-                          stroke={isSelected ? '#0f172a' : isLocked ? '#d97706' : '#ffffff'}
-                          strokeWidth={isSelected ? 2.2 : isLocked ? 1.8 : 0.85}
-                          className="cursor-pointer transition-opacity hover:opacity-90"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveScope({ type: 'province', ilId });
-                          }}
-                          onDoubleClick={() => setZoomedProvinceId(ilId)}
-                          onMouseMove={(e) => {
-                            const top = [...parties]
-                              .filter((p) => !p.isOther)
-                              .sort(
-                                (a, b) =>
-                                  (pRes.partyVotes[b.id] || 0) - (pRes.partyVotes[a.id] || 0)
-                              )
-                              .slice(0, 4)
-                              .map((p) => ({
-                                shortName: p.shortName,
-                                color: p.color,
-                                share: pRes.partyShares[p.id] || 0,
-                                votes: pRes.partyVotes[p.id] || 0,
-                                seats: pRes.partySeats[p.id] || 0,
-                              }));
-                            setHovered({
-                              id: ilId,
-                              title: `${pRes.plateCode} • ${pRes.name}`,
-                              subtitle: `${pRes.mpCount} Milletvekili • Çift Tıkla: İlçeler`,
-                              turnout: pRes.turnout,
-                              validVotes: pRes.totalValidVotes,
-                              isLocked,
-                              topParties: top,
-                              clientX: e.clientX,
-                              clientY: e.clientY,
-                            });
-                          }}
-                        />
-                        {!isNaN(centroid[0]) && !isNaN(centroid[1]) && (
-                          <text
-                            x={centroid[0]}
-                            y={centroid[1] + 2}
-                            textAnchor="middle"
-                            className="fill-slate-800 font-sans font-semibold text-[8px] pointer-events-none"
-                            style={{
-                              paintOrder: 'stroke',
-                              stroke: 'rgba(255,255,255,0.85)',
-                              strokeWidth: '2px',
-                            }}
-                          >
-                            {pRes.name}
-                          </text>
-                        )}
-                      </g>
+                      <path
+                        key={ilId}
+                        d={pathGenerator(feat as any) || ''}
+                        fill={fill}
+                        stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#090a0f'}
+                        strokeWidth={isSelected ? 2.2 : isLocked ? 1.8 : 0.65}
+                        className="cursor-pointer transition-opacity hover:opacity-85"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveScope({ type: 'province', ilId });
+                        }}
+                        onDoubleClick={() => setZoomedProvinceId(ilId)}
+                        onMouseMove={(e) => {
+                          const top = [...parties]
+                            .filter((p) => !p.isOther)
+                            .sort(
+                              (a, b) =>
+                                (pRes.partyVotes[b.id] || 0) - (pRes.partyVotes[a.id] || 0)
+                            )
+                            .slice(0, 5)
+                            .map((p) => ({
+                              shortName: p.shortName,
+                              color: p.color,
+                              share: pRes.partyShares[p.id] || 0,
+                              votes: pRes.partyVotes[p.id] || 0,
+                              seats: pRes.partySeats[p.id] || 0,
+                            }));
+                          setHovered({
+                            id: ilId,
+                            title: `${pRes.id} // ${pRes.name}`,
+                            subtitle: `${pRes.mpCount} MİLLETVEKİLİ • ÇİFT TIKLA: İLÇELER`,
+                            turnout: pRes.turnout,
+                            validVotes: pRes.totalValidVotes,
+                            isLocked,
+                            topParties: top,
+                            clientX: e.clientX,
+                            clientY: e.clientY,
+                          });
+                        }}
+                      />
                     );
                   })}
                 </g>
@@ -785,17 +688,17 @@ export const MapPanel: React.FC = () => {
         )}
 
         {/* Map Zoom Controls Overlay (Bottom Right) */}
-        <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-white/95 backdrop-blur border border-slate-200 rounded-lg p-1 shadow-sm">
+        <div className="absolute bottom-3 right-3 flex items-center bg-white border-[1.5px] border-[#090A0F] shadow-[2px_2px_0px_rgba(9,10,15,0.12)]">
           <button
             onClick={() => setZoom((z) => Math.min(6, Number((z * 1.35).toFixed(2))))}
-            className="p-1.5 rounded hover:bg-slate-100 text-slate-700"
+            className="p-1.5 border-r border-[#090A0F] hover:bg-[#090A0F] hover:text-white text-[#090A0F] transition-colors"
             title="Yakınlaş"
           >
             <ZoomIn className="w-4 h-4" />
           </button>
           <button
             onClick={() => setZoom((z) => Math.max(1, Number((z / 1.35).toFixed(2))))}
-            className="p-1.5 rounded hover:bg-slate-100 text-slate-700"
+            className="p-1.5 border-r border-[#090A0F] hover:bg-[#090A0F] hover:text-white text-[#090A0F] transition-colors"
             title="Uzaklaş"
           >
             <ZoomOut className="w-4 h-4" />
@@ -805,59 +708,64 @@ export const MapPanel: React.FC = () => {
               setZoom(1);
               setPan({ x: 0, y: 0 });
             }}
-            className="p-1.5 rounded hover:bg-slate-100 text-slate-700"
+            className="p-1.5 hover:bg-[#090A0F] hover:text-white text-[#090A0F] transition-colors"
             title="Görünümü Sıfırla"
           >
             <Maximize2 className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Clean Editorial Hover Card */}
+        {/* High-Contrast Monochrome & Neon Signal Telemetry Hover Card */}
         {hovered && (
           <div
             style={{
-              left: hovered.clientX > window.innerWidth / 2 ? '16px' : 'auto',
-              right: hovered.clientX <= window.innerWidth / 2 ? '16px' : 'auto',
-              top: '16px',
+              left: hovered.clientX > window.innerWidth / 2 ? '14px' : 'auto',
+              right: hovered.clientX <= window.innerWidth / 2 ? '14px' : 'auto',
+              bottom: '14px',
             }}
-            className="absolute z-20 w-64 bg-white/95 backdrop-blur border border-slate-200 rounded-xl shadow-lg p-3 pointer-events-none text-xs"
+            className="absolute z-20 w-72 bg-[#090A0F] text-white border-[1.5px] border-[#090A0F] shadow-[4px_4px_0px_rgba(9,10,15,0.25)] p-3 pointer-events-none text-xs"
           >
-            <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2 mb-2">
+            <div className="flex items-start justify-between gap-2 border-b border-slate-800 pb-2 mb-2">
               <div>
-                <div className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                <div className="font-display font-bold text-white text-sm tracking-tight flex items-center gap-1.5">
                   <span>{hovered.title}</span>
-                  {hovered.isLocked && <Lock className="w-3.5 h-3.5 text-amber-500" />}
+                  {hovered.isLocked && <Lock className="w-3.5 h-3.5 text-amber-400" />}
                 </div>
-                <div className="text-[11px] text-slate-500">{hovered.subtitle}</div>
+                <div className="text-[10px] font-mono text-slate-400 mt-0.5">
+                  {hovered.subtitle}
+                </div>
               </div>
             </div>
 
-            <div className="flex justify-between text-[11px] text-slate-500 mb-2 bg-slate-50 rounded-md px-2 py-1">
+            <div className="flex justify-between text-[10px] font-mono text-slate-300 mb-2 bg-slate-900 border border-slate-800 px-2 py-1">
               <span>
-                Katılım: <strong className="text-slate-800">%{hovered.turnout.toFixed(1)}</strong>
+                KATILIM: <strong className="text-white">%{hovered.turnout.toFixed(1)}</strong>
               </span>
               <span>
-                Geçerli:{' '}
-                <strong className="text-slate-800">
+                GEÇERLİ:{' '}
+                <strong className="text-white">
                   {hovered.validVotes.toLocaleString('tr-TR')}
                 </strong>
               </span>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 font-mono">
               {hovered.topParties.map((tp) => (
                 <div key={tp.shortName} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <span
-                      className="w-2.5 h-2.5 rounded-full"
+                      className="w-3 h-3 shrink-0"
                       style={{ backgroundColor: tp.color }}
                     />
-                    <span className="font-semibold text-slate-800">{tp.shortName}</span>
+                    <span className="font-bold text-white">{tp.shortName}</span>
                   </div>
-                  <div className="flex items-center gap-2 font-mono">
-                    <span className="text-slate-700 font-medium">%{tp.share.toFixed(1)}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-300">%{tp.share.toFixed(1)}</span>
                     {tp.seats !== undefined && tp.seats > 0 && (
-                      <span className="px-1.5 py-0.5 rounded bg-slate-900 text-white font-semibold text-[10px]">
+                      <span
+                        className="px-1.5 py-0.2 font-bold text-[10px] text-[#090A0F]"
+                        style={{ backgroundColor: tp.color }}
+                      >
                         {tp.seats} MV
                       </span>
                     )}
@@ -869,23 +777,23 @@ export const MapPanel: React.FC = () => {
         )}
       </div>
 
-      {/* Clean Footer Party Legend */}
-      <div className="px-4 py-2.5 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div className="flex flex-wrap items-center gap-3">
+      {/* Sharp Monochrome Signal Legend Bar */}
+      <div className="px-4 py-2.5 bg-white border-t-[1.5px] border-[#090A0F] flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div className="flex flex-wrap items-center gap-3 font-mono">
           {parties
             .filter((p) => !p.isOther)
             .map((p) => (
               <div key={p.id} className="flex items-center gap-1.5">
                 <span
-                  className="w-2.5 h-2.5 rounded-full"
+                  className="w-3 h-3 border border-[#090A0F]"
                   style={{ backgroundColor: p.color }}
                 />
-                <span className="font-semibold text-slate-700">{p.shortName}</span>
+                <span className="font-bold text-[#090A0F] text-[11px]">{p.shortName}</span>
               </div>
             ))}
         </div>
-        <span className="text-[11px] text-slate-400">
-          Haritada bir ile tıklayarak düzenleyin, çift tıklayarak ilçelerine yakınlaşın
+        <span className="text-[11px] font-mono text-slate-500">
+          TIKLA: SEÇ & DÜZENLE // ÇİFT TIKLA: İLÇE HARİTASI
         </span>
       </div>
     </div>

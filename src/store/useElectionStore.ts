@@ -204,7 +204,7 @@ export const useElectionStore = create<ElectionStoreState>((set, get) => ({
   ilceOverrides: {},
   jointListRules: [],
 
-  mapLayer: '81_il',
+  mapLayer: '87_district',
   mapColorMode: 'leader',
   zoomedProvinceId: null,
   activeScope: { type: 'national' },

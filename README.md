@@ -1,24 +1,41 @@
-# KALKÜLÜS — Türkiye Seçim Projeksiyon & Milletvekili Hesaplayıcı (8-Bit Edition)
+![Kalkülüs](docs/banner.png)
 
-**Kalkülüs**, Türkiye Genel Milletvekili Seçimleri (TBMM — 600 Milletvekili, 81 İl, 87 Seçim Çevresi ve 973 İlçe) için tasarlanmış çok katmanlı, etkileşimli bir seçim simülatörü ve D'Hondt milletvekili dağılım hesaplayıcısıdır.
+# Kalkülüs
 
-## Öne Çıkan Özellikler
+**Kalkülüs**, Türkiye Genel Milletvekili Seçimleri (TBMM — 600 Milletvekili, 81 İl, 87 Seçim Çevresi ve 973 İlçe) için tasarlanmış çok katmanlı, etkileşimli bir seçim projeksiyon ve D'Hondt milletvekili hesaplama aracıdır.
 
-- **Çok Katmanlı (Multi-Layer) Hesaplama Motoru**:
-  - **Türkiye Geneli**, **Yurt Dışı & Gümrük**, **81 İl**, **87 Seçim Çevresi** ve **973 İlçe** bazında oy oranı (%), katılım oranı (%) ve seçmen sayısı girişleri.
-  - **Oransal Swing (Proportional Swing)** ve **Tekdüze Swing (Uniform Swing / UNS)** modları arasında anlık geçiş.
-  - **Hiyerarşik Kilitleme (Lock & Bubble-up)**: Bir ilçeyi veya ili düzenlediğinizde otomatik olarak kilitlenir (`🔒`) ve ulusal dalgalanmalardan (swing) korunurken üst toplamları günceller.
-- **Tam YSK Seçim Matematiği & D'Hondt Simülasyonu**:
-  - Ayarlanabilir **Ulusal Seçim Barajı** (Varsayılan `%7.0`).
-  - **2022 Seçim Kanunu** (İttifak içi müstakil parti D'Hondt) ve **2018 Seçim Kanunu** (İttifak havuzlu D'Hondt) modları.
-  - **Yurt Dışı ve Gümrük Oyları**: YSK 2839 sayılı kanun uyarınca 87 seçim çevresine geçerli oy ağırlığına göre oransal dağıtım.
-  - **Ortak Aday Listesi / Taktik Oy Simülatörü**: Seçili bölgelerde veya küçük seçim çevrelerinde bir partinin başka bir parti listesi altında seçime girmesini ve kontenjan vekil transferini simüle eder.
-- **Kritik Sandalyeler (Son MV Analizi)**:
-  - 87 seçim çevresinin tamamında son milletvekilini kazanan partiyi, en yakın rakibini ve son sandalyenin el değiştirmesi için gereken tam oy sayısını (`+Δ Oy` ve `%`) hesaplar.
-- **İnteraktif Harita & 600 Sandalyeli TBMM Hemicycle**:
-  - **81 İl**, **87 Seçim Çevresi** (İstanbul 1-2-3, Ankara 1-2-3, İzmir 1-2, Bursa 1-2 ayrımlı) ve **973 İlçe** harita katmanları + il bazında ilçelere yakınlaşma (Drill-down).
-  - **Renk Modları**: 1. Parti, 1. İttifak, Oy Farkı (Marj), Katılım Oranı ve Değişim (Swing).
-  - **301 Salt Çoğunluk**, **360 Referandum** ve **400 Anayasa Değişikliği** çoğunluk takipçisi.
+---
+
+## Özellikler
+
+- **Çok Katmanlı Projeksiyon Motoru**
+  - **Türkiye Geneli**, **Yurt Dışı & Gümrük**, **81 İl**, **87 Seçim Çevresi** ve **973 İlçe** düzeyinde oy oranı (%), katılım oranı (%) ve seçmen sayısı düzenleme.
+  - **Oransal Salınım (PS)** ve **Tekdüze Salınım (UNS)** modelleri.
+  - **Hiyerarşik Kilitleme**: Özel olarak düzenlenen ilçe, seçim çevresi veya iller kilitlenir ve ulusal salınımdan etkilenmeden üst toplamları günceller.
+- **Kalibre Edilmiş Baz Veri & Coğrafi Vekil (Proxy) Modellemesi**
+  - Varsayılan **%90 2023 + %10 2024** karma bazı ile **Sadece 2023** bazı arasında geçiş (mevcut oy girişlerini koruyarak).
+  - 2023'te ortak liste nedeniyle boş kalan illerde (örn. Yozgat, Rize) 2024 yerel oranlarıyla otomatik ayrıştırma.
+  - Yeni veya 2023'te ayrı listeyle girmeyen partiler (`YENİ`, `A`, `SAADET`) için coğrafi vekil ağırlıklı (non-uniform proxy) dağılım.
+  - Ulusal sonuç tablosunda **±2023** milletvekili değişim karşılaştırması.
+- **YSK Seçim Matematiği & D'Hondt**
+  - Ayarlanabilir **Ulusal Seçim Barajı** (varsayılan `%7,0`).
+  - **2022 Sistemi** (parti bazlı D'Hondt) ve **2018 Sistemi** (ittifak havuzlu D'Hondt) modları.
+  - Yurt Dışı & Gümrük oylarının 87 seçim çevresine geçerli oy ağırlığına göre dağıtımı.
+  - **Ortak Liste / Taktik Oy Simülatörü** ve **Kritik Sandalyeler** (son milletvekilinin el değiştirmesi için gereken oy ve % farkı).
+- **Harita, TBMM Diyagramı & Dışa Aktarma**
+  - `87 seçim çevresi`, `81 il` ve `973 ilçe` vektör harita katmanları, il bazlı ilçe haritasına yakınlaşma ve harita üzerinde **MV daireleri** görünümü.
+  - 5 renklendirme modu: `1. parti`, `1. ittifak`, `Oy farkı`, `Katılım oranı` ve `Değişim`.
+  - Tek tıkla **PNG harita** indirme, **JSON senaryo** kaydetme/yükleme ve **87 bölge CSV** çıktısı alma.
+  - 600 sandalyeli TBMM oturma düzeni diyagramı (`TİP → BBP` yelpaze sıralaması).
+
+---
+
+## Teknoloji Yığını
+
+- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS
+- **Durum Yönetimi**: Zustand
+- **Harita & Geometri**: `d3-geo`, `topojson-client`
+- **Test**: Vitest
 
 ---
 
@@ -31,18 +48,15 @@ npm install
 # Geliştirme sunucusunu başlatın
 npm run dev
 
-# Seçim motoru birim testlerini çalıştırın
+# Testleri çalıştırın
 npm test
 
-# Production (GitHub Pages) paketini derleyin
+# Production paketini derleyin
 npm run build
 ```
 
 ---
 
-## GitHub Pages ile Yayınlama (Deployment)
+## Yayınlama (GitHub Pages)
 
-Projede [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) dosyası hazır olarak yapılandırılmıştır:
-1. Projeyi GitHub deponuza (`main` veya `master` dalına) yükleyin.
-2. GitHub deponuzda **Settings → Pages → Build and deployment → Source** kısmından **GitHub Actions** seçeneğini işaretleyin.
-3. Her `git push` işleminde testler otomatik çalışacak ve uygulama GitHub Pages adresinizde yayınlanacaktır.
+Depoda [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) iş akışı hazırdır. **Settings → Pages → Build and deployment → Source** altından **GitHub Actions** seçildiğinde `main` dalına yapılan her `push` sonrasında testler çalışır ve uygulama otomatik olarak yayınlanır.

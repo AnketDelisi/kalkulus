@@ -31,18 +31,13 @@ export const App: React.FC = () => {
               <InputEditorPanel />
             </div>
 
-            {/* Right Main Stage (8 cols): Real GeoJSON Map + Compact 600-MP Majority Bar */}
+            {/* Right Main Stage (8 cols): Real GeoJSON Map + 600-Seat Parliament */}
             <div className="lg:col-span-8 flex flex-col gap-5">
               <MapPanel />
-              <ParliamentHemicycle
-                compact
-                onInspectFullParliament={() => setActiveTab('parliament')}
-              />
+              <ParliamentHemicycle />
             </div>
           </div>
         )}
-
-        {activeTab === 'parliament' && <ParliamentHemicycle />}
 
         {activeTab === 'tables' && (
           <DistrictAndClosestRacesTable

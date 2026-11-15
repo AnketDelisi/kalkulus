@@ -1,17 +1,8 @@
 import React, { useMemo } from 'react';
-import { ArrowRight } from 'lucide-react';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
 
-interface ParliamentHemicycleProps {
-  compact?: boolean;
-  onInspectFullParliament?: () => void;
-}
-
-export const ParliamentHemicycle: React.FC<ParliamentHemicycleProps> = ({
-  compact = false,
-  onInspectFullParliament,
-}) => {
+export const ParliamentHemicycle: React.FC = () => {
   const {
     lang,
     parties,
@@ -74,125 +65,6 @@ export const ParliamentHemicycle: React.FC<ParliamentHemicycleProps> = ({
   }, [parties, projection]);
 
   const totalSeats = projection.totalSeatsAllocated || 600;
-
-  // COMPACT MODE: Sleek 600-MP Majority Bar + Top Party Seat Cards under the map
-  if (compact) {
-    return (
-      <div className="studio-panel studio-crosshair p-4 flex flex-col gap-3.5">
-        <div className="flex items-center justify-between border-b border-[#090A0F]/15 pb-2.5">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-[#090A0F]" />
-            <h3 className="font-display text-xs font-bold uppercase tracking-widest text-[#090A0F]">
-              {t.tbmmTitle}
-            </h3>
-          </div>
-          {onInspectFullParliament && (
-            <button
-              onClick={onInspectFullParliament}
-              className="studio-btn px-2.5 py-1 text-[11px] uppercase tracking-wider"
-            >
-              <span>MECLİS HEMICYCLE & İTTİFAKLAR</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
-
-        {/* Stacked 600-MP Bar with 301 / 360 / 400 Markers */}
-        <div className="space-y-1.5">
-          <div className="relative h-7 w-full bg-[#ECEEF2] overflow-hidden flex border-[1.5px] border-[#090A0F]">
-            {orderedParties.map((p) => {
-              const seats = projection.partyTotalSeats[p.id] || 0;
-              const pct = (seats / totalSeats) * 100;
-              if (pct <= 0) return null;
-              return (
-                <div
-                  key={p.id}
-                  style={{ width: `${pct}%`, backgroundColor: p.color }}
-                  className="h-full border-r border-[#090A0F]/40 transition-all duration-200"
-                  title={`${p.shortName}: ${seats} MV (%${pct.toFixed(1)})`}
-                />
-              );
-            })}
-            <div
-              style={{ left: `${(301 / totalSeats) * 100}%` }}
-              className="absolute top-0 bottom-0 w-[2px] bg-[#090A0F] z-10"
-              title={t.simpleMajority}
-            />
-            <div
-              style={{ left: `${(360 / totalSeats) * 100}%` }}
-              className="absolute top-0 bottom-0 w-[1.5px] bg-[#090A0F]/70 z-10"
-              title={t.referendumMajority}
-            />
-            <div
-              style={{ left: `${(400 / totalSeats) * 100}%` }}
-              className="absolute top-0 bottom-0 w-[1.5px] bg-[#090A0F]/70 z-10"
-              title={t.constitutionalMajority}
-            />
-          </div>
-
-          <div className="flex justify-between text-[10px] font-mono uppercase tracking-wider text-slate-600 px-0.5">
-            <span>0 MV</span>
-            <span className="font-bold text-[#090A0F]">▲ 301 SALT ÇOĞUNLUK</span>
-            <span>▲ 360 REFERANDUM</span>
-            <span>▲ 400 ANAYASA</span>
-            <span className="font-bold text-[#090A0F]">{totalSeats} MV</span>
-          </div>
-        </div>
-
-        {/* Party Seat Blocks Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 pt-1">
-          {parties
-            .filter((p) => !p.isOther)
-            .slice(0, 7)
-            .map((p) => {
-              const seats = projection.partyTotalSeats[p.id] || 0;
-              const baseSeats = baselineProjection.partyTotalSeats[p.id] || 0;
-              const diff = seats - baseSeats;
-              const share = projection.nationalPartyShares[p.id] || 0;
-              const passed = projection.partyPassedThreshold[p.id];
-
-              return (
-                <div
-                  key={p.id}
-                  className="bg-[#F9FAFB] border-[1.5px] border-[#090A0F] px-2.5 py-2 flex flex-col justify-between"
-                  style={{ borderTopWidth: '4px', borderTopColor: p.color }}
-                >
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="font-display font-bold text-xs text-[#090A0F]">
-                      {p.shortName}
-                    </span>
-                    <span className="font-mono text-[10px] text-slate-500">
-                      %{share.toFixed(1)}
-                    </span>
-                  </div>
-
-                  <div className="mt-1.5 flex items-baseline justify-between">
-                    <span
-                      className={`font-mono text-base font-bold ${
-                        passed ? 'text-[#090A0F]' : 'text-slate-400'
-                      }`}
-                    >
-                      {seats} <span className="text-[10px] font-normal text-slate-500">MV</span>
-                    </span>
-                    {diff !== 0 && (
-                      <span
-                        className={`font-mono text-[10px] font-bold px-1 py-0.5 ${
-                          diff > 0
-                            ? 'bg-emerald-950 text-emerald-300'
-                            : 'bg-rose-950 text-rose-300'
-                        }`}
-                      >
-                        {diff > 0 ? `+${diff}` : diff}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-        </div>
-      </div>
-    );
-  }
 
   // FULL PARLIAMENT VIEW: Large Hemicycle + Alliance Cards + Full National Table
   return (

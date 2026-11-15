@@ -1,7 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { geoMercator, geoPath } from 'd3-geo';
 import {
   ChevronRight,
+  CircleDot,
+  Download,
   Lock,
   Maximize2,
   RotateCcw,
@@ -62,6 +64,54 @@ function blendHexWithWhite(hex: string, alpha: number): string {
   return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
 }
 
+const SEAT_OFFSETS_87: Record<string, [number, number]> = {
+  '34-3': [-4, -44],
+  '34-2': [16, -48],
+  '34-1': [40, -50],
+  '16-1': [-6, 4],
+  '16-2': [6, -3],
+  '35-1': [-14, 10],
+  '35-2': [-12, -10],
+  '06-2': [4, -4],
+  '06-3': [-6, 0],
+};
+
+const SEAT_OFFSETS_81: Record<string, [number, number]> = {
+  '34': [16, -48],
+  '35': [-14, 0],
+};
+
+function getSeatGridCols(totalSeats: number): number {
+  if (totalSeats <= 3) return Math.max(1, totalSeats);
+  if (totalSeats === 4) return 2;
+  if (totalSeats <= 6) return 3;
+  if (totalSeats <= 12) return 4;
+  if (totalSeats <= 15) return 5;
+  if (totalSeats <= 40) return 6;
+  return 12;
+}
+
+function buildOrderedSeatColors(
+  partySeats: Record<string, number>,
+  partyVotes: Record<string, number>,
+  partyMap: Record<string, { color: string }>
+): string[] {
+  const entries = Object.entries(partySeats)
+    .filter(([, seats]) => seats > 0)
+    .sort((a, b) => {
+      if (b[1] !== a[1]) return b[1] - a[1];
+      return (partyVotes[b[0]] || 0) - (partyVotes[a[0]] || 0);
+    });
+  const colors: string[] = [];
+  for (const [pid, seats] of entries) {
+    const color = partyMap[pid]?.color || '#64748b';
+    for (let i = 0; i < seats; i++) {
+      colors.push(color);
+    }
+  }
+  return colors;
+}
+
 export const MapPanel: React.FC = () => {
   const {
     lang,
@@ -82,10 +132,12 @@ export const MapPanel: React.FC = () => {
     setActiveScope,
   } = useElectionStore();
 
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const [provincesGeo, setProvincesGeo] = useState<GeoCollection | null>(null);
   const [districts87Geo, setDistricts87Geo] = useState<GeoCollection | null>(null);
   const [ilcelerGeo, setIlcelerGeo] = useState<GeoCollection | null>(null);
   const [hovered, setHovered] = useState<HoverTooltip | null>(null);
+  const [showSeatCircles, setShowSeatCircles] = useState(true);
 
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -228,6 +280,114 @@ export const MapPanel: React.FC = () => {
       ? projection.provinceResults[selectedIlceResult.ilId]
       : zoomedProvResult;
 
+  const renderSeatCircleCluster = (
+    feat: GeoFeature,
+    partySeats: Record<string, number>,
+    partyVotes: Record<string, number>,
+    offsetMap: Record<string, [number, number]>,
+    isIstanbul: boolean
+  ) => {
+    const rawCentroid = pathGenerator.centroid(feat as any);
+    if (!rawCentroid || Number.isNaN(rawCentroid[0]) || Number.isNaN(rawCentroid[1])) {
+      return null;
+    }
+    const colors = buildOrderedSeatColors(partySeats, partyVotes, partyMap);
+    if (colors.length === 0) return null;
+
+    const [offX, offY] = offsetMap[feat.properties.id] || [0, 0];
+    const cx = rawCentroid[0] + offX;
+    const cy = rawCentroid[1] + offY;
+    const cols = getSeatGridCols(colors.length);
+    const rows = Math.ceil(colors.length / cols);
+    const step = 5.6;
+    const startX = cx - ((cols - 1) * step) / 2;
+    const startY = cy - ((rows - 1) * step) / 2;
+    const clusterBottomY = cy + ((rows - 1) * step) / 2 + 4;
+
+    return (
+      <g key={`seats-${feat.properties.id}`}>
+        {isIstanbul && (
+          <line
+            x1={rawCentroid[0]}
+            y1={rawCentroid[1]}
+            x2={cx}
+            y2={clusterBottomY}
+            stroke="#090a0f"
+            strokeWidth={0.75}
+            strokeOpacity={0.65}
+          />
+        )}
+        {colors.map((color, idx) => {
+          const r = Math.floor(idx / cols);
+          const c = idx % cols;
+          return (
+            <circle
+              key={`${feat.properties.id}-s-${idx}`}
+              cx={startX + c * step}
+              cy={startY + r * step}
+              r={2.4}
+              fill={color}
+              stroke="#090a0f"
+              strokeWidth={0.7}
+            />
+          );
+        })}
+      </g>
+    );
+  };
+
+  const handleExportPng = () => {
+    const svgEl = svgRef.current;
+    if (!svgEl) return;
+
+    const clone = svgEl.cloneNode(true) as SVGSVGElement;
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    clone.setAttribute('width', '1960');
+    clone.setAttribute('height', '940');
+    clone.setAttribute('viewBox', '0 0 980 470');
+
+    const rootGroup = clone.querySelector('g');
+    if (rootGroup) {
+      rootGroup.setAttribute('transform', 'translate(0, 0) scale(1)');
+    }
+
+    const svgString = new XMLSerializer().serializeToString(clone);
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1960;
+      canvas.height = 940;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const pngUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        const slug = zoomedProvinceId
+          ? `${(zoomedProvResult?.name || zoomedProvinceId).toLowerCase().replace(/[^a-z0-9]+/g, '-')}-ilce-haritasi`
+          : mapLayer === '87_district'
+          ? '87-secim-cevresi-haritasi'
+          : mapLayer === '81_il'
+          ? '81-il-haritasi'
+          : '973-ilce-haritasi';
+        link.download = `kalkulus-${slug}.png`;
+        link.href = pngUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      URL.revokeObjectURL(url);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  };
+
   return (
     <div className="studio-panel studio-crosshair flex flex-col overflow-hidden">
       {/* Top Map Header: Architectural Breadcrumb + Layer & Color Controls */}
@@ -345,6 +505,31 @@ export const MapPanel: React.FC = () => {
             <option value="turnout">{t.colorTurnout}</option>
             <option value="swing">{t.colorSwing}</option>
           </select>
+
+          {!zoomedProvinceId && (mapLayer === '87_district' || mapLayer === '81_il') && (
+            <button
+              onClick={() => setShowSeatCircles((s) => !s)}
+              className={`px-2.5 py-1 border-[1.5px] border-[#090A0F] font-mono text-[11px] font-bold flex items-center gap-1.5 transition-colors ${
+                showSeatCircles
+                  ? 'bg-[#090A0F] text-white'
+                  : 'bg-white text-[#090A0F] hover:bg-slate-100'
+              }`}
+              title={lang === 'tr' ? 'Harita Üzerinde MV Dairelerini Göster/Gizle' : 'Toggle Seat Circles'}
+            >
+              <CircleDot className="w-3.5 h-3.5" />
+              <span>{lang === 'tr' ? 'MV DAİRELERİ' : 'SEAT CIRCLES'}</span>
+            </button>
+          )}
+
+          <button
+            onClick={handleExportPng}
+            disabled={!provincesGeo || !districts87Geo}
+            className="studio-btn px-2.5 py-1 text-[11px] font-mono font-bold disabled:opacity-40"
+            title={lang === 'tr' ? 'Haritayı PNG Olarak İndir' : 'Export Map as PNG'}
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>{lang === 'tr' ? 'PNG İNDİR' : 'EXPORT PNG'}</span>
+          </button>
         </div>
       </div>
 
@@ -393,6 +578,7 @@ export const MapPanel: React.FC = () => {
           </div>
         ) : (
           <svg
+            ref={svgRef}
             viewBox="0 0 980 470"
             className={`w-full h-auto block ${
               isDragging ? 'cursor-grabbing' : 'cursor-grab'
@@ -635,6 +821,23 @@ export const MapPanel: React.FC = () => {
                       />
                     );
                   })}
+
+                  {showSeatCircles && (
+                    <g className="pointer-events-none">
+                      {districts87Geo.features.map((feat) => {
+                        const dId = feat.properties.id;
+                        const dRes = projection.districtResults[dId];
+                        if (!dRes) return null;
+                        return renderSeatCircleCluster(
+                          feat,
+                          dRes.partySeats,
+                          dRes.totalPartyVotes,
+                          SEAT_OFFSETS_87,
+                          dRes.ilId === '34'
+                        );
+                      })}
+                    </g>
+                  )}
                 </g>
               ) : (
                 /* CASE 4: 81 Provinces Vector Map (No Text Labels) */
@@ -701,6 +904,23 @@ export const MapPanel: React.FC = () => {
                       />
                     );
                   })}
+
+                  {showSeatCircles && (
+                    <g className="pointer-events-none">
+                      {provincesGeo.features.map((feat) => {
+                        const ilId = feat.properties.id;
+                        const pRes = projection.provinceResults[ilId];
+                        if (!pRes) return null;
+                        return renderSeatCircleCluster(
+                          feat,
+                          pRes.partySeats,
+                          pRes.partyVotes,
+                          SEAT_OFFSETS_81,
+                          ilId === '34'
+                        );
+                      })}
+                    </g>
+                  )}
                 </g>
               )}
             </g>

@@ -3,7 +3,6 @@ import {
   BarChart3,
   Download,
   Globe,
-  Landmark,
   Lock,
   Map,
   RotateCcw,
@@ -12,7 +11,7 @@ import {
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
 
-export type WorkspaceTab = 'studio' | 'parliament' | 'tables';
+export type WorkspaceTab = 'studio' | 'tables';
 
 interface HeaderBarProps {
   activeTab: WorkspaceTab;
@@ -72,19 +71,6 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           </button>
 
           <button
-            onClick={() => onChangeTab('parliament')}
-            className={`flex items-center gap-2 px-3.5 py-2 border-r border-[#090A0F] whitespace-nowrap transition-colors ${
-              activeTab === 'parliament'
-                ? 'bg-[#090A0F] text-white'
-                : 'text-[#090A0F] hover:bg-slate-100'
-            }`}
-          >
-            <span className="font-mono text-[10px] opacity-60">02</span>
-            <Landmark className="w-3.5 h-3.5" />
-            <span>{lang === 'tr' ? 'TBMM MECLİS' : 'PARLIAMENT'}</span>
-          </button>
-
-          <button
             onClick={() => onChangeTab('tables')}
             className={`flex items-center gap-2 px-3.5 py-2 whitespace-nowrap transition-colors ${
               activeTab === 'tables'
@@ -92,7 +78,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                 : 'text-[#090A0F] hover:bg-slate-100'
             }`}
           >
-            <span className="font-mono text-[10px] opacity-60">03</span>
+            <span className="font-mono text-[10px] opacity-60">02</span>
             <BarChart3 className="w-3.5 h-3.5" />
             <span>{lang === 'tr' ? 'VERİ TABLOLARI & KRİTİK MV' : 'TABLES & CLOSEST'}</span>
           </button>

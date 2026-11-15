@@ -22,8 +22,8 @@ const PROVINCES_RAW = [
   ["03", "Afyonkarahisar", "Ege", 38.75, 30.54, 536900, 90.2, 6, ["Merkez", "Sandıklı", "Dinar", "Bolvadin", "Sinanpaşa", "Emirdağ", "Şuhut", "Çay", "İhsaniye", "İscehisar", "Sultandağı", "Çobanlar", "Dazkırı", "Başmakçı", "Hocalar", "Bayat", "Evciler", "Kızılören"]],
   ["04", "Ağrı", "Doğu Anadolu", 39.72, 43.05, 307100, 79.4, 4, ["Merkez", "Patnos", "Doğubayazıt", "Diyadin", "Eleşkirt", "Tutak", "Taşlıçay", "Hamur"]],
   ["05", "Amasya", "Karadeniz", 40.65, 35.83, 259100, 91.2, 3, ["Merkez", "Merzifon", "Suluova", "Taşova", "Göynücek", "Gümüşhacıköy", "Hamamözü"]],
-  ["06", "Ankara", "İç Anadolu", 39.93, 32.85, 4280600, 90.6, 36, []],
-  ["07", "Antalya", "Akdeniz", 36.89, 30.71, 1906900, 88.8, 17, ["Kepez", "Muratpaşa", "Alanya", "Manavgat", "Konyaaltı", "Serik", "Aksu", "Kumluca", "Döşemealtı", "Kaş", "Korkuteli", "Gazipaşa", "Finike", "Kemer", "Elmalı", "Demre", "Akseki", "Gündoğmuş", "İbradı"]],
+  ["06", "Ankara", "İç Anadolu", 39.93, 32.85, 4280600, 90.6, 37, []],
+  ["07", "Antalya", "Akdeniz", 36.89, 30.71, 1906900, 88.8, 18, ["Kepez", "Muratpaşa", "Alanya", "Manavgat", "Konyaaltı", "Serik", "Aksu", "Kumluca", "Döşemealtı", "Kaş", "Korkuteli", "Gazipaşa", "Finike", "Kemer", "Elmalı", "Demre", "Akseki", "Gündoğmuş", "İbradı"]],
   ["08", "Artvin", "Karadeniz", 41.18, 41.82, 130600, 89.0, 2, ["Merkez", "Hopa", "Borçka", "Yusufeli", "Arhavi", "Şavşat", "Ardanuç", "Kemalpaşa", "Murgul"]],
   ["09", "Aydın", "Ege", 37.84, 27.84, 885100, 89.2, 8, ["Efeler", "Nazilli", "Söke", "Kuşadası", "Didim", "Çine", "İncirliova", "Germencik", "Bozdoğan", "Köşk", "Kuyucak", "Sultanhisar", "Karacasu", "Yenipazar", "Buharkent", "Karpuzlu", "Koçarlı"]],
   ["10", "Balıkesir", "Marmara", 39.65, 27.88, 991800, 90.5, 9, ["Karesi", "Altıeylül", "Edremit", "Bandırma", "Gönen", "Ayvalık", "Burhaniye", "Bigadiç", "Susurluk", "Dursunbey", "Sındırgı", "İvrindi", "Erdek", "Havran", "Kepsut", "Manyas", "Savaştepe", "Balya", "Gömeç", "Marmara"]],
@@ -32,7 +32,7 @@ const PROVINCES_RAW = [
   ["13", "Bitlis", "Doğu Anadolu", 38.40, 42.11, 219500, 82.2, 3, ["Tatvan", "Merkez", "Güroymak", "Ahlat", "Hizan", "Mutki", "Adilcevaz"]],
   ["14", "Bolu", "Karadeniz", 40.73, 31.61, 238400, 90.8, 3, ["Merkez", "Gerede", "Mudurnu", "Göynük", "Mengen", "Yeniçağa", "Dörtdivan", "Seben", "Kıbrıscık"]],
   ["15", "Burdur", "Akdeniz", 37.72, 30.29, 204200, 90.6, 3, ["Merkez", "Bucak", "Gölhisar", "Yeşilova", "Çavdır", "Tefenni", "Ağlasun", "Karamanlı", "Altınyayla", "Çeltikçi", "Kemer"]],
-  ["16", "Bursa", "Marmara", 40.18, 29.06, 2368900, 89.9, 20, []],
+  ["16", "Bursa", "Marmara", 40.18, 29.06, 2368900, 89.9, 21, []],
   ["17", "Çanakkale", "Marmara", 40.15, 26.41, 439900, 90.8, 4, ["Merkez", "Biga", "Çan", "Gelibolu", "Ayvacık", "Ezine", "Yenice", "Bayramiç", "Lapseki", "Eceabat", "Gökçeada", "Bozcaada"]],
   ["18", "Çankırı", "İç Anadolu", 40.60, 33.61, 143500, 89.2, 2, ["Merkez", "Çerkeş", "Ilgaz", "Orta", "Şabanözü", "Kurşunlu", "Yapraklı", "Kızılırmak", "Atkaracalar", "Eldivan", "Korgun", "Bayramören"]],
   ["19", "Çorum", "Karadeniz", 40.55, 34.95, 396800, 90.4, 4, ["Merkez", "Sungurlu", "Osmancık", "İskilip", "Alaca", "Bayat", "Mecitözü", "Kargı", "Ortaköy", "Uğurludağ", "Dodurga", "Oğuzlar", "Laçin", "Boğazkale"]],
@@ -41,16 +41,16 @@ const PROVINCES_RAW = [
   ["22", "Edirne", "Marmara", 41.67, 26.55, 316100, 89.8, 4, ["Merkez", "Keşan", "Uzunköprü", "İpsala", "Havsa", "Meriç", "Enez", "Süloğlu", "Lalapaşa"]],
   ["23", "Elazığ", "Doğu Anadolu", 38.68, 39.22, 429100, 86.2, 5, ["Merkez", "Kovancılar", "Karakoçan", "Palu", "Arıcak", "Baskil", "Maden", "Sivrice", "Alacakaya", "Keban", "Ağın"]],
   ["24", "Erzincan", "Doğu Anadolu", 39.75, 39.50, 171100, 90.0, 2, ["Merkez", "Tercan", "Üzümlü", "Çayırlı", "İliç", "Kemaliye", "Otlukbeli", "Kemah", "Refahiye"]],
-  ["25", "Erzurum", "Doğu Anadolu", 39.90, 41.27, 513100, 87.6, 6, ["Yakutiye", "Palandöken", "Aziziye", "Horasan", "Oltu", "Pasinler", "Karayazı", "Hınıs", "Tekman", "Karaçoban", "Aşkale", "Şenkaya", "Çat", "Köprüköy", "İspir", "Tortum", "Narman", "Uzundere", "Olur", "Pazaryolu"]],
-  ["26", "Eskişehir", "İç Anadolu", 39.77, 30.52, 687100, 90.6, 6, ["Odunpazarı", "Tepebaşı", "Sivrihisar", "Çifteler", "Seyitgazi", "Alpu", "Mihalıççık", "Mahmudiye", "Beylikova", "İnönü", "Günyüzü", "Sarıcakaya", "Mihalgazi", "Han"]],
+  ["25", "Erzurum", "Doğu Anadolu", 39.90, 41.27, 513100, 87.6, 5, ["Yakutiye", "Palandöken", "Aziziye", "Horasan", "Oltu", "Pasinler", "Karayazı", "Hınıs", "Tekman", "Karaçoban", "Aşkale", "Şenkaya", "Çat", "Köprüköy", "İspir", "Tortum", "Narman", "Uzundere", "Olur", "Pazaryolu"]],
+  ["26", "Eskişehir", "İç Anadolu", 39.77, 30.52, 687100, 90.6, 7, ["Odunpazarı", "Tepebaşı", "Sivrihisar", "Çifteler", "Seyitgazi", "Alpu", "Mihalıççık", "Mahmudiye", "Beylikova", "İnönü", "Günyüzü", "Sarıcakaya", "Mihalgazi", "Han"]],
   ["27", "Gaziantep", "Güneydoğu Anadolu", 37.06, 37.38, 1369100, 86.4, 14, ["Şahinbey", "Şehitkamil", "Nizip", "İslahiye", "Nurdağı", "Oğuzeli", "Araban", "Yavuzeli", "Karkamış"]],
   ["28", "Giresun", "Karadeniz", 40.91, 38.38, 350100, 88.8, 4, ["Merkez", "Bulancak", "Espiye", "Görele", "Tirebolu", "Dereli", "Şebinkarahisar", "Keşap", "Yağlıdere", "Piraziz", "Eynesil", "Alucra", "Güce", "Çamoluk", "Çanakçı", "Doğankent"]],
   ["29", "Gümüşhane", "Karadeniz", 40.46, 39.48, 97800, 85.4, 2, ["Merkez", "Kelkit", "Şiran", "Kürtün", "Torul", "Köse"]],
   ["30", "Hakkari", "Doğu Anadolu", 37.57, 43.74, 195100, 83.2, 3, ["Yüksekova", "Merkez", "Şemdinli", "Çukurca", "Derecik"]],
-  ["31", "Hatay", "Akdeniz", 36.20, 36.16, 1062100, 83.1, 11, ["Antakya", "İskenderun", "Defne", "Dörtyol", "Samandağ", "Kırıkhan", "Reyhanlı", "Arsuz", "Payas", "Erzin", "Hassa", "Altınözü", "Belen", "Yayladağı", "Kumlu"]],
+  ["31", "Hatay", "Akdeniz", 36.20, 36.16, 1062100, 83.1, 10, ["Antakya", "İskenderun", "Defne", "Dörtyol", "Samandağ", "Kırıkhan", "Reyhanlı", "Arsuz", "Payas", "Erzin", "Hassa", "Altınözü", "Belen", "Yayladağı", "Kumlu"]],
   ["32", "Isparta", "Akdeniz", 37.76, 30.55, 326100, 89.6, 4, ["Merkez", "Yalvaç", "Eğirdir", "Şarkikaraağaç", "Gelendost", "Keçiborlu", "Senirkent", "Sütçüler", "Gönen", "Uluborlu", "Atabey", "Aksu", "Yenişarbademli"]],
   ["33", "Mersin", "Akdeniz", 36.81, 34.64, 1392100, 88.9, 13, ["Tarsus", "Toroslar", "Yenişehir", "Akdeniz", "Mezitli", "Erdemli", "Silifke", "Anamur", "Mut", "Bozyazı", "Gülnar", "Aydıncık", "Çamlıyayla"]],
-  ["34", "İstanbul", "Marmara", 41.01, 28.97, 11358000, 89.8, 98, []],
+  ["34", "İstanbul", "Marmara", 41.01, 28.97, 11358000, 89.8, 96, []],
   ["35", "İzmir", "Ege", 38.42, 27.14, 3441000, 90.4, 28, []],
   ["36", "Kars", "Doğu Anadolu", 40.60, 43.09, 185900, 81.9, 3, ["Merkez", "Kağızman", "Sarıkamış", "Selim", "Digor", "Arpaçay", "Akyaka", "Susuz"]],
   ["37", "Kastamonu", "Karadeniz", 41.38, 33.78, 297100, 89.1, 3, ["Merkez", "Tosya", "Taşköprü", "Cide", "İnebolu", "Araç", "Devrekani", "Bozkurt", "Daday", "Azdavay", "Çatalzeytin", "Küre", "Doğanyurt", "İhsangazi", "Pınarbaşı", "Şenpazar", "Abana", "Seydiler", "Hanönü", "Ağlı"]],
@@ -59,12 +59,12 @@ const PROVINCES_RAW = [
   ["40", "Kırşehir", "İç Anadolu", 39.14, 34.16, 175100, 88.8, 2, ["Merkez", "Kaman", "Mucur", "Çiçekdağı", "Akpınar", "Boztepe", "Akçakent"]],
   ["41", "Kocaeli", "Marmara", 40.76, 29.94, 1515100, 90.7, 14, ["Gebze", "İzmit", "Darıca", "Körfez", "Gölcük", "Derince", "Çayırova", "Kartepe", "Başiskele", "Karamürsel", "Kandıra", "Dilovası"]],
   ["42", "Konya", "İç Anadolu", 37.87, 32.48, 1638100, 89.5, 15, ["Selçuklu", "Meram", "Karatay", "Ereğli", "Akşehir", "Beyşehir", "Çumra", "Seydişehir", "Ilgın", "Cihanbeyli", "Kulu", "Karapınar", "Kadınhanı", "Sarayönü", "Bozkır", "Yunak", "Doğanhisar", "Hüyük", "Altınekin", "Hadim", "Çeltik", "Emirgazi", "Tuzlukçu", "Derebucak", "Akören", "Halkapınar", "Taşkent", "Güneysınır", "Ahırlı", "Derbent", "Yalıhüyük"]],
-  ["43", "Kütahya", "Ege", 39.42, 29.98, 436100, 91.2, 5, ["Merkez", "Tavşanlı", "Simav", "Gediz", "Emet", "Altıntaş", "Domaniç", "Hisarcık", "Aslanapa", "Çavdarhisar", "Şaphane", "Pazarlar", "Dumlupınar"]],
+  ["43", "Kütahya", "Ege", 39.42, 29.98, 436100, 91.2, 4, ["Merkez", "Tavşanlı", "Simav", "Gediz", "Emet", "Altıntaş", "Domaniç", "Hisarcık", "Aslanapa", "Çavdarhisar", "Şaphane", "Pazarlar", "Dumlupınar"]],
   ["44", "Malatya", "Doğu Anadolu", 38.35, 38.31, 535100, 83.4, 6, ["Yeşilyurt", "Battalgazi", "Doğanşehir", "Akçadağ", "Darende", "Hekimhan", "Yazıhan", "Pütürge", "Arapgir", "Kuluncak", "Arguvan", "Kale", "Doğanyol"]],
   ["45", "Manisa", "Ege", 38.61, 27.42, 1118100, 90.8, 10, ["Yunusemre", "Şehzadeler", "Akhisar", "Turgutlu", "Salihli", "Soma", "Alaşehir", "Saruhanlı", "Kula", "Kırkağaç", "Demirci", "Sarıgöl", "Gördes", "Gölmarmara", "Ahmetli", "Selendi", "Köprübaşı"]],
   ["46", "Kahramanmaraş", "Akdeniz", 37.57, 36.93, 753100, 85.9, 8, ["Onikişubat", "Dulkadiroğlu", "Elbistan", "Afşin", "Türkoğlu", "Pazarcık", "Göksun", "Andırın", "Çağlayancerit", "Nurhak", "Ekinözü"]],
   ["47", "Mardin", "Güneydoğu Anadolu", 37.31, 40.73, 541100, 82.9, 6, ["Kızıltepe", "Artuklu", "Midyat", "Nusaybin", "Derik", "Mazıdağı", "Dargeçit", "Savur", "Yeşilli", "Ömerli"]],
-  ["48", "Muğla", "Ege", 37.21, 28.36, 807100, 89.6, 7, ["Bodrum", "Fethiye", "Milas", "Menteşe", "Marmaris", "Seydikemer", "Ortaca", "Yatağan", "Dalaman", "Köyceğiz", "Ula", "Datça", "Kavaklıdere"]],
+  ["48", "Muğla", "Ege", 37.21, 28.36, 807100, 89.6, 8, ["Bodrum", "Fethiye", "Milas", "Menteşe", "Marmaris", "Seydikemer", "Ortaca", "Yatağan", "Dalaman", "Köyceğiz", "Ula", "Datça", "Kavaklıdere"]],
   ["49", "Muş", "Doğu Anadolu", 38.74, 41.49, 236100, 79.8, 3, ["Merkez", "Bulanık", "Malazgirt", "Varto", "Hasköy", "Korkut"]],
   ["50", "Nevşehir", "İç Anadolu", 38.62, 34.71, 227100, 90.0, 3, ["Merkez", "Ürgüp", "Avanos", "Gülşehir", "Derinkuyu", "Acıgöl", "Kozaklı", "Hacıbektaş"]],
   ["51", "Niğde", "İç Anadolu", 37.96, 34.67, 255100, 88.9, 3, ["Merkez", "Bor", "Çiftlik", "Ulukışla", "Altunhisar", "Çamardı"]],
@@ -78,11 +78,11 @@ const PROVINCES_RAW = [
   ["59", "Tekirdağ", "Marmara", 40.97, 27.51, 849100, 90.6, 8, ["Çorlu", "Süleymanpaşa", "Çerkezköy", "Kapaklı", "Ergene", "Malkara", "Saray", "Hayrabolu", "Şarköy", "Muratlı", "Marmaraereğlisi"]],
   ["60", "Tokat", "Karadeniz", 40.31, 36.55, 444100, 90.0, 5, ["Merkez", "Erbaa", "Turhal", "Niksar", "Zile", "Reşadiye", "Almus", "Pazar", "Başçiftlik", "Yeşilyurt", "Artova", "Sulusaray"]],
   ["61", "Trabzon", "Karadeniz", 41.00, 39.71, 613100, 88.9, 6, ["Ortahisar", "Akçaabat", "Araklı", "Of", "Yomra", "Arsin", "Vakfıkebir", "Sürmene", "Maçka", "Beşikdüzü", "Çarşıbaşı", "Tonya", "Çaykara", "Şalpazarı", "Düzköy", "Köprübaşı", "Dernekpazarı", "Hayrat"]],
-  ["62", "Tunceli", "Doğu Anadolu", 39.10, 39.54, 65100, 86.2, 1, ["Merkez", "Pertek", "Mazgirt", "Çemişgezek", "Hozat", "Ovacık", "Pülümür", "Nazımiye"]],
-  ["63", "Şanlıurfa", "Güneydoğu Anadolu", 37.16, 38.79, 1221100, 81.9, 14, ["Eyyübiye", "Haliliye", "Karaköprü", "Siverek", "Viranşehir", "Suruç", "Akçakale", "Birecik", "Ceylanpınar", "Harran", "Bozova", "Hilvan", "Halfeti"]],
+  ["62", "Tunceli", "Doğu Anadolu", 39.10, 39.54, 65100, 86.2, 2, ["Merkez", "Pertek", "Mazgirt", "Çemişgezek", "Hozat", "Ovacık", "Pülümür", "Nazımiye"]],
+  ["63", "Şanlıurfa", "Güneydoğu Anadolu", 37.16, 38.79, 1221100, 81.9, 15, ["Eyyübiye", "Haliliye", "Karaköprü", "Siverek", "Viranşehir", "Suruç", "Akçakale", "Birecik", "Ceylanpınar", "Harran", "Bozova", "Hilvan", "Halfeti"]],
   ["64", "Uşak", "Ege", 38.68, 29.40, 281100, 90.4, 3, ["Merkez", "Banaz", "Eşme", "Sivaslı", "Ulubey", "Karahallı"]],
   ["65", "Van", "Doğu Anadolu", 38.49, 43.38, 707100, 79.4, 8, ["İpekyolu", "Erciş", "Tuşba", "Edremit", "Özalp", "Çaldıran", "Başkale", "Muradiye", "Gürpınar", "Gevaş", "Çatak", "Bahçesaray", "Saray"]],
-  ["66", "Yozgat", "İç Anadolu", 39.82, 34.81, 302100, 88.2, 4, ["Merkez", "Sorgun", "Akdağmadeni", "Yerköy", "Boğazlıyan", "Sarıkaya", "Çekerek", "Şefaatli", "Saraykent", "Çayıralan", "Kadışehri", "Aydıncık", "Yenifakılı", "Çandır"]],
+  ["66", "Yozgat", "İç Anadolu", 39.82, 34.81, 302100, 88.2, 3, ["Merkez", "Sorgun", "Akdağmadeni", "Yerköy", "Boğazlıyan", "Sarıkaya", "Çekerek", "Şefaatli", "Saraykent", "Çayıralan", "Kadışehri", "Aydıncık", "Yenifakılı", "Çandır"]],
   ["67", "Zonguldak", "Karadeniz", 41.45, 31.79, 456100, 89.2, 5, ["Ereğli", "Merkez", "Çaycuma", "Devrek", "Kozlu", "Alaplı", "Kilimli", "Gökçebey"]],
   ["68", "Aksaray", "İç Anadolu", 38.36, 34.03, 296100, 87.9, 4, ["Merkez", "Ortaköy", "Eskil", "Gülağaç", "Güzelyurt", "Sultanhanı", "Ağaçören", "Sarıyahşi"]],
   ["69", "Bayburt", "Karadeniz", 40.25, 40.22, 59100, 87.5, 1, ["Merkez", "Demirözü", "Aydıntepe"]],
@@ -94,7 +94,7 @@ const PROVINCES_RAW = [
   ["75", "Ardahan", "Doğu Anadolu", 41.11, 42.70, 68100, 84.5, 2, ["Merkez", "Göle", "Çıldır", "Hanak", "Posof", "Damal"]],
   ["76", "Iğdır", "Doğu Anadolu", 39.92, 44.04, 136100, 78.6, 2, ["Merkez", "Tuzluca", "Aralık", "Karakoyunlu"]],
   ["77", "Yalova", "Marmara", 40.65, 29.27, 206100, 88.2, 3, ["Merkez", "Çiftlikköy", "Çınarcık", "Altınova", "Armutlu", "Termal"]],
-  ["78", "Karabük", "Karadeniz", 41.20, 32.62, 187100, 89.4, 3, ["Merkez", "Safranbolu", "Yenice", "Eskipazar", "Eflani", "Ovacık"]],
+  ["78", "Karabük", "Karadeniz", 41.20, 32.62, 187100, 89.4, 2, ["Merkez", "Safranbolu", "Yenice", "Eskipazar", "Eflani", "Ovacık"]],
   ["79", "Kilis", "Güneydoğu Anadolu", 36.71, 37.11, 99100, 87.8, 2, ["Merkez", "Musabeyli", "Elbeyli", "Polateli"]],
   ["80", "Osmaniye", "Akdeniz", 37.07, 36.24, 386100, 87.9, 4, ["Merkez", "Kadirli", "Düziçi", "Bahçe", "Toprakkale", "Sumbas", "Hasanbeyli"]],
   ["81", "Düzce", "Karadeniz", 40.84, 31.16, 300100, 90.5, 3, ["Merkez", "Akçakoca", "Kaynaşlı", "Gölyaka", "Çilimli", "Yığılca", "Gümüşova", "Cumayeri"]]
@@ -111,11 +111,11 @@ const MULTI_DISTRICTS_RAW = [
     ["Keçiören", "Altındağ", "Pursaklar", "Çubuk", "Akyurt", "Kahramankazan", "Kızılcahamam", "Kalecik", "Çamlıdere"]
   ],
   [
-    "06-3", "06", "Ankara 3. Bölge", 12, 1410600, 90.6,
+    "06-3", "06", "Ankara 3. Bölge", 13, 1410600, 90.6,
     ["Yenimahalle", "Etimesgut", "Sincan", "Beypazarı", "Nallıhan", "Ayaş", "Güdül"]
   ],
   [
-    "16-1", "16", "Bursa 1. Bölge", 10, 1228900, 90.3,
+    "16-1", "16", "Bursa 1. Bölge", 11, 1228900, 90.3,
     ["Nilüfer", "Osmangazi", "Karacabey", "Mustafakemalpaşa", "Orhaneli", "Büyükorhan"]
   ],
   [
@@ -127,7 +127,7 @@ const MULTI_DISTRICTS_RAW = [
     ["Kadıköy", "Üsküdar", "Ataşehir", "Maltepe", "Kartal", "Pendik", "Ümraniye", "Tuzla", "Sancaktepe", "Çekmeköy", "Sultanbeyli", "Beykoz", "Şile", "Adalar"]
   ],
   [
-    "34-2", "34", "İstanbul 2. Bölge", 27, 3180000, 89.5,
+    "34-2", "34", "İstanbul 2. Bölge", 25, 3180000, 89.5,
     ["Beşiktaş", "Şişli", "Sarıyer", "Beyoğlu", "Kağıthane", "Fatih", "Eyüpsultan", "Gaziosmanpaşa", "Sultangazi", "Bayrampaşa", "Esenler", "Zeytinburnu"]
   ],
   [
@@ -575,11 +575,12 @@ function buildDatasets() {
 
       subDistricts.forEach((dRow, dIdx) => {
         const [dId, ilId, dName, dMp, dVoters, dTurnout, dIlceNames] = dRow;
+        const resolvedMp = geo600.prDistricts[get600DistKey(dId, ilId)] ?? dMp;
         districts2023.push({
           id: dId,
           ilId,
           name: dName,
-          mpCount: dMp,
+          mpCount: resolvedMp,
         });
         const dLat = lat + (dIdx - 1) * 0.08;
         const dLng = lng + (dIdx - 1) * 0.12;
@@ -605,11 +606,12 @@ function buildDatasets() {
         lat,
         lng,
       });
+      const resolvedMp = geo600.prDistricts[get600DistKey(plateStr, plateStr)] ?? mpCount;
       districts2023.push({
         id: plateStr,
         ilId: plateStr,
         name,
-        mpCount,
+        mpCount: resolvedMp,
       });
       const generated = generateIlcelerForDistrict(
         plateStr,

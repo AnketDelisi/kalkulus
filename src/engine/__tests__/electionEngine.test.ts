@@ -40,16 +40,16 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     expect(Object.keys(result.districtResults).length).toBe(87);
     expect(Object.keys(result.ilceResults).length).toBe(973);
 
-    // Exact YSK May 14, 2023 Seat Totals
-    expect(result.partyTotalSeats['AKP']).toBe(268);
-    expect(result.partyTotalSeats['CHP']).toBe(169);
+    // 2023 votes projected onto updated prDistricts 600-MP apportionment
+    expect(result.partyTotalSeats['AKP']).toBe(266);
+    expect(result.partyTotalSeats['CHP']).toBe(170);
     expect(result.partyTotalSeats['DEM']).toBe(61);
-    expect(result.partyTotalSeats['MHP']).toBe(50);
-    expect(result.partyTotalSeats['IYI']).toBe(43);
+    expect(result.partyTotalSeats['MHP']).toBe(49);
+    expect(result.partyTotalSeats['IYI']).toBe(45);
     expect(result.partyTotalSeats['YRP']).toBe(5);
     expect(result.partyTotalSeats['TIP']).toBe(4);
 
-    // Verify per-district seat match against repo 600's mv2023 across all 87 districts
+    // Verify per-district seat counts against repo 600's prDistricts and mv2023 for unchanged districts
     const geo600Path = path.resolve(process.cwd(), 'scripts/data/repo600_geo.json');
     const geo600 = JSON.parse(fs.readFileSync(geo600Path, 'utf8')).map;
     const foldTr = (s: string) =>
@@ -73,14 +73,21 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
         ? `${pFold}-${['i', 'ii', 'iii'][parseInt(d.id.split('-')[1], 10) - 1]}`
         : pFold;
       const expectedMv = geo600.mv2023[key600] || {};
+      const expectedPrTotal = geo600.prDistricts[key600];
       const actualSeats = result.districtResults[d.id].partySeats;
-      expect(actualSeats['AKP'] || 0).toBe(expectedMv['akp'] || 0);
-      expect(actualSeats['CHP'] || 0).toBe(expectedMv['chp'] || 0);
-      expect(actualSeats['MHP'] || 0).toBe(expectedMv['mhp'] || 0);
-      expect(actualSeats['IYI'] || 0).toBe(expectedMv['iyi'] || 0);
-      expect(actualSeats['DEM'] || 0).toBe(expectedMv['dem'] || 0);
-      expect(actualSeats['YRP'] || 0).toBe(expectedMv['yrp'] || 0);
-      expect(actualSeats['TIP'] || 0).toBe(expectedMv['tip'] || 0);
+      const actualTotal = Object.values(actualSeats).reduce((a, b) => a + b, 0);
+      expect(actualTotal).toBe(expectedPrTotal);
+
+      const mv2023Total = Object.values(expectedMv).reduce((a: number, b: any) => a + Number(b || 0), 0);
+      if (mv2023Total === expectedPrTotal) {
+        expect(actualSeats['AKP'] || 0).toBe(expectedMv['akp'] || 0);
+        expect(actualSeats['CHP'] || 0).toBe(expectedMv['chp'] || 0);
+        expect(actualSeats['MHP'] || 0).toBe(expectedMv['mhp'] || 0);
+        expect(actualSeats['IYI'] || 0).toBe(expectedMv['iyi'] || 0);
+        expect(actualSeats['DEM'] || 0).toBe(expectedMv['dem'] || 0);
+        expect(actualSeats['YRP'] || 0).toBe(expectedMv['yrp'] || 0);
+        expect(actualSeats['TIP'] || 0).toBe(expectedMv['tip'] || 0);
+      }
     }
 
     // Verify major parties pass the 7% threshold via their alliances
@@ -229,10 +236,10 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     });
 
     expect(res.totalSeatsAllocated).toBe(600);
-    expect(res.partyTotalSeats['AKP']).toBe(271);
-    expect(res.partyTotalSeats['CHP']).toBe(244);
-    expect(res.partyTotalSeats['YRP']).toBe(45);
-    expect(res.partyTotalSeats['MHP']).toBe(37);
+    expect(res.partyTotalSeats['AKP']).toBe(275);
+    expect(res.partyTotalSeats['CHP']).toBe(243);
+    expect(res.partyTotalSeats['YRP']).toBe(44);
+    expect(res.partyTotalSeats['MHP']).toBe(35);
     expect(res.partyTotalSeats['IYI'] || 0).toBe(0); // IYI is at 3.77% below 7% threshold without alliance
     expect(res.partyTotalSeats['BBP']).toBe(3);
     expect(res.partyTotalSeats['DEM'] || 0).toBe(0); // DEM is at 5.88% below 7% threshold
@@ -254,7 +261,7 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
       provinceOverrides: {},
       jointListRules: [],
     });
-    expect(resLowerBaraj.partyTotalSeats['DEM']).toBe(45);
+    expect(resLowerBaraj.partyTotalSeats['DEM']).toBe(46);
     expect(resLowerBaraj.totalSeatsAllocated).toBe(600);
   });
 
@@ -365,8 +372,14 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     // CHP has a higher losing quotient (78,938.14 vs TIP 77,792.0), but divisor 7 -> needs 27,407 votes.
     // TIP has divisor 1 -> needs only 5,062 votes.
     // Algorithmic fix ensures TIP is correctly identified as the true closest challenger!
+    const antalya17Baseline = {
+      ...baseline2023,
+      districts: baseline2023.districts.map((d) =>
+        d.id === '07' ? { ...d, mpCount: 17 } : d
+      ),
+    };
     const res23 = runMultiLayerProjection({
-      baseline: baseline2023,
+      baseline: antalya17Baseline,
       parties: DEFAULT_PARTIES,
       alliances: DEFAULT_ALLIANCES,
       swingMode: 'proportional',
@@ -624,9 +637,9 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     expect(rizeRestIlces.length).toBeGreaterThan(0);
     for (const r of yozgatRestIlces) expect(r.partyShares['CHP']).toBeCloseTo(0, 4);
     for (const r of rizeRestIlces) expect(r.partyShares['IYI']).toBeCloseTo(0, 4);
-    expect(restProj.partyTotalSeats['AKP']).toBe(268);
-    expect(restProj.partyTotalSeats['CHP']).toBe(169);
-    expect(restProj.partyTotalSeats['IYI']).toBe(43);
+    expect(restProj.partyTotalSeats['AKP']).toBe(266);
+    expect(restProj.partyTotalSeats['CHP']).toBe(170);
+    expect(restProj.partyTotalSeats['IYI']).toBe(45);
     expect(restProj.totalSeatsAllocated).toBe(600);
 
     // When user swings from 2023 baseline (e.g. CHP raised to 30%), CHP in Yozgat & IYI in Rize receive split shares

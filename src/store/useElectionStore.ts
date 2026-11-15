@@ -223,18 +223,18 @@ export const useElectionStore = create<ElectionStoreState>((set, get) => ({
   setBaselineId: (id) =>
     set((state) => {
       const base = getActiveBaseline(id, state.customBaseline);
-      const nextShares: Record<string, number> = {};
+      const baseShares: Record<string, number> = {};
       for (const p of state.parties) {
-        nextShares[p.id] = base.nationalBaseShares[p.id] ?? 0;
+        baseShares[p.id] = base.nationalBaseShares[p.id] ?? 0;
       }
       const nextAbroad: AbroadVoteConfig = {
         ...base.abroad,
         partyShares: { ...base.abroad.partyShares },
       };
+      // Preserve user's current nationalTargetShares when switching base election.
       const nextState = {
         ...state,
         baselineId: id,
-        nationalTargetShares: nextShares,
         nationalTargetTurnout: base.nationalBaseTurnout,
         nationalVoterScaleFactor: 1.0,
         abroadConfig: nextAbroad,
@@ -243,10 +243,14 @@ export const useElectionStore = create<ElectionStoreState>((set, get) => ({
         ilceOverrides: {},
       };
       const proj = recompute(nextState);
+      const baseProj = recompute({
+        ...nextState,
+        nationalTargetShares: baseShares,
+      });
       return {
         ...nextState,
         projection: proj,
-        baselineProjection: proj,
+        baselineProjection: baseProj,
       };
     }),
 

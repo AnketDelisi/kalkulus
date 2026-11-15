@@ -8,22 +8,10 @@ export const DEFAULT_ALLIANCES: AllianceConfig[] = [
     color: '#f59e0b',
   },
   {
-    id: 'millet',
-    name: 'Millet İttifakı',
-    shortName: 'MİLLET',
-    color: '#ef4444',
-  },
-  {
     id: 'emek',
     name: 'Emek ve Özgürlük İttifakı',
     shortName: 'EMEK',
     color: '#a855f7',
-  },
-  {
-    id: 'ata',
-    name: 'Ata İttifakı',
-    shortName: 'ATA',
-    color: '#06b6d4',
   },
 ];
 
@@ -40,7 +28,7 @@ export const DEFAULT_PARTIES: PartyConfig[] = [
     shortName: 'CHP',
     fullName: 'Cumhuriyet Halk Partisi',
     color: '#ef4444',
-    allianceId: 'millet',
+    allianceId: null,
   },
   {
     id: 'MHP',
@@ -54,7 +42,7 @@ export const DEFAULT_PARTIES: PartyConfig[] = [
     shortName: 'İYİ',
     fullName: 'İYİ Parti',
     color: '#38bdf8',
-    allianceId: 'millet',
+    allianceId: null,
   },
   {
     id: 'DEM',
@@ -75,7 +63,7 @@ export const DEFAULT_PARTIES: PartyConfig[] = [
     shortName: 'ZP',
     fullName: 'Zafer Partisi',
     color: '#dc2626',
-    allianceId: 'ata',
+    allianceId: null,
   },
   {
     id: 'TIP',

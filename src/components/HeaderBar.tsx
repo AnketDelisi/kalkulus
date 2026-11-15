@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
-import { BaselineId, DHondtMode, SwingMode } from '../types/election';
 
 export type WorkspaceTab = 'studio' | 'parliament' | 'tables';
 
@@ -30,18 +29,10 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 }) => {
   const {
     lang,
-    baselineId,
-    swingMode,
-    dhondtMode,
-    thresholdPct,
     provinceOverrides,
     districtOverrides,
     ilceOverrides,
     setLanguage,
-    setBaselineId,
-    setSwingMode,
-    setDHondtMode,
-    setThresholdPct,
     resetAllLocks,
     resetAllToBaseline,
   } = useElectionStore();
@@ -56,102 +47,59 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   return (
     <header className="bg-white border-b-[1.5px] border-[#090A0F] sticky top-0 z-30">
       <div className="max-w-[1720px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-        {/* Left: Uploaded Kalkülüs Logo + Architectural Navigation */}
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3 pr-4 border-r border-slate-300">
-            <img
-              src={`${import.meta.env.BASE_URL}kalkulus-logo.png`}
-              alt="Kalkülüs"
-              className="h-8 w-auto object-contain select-none"
-            />
-            <span className="hidden xl:inline-block font-mono text-[10px] uppercase tracking-widest px-1.5 py-0.5 bg-[#090A0F] text-white font-semibold">
-              SEÇİM SİMÜLATÖRÜ
-            </span>
-          </div>
-
-          {/* Sharp Architectural Tab Switcher */}
-          <nav className="flex items-center border-[1.5px] border-[#090A0F] bg-white text-xs font-display font-semibold">
-            <button
-              onClick={() => onChangeTab('studio')}
-              className={`flex items-center gap-2 px-3.5 py-2 border-r border-[#090A0F] transition-colors ${
-                activeTab === 'studio'
-                  ? 'bg-[#090A0F] text-white'
-                  : 'text-[#090A0F] hover:bg-slate-100'
-              }`}
-            >
-              <span className="font-mono text-[10px] opacity-60">01</span>
-              <Map className="w-3.5 h-3.5" />
-              <span>{lang === 'tr' ? 'HARİTA & PROJEKSİYON' : 'MAP & PROJECTION'}</span>
-            </button>
-
-            <button
-              onClick={() => onChangeTab('parliament')}
-              className={`flex items-center gap-2 px-3.5 py-2 border-r border-[#090A0F] transition-colors ${
-                activeTab === 'parliament'
-                  ? 'bg-[#090A0F] text-white'
-                  : 'text-[#090A0F] hover:bg-slate-100'
-              }`}
-            >
-              <span className="font-mono text-[10px] opacity-60">02</span>
-              <Landmark className="w-3.5 h-3.5" />
-              <span>{lang === 'tr' ? 'TBMM MECLİS' : 'PARLIAMENT'}</span>
-            </button>
-
-            <button
-              onClick={() => onChangeTab('tables')}
-              className={`flex items-center gap-2 px-3.5 py-2 transition-colors ${
-                activeTab === 'tables'
-                  ? 'bg-[#090A0F] text-white'
-                  : 'text-[#090A0F] hover:bg-slate-100'
-              }`}
-            >
-              <span className="font-mono text-[10px] opacity-60">03</span>
-              <BarChart3 className="w-3.5 h-3.5" />
-              <span>{lang === 'tr' ? 'VERİ TABLOLARI & KRİTİK MV' : 'TABLES & CLOSEST'}</span>
-            </button>
-          </nav>
+        {/* Left: Kalkülüs Logo */}
+        <div className="flex items-center shrink-0">
+          <img
+            src={`${import.meta.env.BASE_URL}kalkulus-logo.png`}
+            alt="Kalkülüs"
+            className="h-8 w-auto object-contain select-none"
+          />
         </div>
 
-        {/* Right: Technical Parameter Controls */}
-        <div className="flex items-center gap-2 text-xs">
-          {/* Baseline Selector */}
-          <select
-            value={baselineId}
-            onChange={(e) => setBaselineId(e.target.value as BaselineId)}
-            className="studio-input border-[#090A0F] px-2.5 py-1.5 text-xs font-mono font-semibold text-[#090A0F] hidden md:block cursor-pointer"
-            title="Baz Seçim Verisi"
+        {/* Center: Sharp Architectural Workspace Tabs */}
+        <nav className="flex items-center border-[1.5px] border-[#090A0F] bg-white text-xs font-display font-semibold overflow-x-auto">
+          <button
+            onClick={() => onChangeTab('studio')}
+            className={`flex items-center gap-2 px-3.5 py-2 border-r border-[#090A0F] whitespace-nowrap transition-colors ${
+              activeTab === 'studio'
+                ? 'bg-[#090A0F] text-white'
+                : 'text-[#090A0F] hover:bg-slate-100'
+            }`}
           >
-            <option value="2023_general">BAZ: 14 MAYIS 2023</option>
-            <option value="2024_local">BAZ: 31 MART 2024</option>
-            <option value="custom">BAZ: ÖZEL VERİ</option>
-          </select>
+            <span className="font-mono text-[10px] opacity-60">01</span>
+            <Map className="w-3.5 h-3.5" />
+            <span>{lang === 'tr' ? 'HARİTA & PROJEKSİYON' : 'MAP & PROJECTION'}</span>
+          </button>
 
-          {/* Swing Mode Selector */}
-          <select
-            value={swingMode}
-            onChange={(e) => setSwingMode(e.target.value as SwingMode)}
-            className="studio-input border-[#090A0F] px-2.5 py-1.5 text-xs font-mono font-semibold text-[#090A0F] hidden xl:block cursor-pointer"
-            title="Swing Modeli"
+          <button
+            onClick={() => onChangeTab('parliament')}
+            className={`flex items-center gap-2 px-3.5 py-2 border-r border-[#090A0F] whitespace-nowrap transition-colors ${
+              activeTab === 'parliament'
+                ? 'bg-[#090A0F] text-white'
+                : 'text-[#090A0F] hover:bg-slate-100'
+            }`}
           >
-            <option value="proportional">ORANSAL SWING (PS)</option>
-            <option value="uniform">TEKDÜZE SWING (UNS)</option>
-          </select>
+            <span className="font-mono text-[10px] opacity-60">02</span>
+            <Landmark className="w-3.5 h-3.5" />
+            <span>{lang === 'tr' ? 'TBMM MECLİS' : 'PARLIAMENT'}</span>
+          </button>
 
-          {/* Threshold Box */}
-          <div className="hidden lg:flex items-center gap-1 border-[1.5px] border-[#090A0F] bg-white px-2.5 py-1 font-mono">
-            <span className="text-slate-500 text-[11px] font-semibold">BARAJ:</span>
-            <input
-              type="number"
-              min={0}
-              max={20}
-              step={0.5}
-              value={thresholdPct}
-              onChange={(e) => setThresholdPct(parseFloat(e.target.value) || 0)}
-              className="w-10 text-right font-bold text-[#090A0F] bg-transparent focus:outline-none"
-            />
-            <span className="text-slate-500">%</span>
-          </div>
+          <button
+            onClick={() => onChangeTab('tables')}
+            className={`flex items-center gap-2 px-3.5 py-2 whitespace-nowrap transition-colors ${
+              activeTab === 'tables'
+                ? 'bg-[#090A0F] text-white'
+                : 'text-[#090A0F] hover:bg-slate-100'
+            }`}
+          >
+            <span className="font-mono text-[10px] opacity-60">03</span>
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span>{lang === 'tr' ? 'VERİ TABLOLARI & KRİTİK MV' : 'TABLES & CLOSEST'}</span>
+          </button>
+        </nav>
 
+        {/* Right: Compact Action Controls */}
+        <div className="flex items-center gap-2 text-xs shrink-0">
           {/* Locked Units Counter */}
           {totalLocks > 0 && (
             <button
@@ -191,6 +139,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
             title={t.resetToBaseline}
           >
             <RotateCcw className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">{lang === 'tr' ? 'SIFIRLA' : 'RESET'}</span>
           </button>
 
           {/* Language Toggle */}

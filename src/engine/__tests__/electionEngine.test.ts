@@ -11,6 +11,7 @@ import {
   sendRemainderToOther,
 } from '../swing';
 import { BaselineDataset } from '../../types/election';
+import { useElectionStore } from '../../store/useElectionStore';
 
 const baseline2023 = baseline2023Raw as unknown as BaselineDataset;
 const baseline2024 = baseline2024Raw as unknown as BaselineDataset;
@@ -228,11 +229,11 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     });
 
     expect(res.totalSeatsAllocated).toBe(600);
-    expect(res.partyTotalSeats['AKP']).toBe(267);
-    expect(res.partyTotalSeats['CHP']).toBe(241);
-    expect(res.partyTotalSeats['YRP']).toBe(43);
-    expect(res.partyTotalSeats['MHP']).toBe(36);
-    expect(res.partyTotalSeats['IYI']).toBe(10);
+    expect(res.partyTotalSeats['AKP']).toBe(271);
+    expect(res.partyTotalSeats['CHP']).toBe(244);
+    expect(res.partyTotalSeats['YRP']).toBe(45);
+    expect(res.partyTotalSeats['MHP']).toBe(37);
+    expect(res.partyTotalSeats['IYI'] || 0).toBe(0); // IYI is at 3.77% below 7% threshold without alliance
     expect(res.partyTotalSeats['BBP']).toBe(3);
     expect(res.partyTotalSeats['DEM'] || 0).toBe(0); // DEM is at 5.88% below 7% threshold
 
@@ -596,5 +597,83 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
       expect(proj.abroadPartyVotes['SAADET']).toBeGreaterThan(0);
       expect(proj.totalSeatsAllocated).toBe(600);
     }
+  });
+
+  it('de-aliases 2023 joint-list uncontested provinces when inputs change while preserving exact YSK rest', () => {
+    const restProj = runMultiLayerProjection({
+      baseline: baseline2023,
+      parties: DEFAULT_PARTIES,
+      alliances: DEFAULT_ALLIANCES,
+      swingMode: 'proportional',
+      dhondtMode: '2022_separate',
+      thresholdPct: 7.0,
+      nationalTargetShares: { ...baseline2023.nationalBaseShares },
+      nationalTargetTurnout: baseline2023.nationalBaseTurnout,
+      nationalVoterScaleFactor: 1.0,
+      abroadConfig: baseline2023.abroad,
+      ilceOverrides: {},
+      districtOverrides: {},
+      provinceOverrides: {},
+      jointListRules: [],
+    });
+
+    // At 2023 rest, domestic ilceler in Yozgat (66) keep CHP = 0% and Rize (53) keep IYI = 0%
+    const yozgatRestIlces = Object.values(restProj.ilceResults).filter((r) => r.ilId === '66');
+    const rizeRestIlces = Object.values(restProj.ilceResults).filter((r) => r.ilId === '53');
+    expect(yozgatRestIlces.length).toBeGreaterThan(0);
+    expect(rizeRestIlces.length).toBeGreaterThan(0);
+    for (const r of yozgatRestIlces) expect(r.partyShares['CHP']).toBeCloseTo(0, 4);
+    for (const r of rizeRestIlces) expect(r.partyShares['IYI']).toBeCloseTo(0, 4);
+    expect(restProj.partyTotalSeats['AKP']).toBe(268);
+    expect(restProj.partyTotalSeats['CHP']).toBe(169);
+    expect(restProj.partyTotalSeats['IYI']).toBe(43);
+    expect(restProj.totalSeatsAllocated).toBe(600);
+
+    // When user swings from 2023 baseline (e.g. CHP raised to 30%), CHP in Yozgat & IYI in Rize receive split shares
+    const modifiedProj = runMultiLayerProjection({
+      baseline: baseline2023,
+      parties: DEFAULT_PARTIES,
+      alliances: DEFAULT_ALLIANCES,
+      swingMode: 'proportional',
+      dhondtMode: '2022_separate',
+      thresholdPct: 7.0,
+      nationalTargetShares: {
+        ...baseline2023.nationalBaseShares,
+        CHP: 30.0,
+        AKP: baseline2023.nationalBaseShares['AKP'] - (30.0 - baseline2023.nationalBaseShares['CHP']),
+      },
+      nationalTargetTurnout: baseline2023.nationalBaseTurnout,
+      nationalVoterScaleFactor: 1.0,
+      abroadConfig: baseline2023.abroad,
+      ilceOverrides: {},
+      districtOverrides: {},
+      provinceOverrides: {},
+      jointListRules: [],
+    });
+
+    expect(modifiedProj.provinceResults['66'].partyShares['CHP']).toBeGreaterThan(10);
+    expect(modifiedProj.provinceResults['66'].partyShares['IYI']).toBeGreaterThan(3);
+    expect(modifiedProj.provinceResults['53'].partyShares['IYI']).toBeGreaterThan(1);
+    expect(modifiedProj.provinceResults['53'].partyShares['CHP']).toBeGreaterThan(15);
+    expect(modifiedProj.totalSeatsAllocated).toBe(600);
+  });
+
+  it('preserves user nationalTargetShares when switching base election in store', () => {
+    const store = useElectionStore.getState();
+    store.resetAllToBaseline();
+    store.updateNationalPartyShare('CHP', 31.5);
+    const savedShares = { ...useElectionStore.getState().nationalTargetShares };
+
+    useElectionStore.getState().setBaselineId('2024_local');
+    const afterSwitch = useElectionStore.getState();
+
+    expect(afterSwitch.baselineId).toBe('2024_local');
+    expect(afterSwitch.nationalTargetShares['CHP']).toBeCloseTo(savedShares['CHP'], 4);
+    expect(afterSwitch.projection.totalSeatsAllocated).toBe(600);
+    expect(afterSwitch.baselineProjection.totalSeatsAllocated).toBe(600);
+
+    // Cleanly reset back to 2023_general rest
+    useElectionStore.getState().setBaselineId('2023_general');
+    useElectionStore.getState().resetAllToBaseline();
   });
 });

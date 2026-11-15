@@ -163,6 +163,92 @@ export function swingShareVector(
 }
 
 /**
+ * In the May 2023 parliamentary election, CHP withdrew its list in 7 provinces in favor of IYI Parti,
+ * and IYI Parti withdrew its list in 9 provinces in favor of CHP. When projecting changes away from
+ * the untouched 2023 baseline, we split the host party's 2023 share using each province's 2024
+ * local-election CHP : IYI ratio so both parties carry realistic baseline strength.
+ */
+const JOINT_2023_PROVINCE_SPLITS: Record<
+  string,
+  { withdrawn: string; host: string; withdrawnRatio: number }
+> = {
+  // 7 provinces where CHP = 0% in 2023 (ran on IYI list)
+  '68': { withdrawn: 'CHP', host: 'IYI', withdrawnRatio: 0.3778 }, // Aksaray
+  '69': { withdrawn: 'CHP', host: 'IYI', withdrawnRatio: 0.5842 }, // Bayburt
+  '13': { withdrawn: 'CHP', host: 'IYI', withdrawnRatio: 0.4241 }, // Bitlis
+  '18': { withdrawn: 'CHP', host: 'IYI', withdrawnRatio: 0.6860 }, // Çankırı
+  '29': { withdrawn: 'CHP', host: 'IYI', withdrawnRatio: 0.6510 }, // Gümüşhane
+  '49': { withdrawn: 'CHP', host: 'IYI', withdrawnRatio: 0.5351 }, // Muş
+  '66': { withdrawn: 'CHP', host: 'IYI', withdrawnRatio: 0.6908 }, // Yozgat
+  // 9 provinces where IYI = 0% in 2023 (ran on CHP list)
+  '02': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.0253 }, // Adıyaman
+  '74': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.0541 }, // Bartın
+  '72': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.1145 }, // Batman
+  '19': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.1322 }, // Çorum
+  '81': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.2743 }, // Düzce
+  '24': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.1171 }, // Erzincan
+  '30': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.0826 }, // Hakkari
+  '53': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.1576 }, // Rize
+  '65': { withdrawn: 'IYI', host: 'CHP', withdrawnRatio: 0.1514 }, // Van
+};
+
+function isProjectionModifiedFromBaseline(input: ProjectionEngineInput): boolean {
+  const {
+    baseline,
+    parties,
+    nationalTargetShares,
+    nationalTargetTurnout,
+    nationalVoterScaleFactor,
+    ilceOverrides,
+    districtOverrides,
+    provinceOverrides,
+    jointListRules,
+  } = input;
+
+  if (Math.abs(nationalVoterScaleFactor - 1.0) > 1e-4) return true;
+  if (Math.abs(nationalTargetTurnout - baseline.nationalBaseTurnout) > 0.05) return true;
+  if (jointListRules.length > 0) return true;
+
+  for (const p of parties) {
+    if (Math.abs((nationalTargetShares[p.id] ?? 0) - (baseline.nationalBaseShares[p.id] ?? 0)) > 0.05) {
+      return true;
+    }
+  }
+  for (const ovr of Object.values(ilceOverrides)) {
+    if (ovr?.isLocked) return true;
+  }
+  for (const ovr of Object.values(districtOverrides)) {
+    if (ovr?.isLocked) return true;
+  }
+  for (const ovr of Object.values(provinceOverrides)) {
+    if (ovr?.isLocked) return true;
+  }
+  return false;
+}
+
+function getEffectiveIlceBaseShares(
+  ilce: IlceData,
+  applyJoint2023Dealiasing: boolean
+): Record<string, number> {
+  if (!applyJoint2023Dealiasing) return ilce.partyShares;
+  const split = JOINT_2023_PROVINCE_SPLITS[ilce.ilId];
+  if (!split) return ilce.partyShares;
+
+  const withdrawnVal = ilce.partyShares[split.withdrawn] ?? 0;
+  const hostVal = ilce.partyShares[split.host] ?? 0;
+  if (withdrawnVal === 0 && hostVal > 0) {
+    const withdrawnShare = Number((hostVal * split.withdrawnRatio).toFixed(2));
+    const hostShare = Number((hostVal - withdrawnShare).toFixed(2));
+    return {
+      ...ilce.partyShares,
+      [split.withdrawn]: withdrawnShare,
+      [split.host]: hostShare,
+    };
+  }
+  return ilce.partyShares;
+}
+
+/**
  * Executes the full multi-layer hierarchical projection across:
  * - 973 İlçeler (respecting locked ilçe overrides, locked district/il overrides, or national swing)
  * - 87 Electoral Districts (aggregating domestic ilçe votes + distributing Yurt Dışı & Gümrük votes + running D'Hondt)
@@ -187,6 +273,10 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
     jointListRules,
   } = input;
 
+  const applyJoint2023Dealiasing =
+    baseline.id === '2023_general' && isProjectionModifiedFromBaseline(input);
+  const ilceBaseSharesById: Record<string, Record<string, number>> = {};
+
   // Pre-compute baseline aggregates per electoral district and per province so that
   // locked district/province overrides can swing their unlocked child ilçeler accurately.
   const districtBaseAgg: Record<
@@ -199,6 +289,9 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
   > = {};
 
   for (const ilce of baseline.ilceler) {
+    const ilceBaseShares = getEffectiveIlceBaseShares(ilce, applyJoint2023Dealiasing);
+    ilceBaseSharesById[ilce.id] = ilceBaseShares;
+
     const cast = Math.round(ilce.registeredVoters * (ilce.turnout / 100));
     const valid = Math.round(cast * (ilce.validVoteRatio / 100));
 
@@ -218,7 +311,7 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
     provinceBaseAgg[ilce.ilId].validVotes += valid;
 
     for (const p of parties) {
-      const pv = Math.round(valid * ((ilce.partyShares[p.id] ?? 0) / 100));
+      const pv = Math.round(valid * ((ilceBaseShares[p.id] ?? 0) / 100));
       districtBaseAgg[ilce.districtId].partyVotes[p.id] =
         (districtBaseAgg[ilce.districtId].partyVotes[p.id] || 0) + pv;
       provinceBaseAgg[ilce.ilId].partyVotes[p.id] =
@@ -253,6 +346,7 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
   for (const p of parties) domesticPartyVotes[p.id] = 0;
 
   for (const ilce of baseline.ilceler) {
+    const ilceBaseShares = ilceBaseSharesById[ilce.id] || ilce.partyShares;
     const ilceOvr = ilceOverrides[ilce.id];
     const distOvr = districtOverrides[ilce.districtId];
     const provOvr = provinceOverrides[ilce.ilId];
@@ -269,7 +363,7 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
       if (ilceOvr.turnout !== undefined) effectiveTurnout = Math.min(100, Math.max(0, ilceOvr.turnout));
       effectiveShares = ilceOvr.partyShares
         ? normalizeSharesTo100(ilceOvr.partyShares, parties)
-        : normalizeSharesTo100(ilce.partyShares, parties);
+        : normalizeSharesTo100(ilceBaseShares, parties);
     } else if (distOvr && distOvr.isLocked) {
       // Layer 2a Lock: Parent Electoral District locked by user -> swing unlocked child ilçeler
       isLocked = true;
@@ -285,7 +379,7 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
         ? normalizeSharesTo100(distOvr.partyShares, parties)
         : dBase.shares;
       effectiveShares = swingShareVector(
-        ilce.partyShares,
+        ilceBaseShares,
         dBase ? dBase.shares : baseline.nationalBaseShares,
         targetDistShares,
         swingMode,
@@ -306,7 +400,7 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
         ? normalizeSharesTo100(provOvr.partyShares, parties)
         : pBase.shares;
       effectiveShares = swingShareVector(
-        ilce.partyShares,
+        ilceBaseShares,
         pBase ? pBase.shares : baseline.nationalBaseShares,
         targetProvShares,
         swingMode,
@@ -315,7 +409,7 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
     } else {
       // Layer 1 (Unlocked): Swing from National Baseline to National Target
       effectiveShares = swingShareVector(
-        ilce.partyShares,
+        ilceBaseShares,
         baseline.nationalBaseShares,
         normalizedNationalTarget,
         swingMode,

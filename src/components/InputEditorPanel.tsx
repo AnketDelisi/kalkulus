@@ -15,7 +15,7 @@ import baseline2023Raw from '../data/baseline2023.json';
 import baseline2024Raw from '../data/baseline2024.json';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
-import { BaselineDataset } from '../types/election';
+import { BaselineDataset, BaselineId, SwingMode } from '../types/election';
 
 const BASELINES: Record<string, BaselineDataset> = {
   '2023_general': baseline2023Raw as unknown as BaselineDataset,
@@ -26,6 +26,7 @@ export const InputEditorPanel: React.FC = () => {
   const {
     lang,
     baselineId,
+    swingMode,
     customBaseline,
     parties,
     activeScope,
@@ -37,6 +38,8 @@ export const InputEditorPanel: React.FC = () => {
     ilceOverrides,
     projection,
     baselineProjection,
+    setBaselineId,
+    setSwingMode,
     setActiveScope,
     updateNationalPartyShare,
     normalizeActiveScopeShares,
@@ -242,6 +245,38 @@ export const InputEditorPanel: React.FC = () => {
 
   return (
     <div className="studio-panel studio-crosshair p-4 flex flex-col gap-3.5">
+      {/* Model Parameters: Base Election & Swing Mode */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col gap-1">
+          <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            {lang === 'tr' ? 'BAZ SEÇİM' : 'BASE ELECTION'}
+          </label>
+          <select
+            value={baselineId}
+            onChange={(e) => setBaselineId(e.target.value as BaselineId)}
+            className="studio-input border-[#090A0F] px-2 py-1.5 text-xs font-mono font-semibold text-[#090A0F] cursor-pointer"
+          >
+            <option value="2023_general">14 MAYIS 2023 MV</option>
+            <option value="2024_local">31 MART 2024 YEREL</option>
+            <option value="custom">{lang === 'tr' ? 'ÖZEL CSV VERİ' : 'CUSTOM DATA'}</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            {lang === 'tr' ? 'SALINIM MODELİ' : 'SWING MODEL'}
+          </label>
+          <select
+            value={swingMode}
+            onChange={(e) => setSwingMode(e.target.value as SwingMode)}
+            className="studio-input border-[#090A0F] px-2 py-1.5 text-xs font-mono font-semibold text-[#090A0F] cursor-pointer"
+          >
+            <option value="proportional">{lang === 'tr' ? 'ORANSAL (PS)' : 'PROPORTIONAL (PS)'}</option>
+            <option value="uniform">{lang === 'tr' ? 'TEKDÜZE (UNS)' : 'UNIFORM (UNS)'}</option>
+          </select>
+        </div>
+      </div>
+
       {/* Top Scope Selector Tabs (National vs Abroad) */}
       <div className="grid grid-cols-2 border-[1.5px] border-[#090A0F] bg-white text-xs font-display font-bold">
         <button

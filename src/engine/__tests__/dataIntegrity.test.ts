@@ -163,4 +163,32 @@ describe('Continuous Baseline Data Integrity Suite', () => {
       expect(b23IlceIds.has(f.properties.id), `Ilce feature ${f.properties.id} exists in baseline`).toBe(true);
     }
   });
+
+  it('verifies merged provinces in tr-provinces.geojson have zero interior seam holes and default alliances exclude millet/ata', () => {
+    const geoProv = JSON.parse(
+      fs.readFileSync(path.resolve(process.cwd(), 'public/tr-provinces.geojson'), 'utf8')
+    );
+
+    const multiDistrictProvs = new Set(['06', '16', '34', '35']);
+    for (const f of geoProv.features) {
+      const geom = f.geometry;
+      if (geom.type === 'Polygon') {
+        expect(
+          geom.coordinates.length,
+          `Province ${f.properties.id} Polygon should have no interior hole rings`
+        ).toBe(1);
+      } else if (geom.type === 'MultiPolygon') {
+        for (const poly of geom.coordinates) {
+          expect(
+            poly.length,
+            `Province ${f.properties.id} MultiPolygon part should have no interior hole rings`
+          ).toBe(1);
+        }
+      }
+      multiDistrictProvs.delete(f.properties.id);
+    }
+    expect(multiDistrictProvs.size).toBe(0);
+
+    expect(DEFAULT_ALLIANCES.map((a) => a.id)).toEqual(['cumhur', 'emek']);
+  });
 });

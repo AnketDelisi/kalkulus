@@ -232,6 +232,12 @@ for (const prov of baseline2023.provinces) {
     };
     const topology = topojsonServer.topology({ sub: subFc }, 1e4);
     geometry = topojsonClient.merge(topology, topology.objects.sub.geometries);
+    // Strip interior seam holes produced along sub-district boundaries:
+    if (geometry.type === 'Polygon') {
+      geometry.coordinates = [geometry.coordinates[0]];
+    } else if (geometry.type === 'MultiPolygon') {
+      geometry.coordinates = geometry.coordinates.map((poly) => [poly[0]]);
+    }
     if (geoArea({ type: 'Feature', properties: {}, geometry }) > 0.5) {
       throw new Error(`Invalid merged province winding for province ${prov.id}`);
     }

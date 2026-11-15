@@ -113,7 +113,13 @@ interface ElectionStoreState {
   resetAllToBaseline: () => void;
 
   // Party, Alliance & Joint List management
-  addCustomParty: (shortName: string, fullName: string, color: string, allianceId: string | null) => void;
+  addCustomParty: (
+    shortName: string,
+    fullName: string,
+    color: string,
+    allianceId: string | null,
+    proxyWeights?: Record<string, number>
+  ) => void;
   updatePartyConfig: (partyId: string, partial: Partial<PartyConfig>) => void;
   addAlliance: (name: string, shortName: string, color: string) => void;
   addJointListRule: (rule: Omit<JointListRule, 'id'>) => void;
@@ -686,7 +692,7 @@ export const useElectionStore = create<ElectionStoreState>((set, get) => ({
       };
     }),
 
-  addCustomParty: (shortName, fullName, color, allianceId) =>
+  addCustomParty: (shortName, fullName, color, allianceId, proxyWeights) =>
     set((state) => {
       const id = shortName.toUpperCase().replace(/[^A-Z0-9ĞÜŞİÖÇ]/g, '').slice(0, 8) || `P${Date.now()}`;
       if (state.parties.some((p) => p.id === id)) return state;
@@ -696,6 +702,7 @@ export const useElectionStore = create<ElectionStoreState>((set, get) => ({
         fullName,
         color,
         allianceId,
+        ...(proxyWeights ? { proxyWeights } : {}),
         isCustom: true,
       };
       // Insert right before OTHER

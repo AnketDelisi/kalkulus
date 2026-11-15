@@ -144,7 +144,7 @@ const MULTI_DISTRICTS_RAW = [
   ]
 ];
 
-const PARTY_KEYS = ["AKP", "CHP", "MHP", "IYI", "DEM", "YRP", "ZP", "TIP", "BBP", "OTHER"];
+const PARTY_KEYS = ["AKP", "CHP", "MHP", "IYI", "DEM", "YRP", "ZP", "TIP", "A", "YENI", "SAADET", "BBP", "OTHER"];
 const PARTY_MAP_600 = {
   akp: "AKP",
   chp: "CHP",
@@ -235,7 +235,11 @@ function find600IlceKey(ilId, ilceName, ilceId) {
 }
 
 function toKalkulusSharesFrom600(sh600) {
-  const res = {};
+  const res = {
+    A: 0,
+    YENI: 0,
+    SAADET: 0,
+  };
   let sum = 0;
   for (const [k600, kKal] of Object.entries(PARTY_MAP_600)) {
     const v = Math.max(0, Number(sh600?.[k600] ?? 0));
@@ -274,6 +278,9 @@ const ABROAD_2023 = {
     YRP: 1.1,
     ZP: 0.9,
     TIP: 1.5,
+    A: 0,
+    YENI: 0,
+    SAADET: 0,
     BBP: 0.4,
     OTHER: 0.7,
   },

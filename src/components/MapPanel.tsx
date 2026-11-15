@@ -422,6 +422,7 @@ export const MapPanel: React.FC = () => {
                         key={`ctx-${f.properties.id}`}
                         d={pathGenerator(f as any) || ''}
                         fill="#dfe3ea"
+                        fillRule="evenodd"
                         stroke="#cbd5e1"
                         strokeWidth={0.7}
                         className="pointer-events-none"
@@ -452,6 +453,7 @@ export const MapPanel: React.FC = () => {
                           key={`${ilceId}-${idx}`}
                           d={pathGenerator(feat as any) || ''}
                           fill={fill}
+                          fillRule="evenodd"
                           stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#090a0f'}
                           strokeWidth={isSelected ? 2.2 : isLocked ? 1.8 : 0.65}
                           className="cursor-pointer transition-opacity hover:opacity-85"
@@ -515,6 +517,7 @@ export const MapPanel: React.FC = () => {
                         key={`${ilceId}-${idx}`}
                         d={pathGenerator(feat as any) || ''}
                         fill={fill}
+                        fillRule="evenodd"
                         stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#ffffff'}
                         strokeWidth={isSelected ? 1.5 : 0.3}
                         className="cursor-pointer hover:opacity-85"
@@ -591,6 +594,7 @@ export const MapPanel: React.FC = () => {
                         key={dId}
                         d={pathGenerator(feat as any) || ''}
                         fill={fill}
+                        fillRule="evenodd"
                         stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#090a0f'}
                         strokeWidth={isSelected ? 2.2 : isLocked ? 1.8 : 0.65}
                         className="cursor-pointer transition-opacity hover:opacity-85"
@@ -657,6 +661,7 @@ export const MapPanel: React.FC = () => {
                         key={ilId}
                         d={pathGenerator(feat as any) || ''}
                         fill={fill}
+                        fillRule="evenodd"
                         stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#090a0f'}
                         strokeWidth={isSelected ? 2.2 : isLocked ? 1.8 : 0.65}
                         className="cursor-pointer transition-opacity hover:opacity-85"

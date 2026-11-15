@@ -13,8 +13,10 @@ import {
   PartyConfig,
   SwingMode,
 } from '../types/election';
-import { computeAndDistributeAbroadVotes } from './abroad';
+import { computeAndDistributeAbroadVotes, getProxyShare } from './abroad';
 import { allocateDistrictSeatsDHondt, evaluateNationalThreshold } from './dhondt';
+
+export { getProxyShare };
 
 export interface IlceOverride {
   partyShares?: Record<string, number>;
@@ -131,6 +133,16 @@ export function swingShareVector(
     if (Math.abs(delta) < 1e-6) {
       raw[p.id] = uBase;
       continue;
+    }
+
+    if (uBase <= 0.1 && pBase <= 0.1 && p.proxyWeights) {
+      const uProxy = getProxyShare(unitBaseShares, p);
+      const pProxy = getProxyShare(parentBaseShares, p);
+      if (pProxy > 0.1) {
+        // Non-uniform proxy geography projection for 0%-baseline parties
+        raw[p.id] = Math.max(0, pTarget * (uProxy / pProxy));
+        continue;
+      }
     }
 
     if (swingMode === 'proportional') {

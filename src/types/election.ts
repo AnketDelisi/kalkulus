@@ -11,6 +11,7 @@ export interface PartyConfig {
   fullName: string;
   color: string;
   allianceId: string | null;
+  proxyWeights?: Record<string, number>;
   isCustom?: boolean;
   isOther?: boolean;
 }

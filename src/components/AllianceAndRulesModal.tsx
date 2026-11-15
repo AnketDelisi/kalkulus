@@ -207,6 +207,18 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                           <div>
                             <div className="font-display font-bold text-[#090A0F]">{p.shortName}</div>
                             <div className="text-[11px] text-slate-500">{p.fullName}</div>
+                            {p.proxyWeights && Object.keys(p.proxyWeights).length > 0 && (
+                              <div className="text-[10px] font-mono text-slate-500 mt-0.5">
+                                PROXY:{' '}
+                                {Object.entries(p.proxyWeights)
+                                  .map(([dId, w]) => {
+                                    const dName =
+                                      parties.find((x) => x.id === dId)?.shortName || dId;
+                                    return `%${Math.round(w * 100)} ${dName}`;
+                                  })
+                                  .join(' + ')}
+                              </div>
+                            )}
                           </div>
                         </div>
 

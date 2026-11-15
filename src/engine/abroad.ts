@@ -1,5 +1,21 @@
 import { AbroadVoteConfig, PartyConfig, SwingMode } from '../types/election';
 
+/**
+ * Computes a party's regional proxy vote share from donor parties' weights
+ * (used for new/0%-baseline parties such as YENİ, A, SAADET).
+ */
+export function getProxyShare(
+  shares: Record<string, number>,
+  party: PartyConfig
+): number {
+  if (!party.proxyWeights) return 0;
+  let weighted = 0;
+  for (const [donorId, weight] of Object.entries(party.proxyWeights)) {
+    weighted += weight * (shares[donorId] ?? 0);
+  }
+  return weighted;
+}
+
 export interface AbroadComputedResult {
   abroadRegisteredVoters: number;
   abroadValidVotes: number;
@@ -59,7 +75,19 @@ export function computeAndDistributeAbroadVotes(
       const baseAbroad = baseAbroadShares[p.id] ?? 0;
       const natBase = nationalBaseShares[p.id] ?? 0;
       const natTarget = nationalTargetShares[p.id] ?? natBase;
-      if (swingMode === 'proportional') {
+      if (natBase <= 0.05 && p.proxyWeights) {
+        if (Math.abs(natTarget - natBase) < 1e-6) {
+          rawShares[p.id] = baseAbroad;
+        } else {
+          const abroadProxy = getProxyShare(baseAbroadShares, p);
+          const natProxy = getProxyShare(nationalBaseShares, p);
+          if (natProxy > 0.05) {
+            rawShares[p.id] = Math.max(0, natTarget * (abroadProxy / natProxy));
+          } else {
+            rawShares[p.id] = Math.max(0, baseAbroad + (natTarget - natBase));
+          }
+        }
+      } else if (swingMode === 'proportional') {
         if (natBase > 0.05) {
           rawShares[p.id] = Math.max(0, baseAbroad * (natTarget / natBase));
         } else {

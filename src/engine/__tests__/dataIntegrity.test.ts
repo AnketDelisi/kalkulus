@@ -143,7 +143,10 @@ describe('Continuous Baseline Data Integrity Suite', () => {
 
     expect(geoDist.features.length).toBe(87);
     expect(geoProv.features.length).toBe(81);
-    expect(geoIlce.features.length).toBe(928);
+    expect(geoIlce.features.length).toBe(973);
+
+    const geoIlceIds = new Set(geoIlce.features.map((f: { properties: { id: string } }) => f.properties.id));
+    expect(geoIlceIds.size).toBe(973);
 
     const b23DistIds = new Set(b23.districts.map((d) => d.id));
     for (const f of geoDist.features) {

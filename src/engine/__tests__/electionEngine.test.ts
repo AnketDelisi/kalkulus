@@ -520,4 +520,81 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
 
     expect(districtsVerified).toBe(87);
   });
+
+  it('keeps YENI, A, and SAADET at 0 votes/seats at baseline and applies non-uniform proxy geography when given vote targets', () => {
+    const baseProj = runMultiLayerProjection({
+      baseline: baseline2023,
+      parties: DEFAULT_PARTIES,
+      alliances: DEFAULT_ALLIANCES,
+      swingMode: 'proportional',
+      dhondtMode: '2022_separate',
+      thresholdPct: 7.0,
+      nationalTargetShares: { ...baseline2023.nationalBaseShares },
+      nationalTargetTurnout: baseline2023.nationalBaseTurnout,
+      nationalVoterScaleFactor: 1.0,
+      abroadConfig: baseline2023.abroad,
+      ilceOverrides: {},
+      districtOverrides: {},
+      provinceOverrides: {},
+      jointListRules: [],
+    });
+
+    for (const pid of ['A', 'YENI', 'SAADET']) {
+      expect(baseProj.nationalPartyVotes[pid]).toBe(0);
+      expect(baseProj.partyTotalSeats[pid]).toBe(0);
+    }
+
+    for (const swingMode of ['proportional', 'uniform'] as const) {
+      const targetShares = {
+        ...baseline2023.nationalBaseShares,
+        AKP: Math.max(0, baseline2023.nationalBaseShares['AKP'] - 3),
+        CHP: Math.max(0, baseline2023.nationalBaseShares['CHP'] - 5),
+        IYI: Math.max(0, baseline2023.nationalBaseShares['IYI'] - 4),
+        YRP: Math.max(0, baseline2023.nationalBaseShares['YRP'] - 1),
+        YENI: 5,
+        A: 6,
+        SAADET: 2,
+      };
+
+      const proj = runMultiLayerProjection({
+        baseline: baseline2023,
+        parties: DEFAULT_PARTIES,
+        alliances: DEFAULT_ALLIANCES,
+        swingMode,
+        dhondtMode: '2022_separate',
+        thresholdPct: 7.0,
+        nationalTargetShares: targetShares,
+        nationalTargetTurnout: baseline2023.nationalBaseTurnout,
+        nationalVoterScaleFactor: 1.0,
+        abroadConfig: baseline2023.abroad,
+        ilceOverrides: {},
+        districtOverrides: {},
+        provinceOverrides: {},
+        jointListRules: [],
+      });
+
+      const kadikoy = proj.ilceResults['34-kadikoy'];
+      const konyaMeram = proj.ilceResults['42-meram'];
+      expect(kadikoy).toBeDefined();
+      expect(konyaMeram).toBeDefined();
+
+      // YENI follows CHP geography (higher in Kadikoy than in Meram), never flat uniform
+      expect(kadikoy.partyShares['YENI']).toBeGreaterThan(konyaMeram.partyShares['YENI'] * 2);
+
+      // SAADET follows YRP geography (higher in Meram than in Kadikoy)
+      expect(konyaMeram.partyShares['SAADET']).toBeGreaterThan(kadikoy.partyShares['SAADET'] * 2);
+
+      // A follows 75% IYI + 25% AKP geography (varies widely across ilceler, non-uniform)
+      const aShares = Object.values(proj.ilceResults).map((r) => r.partyShares['A']);
+      const minA = Math.min(...aShares);
+      const maxA = Math.max(...aShares);
+      expect(maxA).toBeGreaterThan(minA * 3);
+
+      // Abroad also gets proxy-weighted non-zero shares when syncWithNationalSwing is enabled
+      expect(proj.abroadPartyVotes['YENI']).toBeGreaterThan(0);
+      expect(proj.abroadPartyVotes['A']).toBeGreaterThan(0);
+      expect(proj.abroadPartyVotes['SAADET']).toBeGreaterThan(0);
+      expect(proj.totalSeatsAllocated).toBe(600);
+    }
+  });
 });

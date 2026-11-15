@@ -1,27 +1,30 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { geoContains, geoCentroid } from 'd3-geo';
+import { geoArea, geoCentroid, geoContains, geoMercator } from 'd3-geo';
 import * as topojsonServer from 'topojson-server';
 import * as topojsonClient from 'topojson-client';
 
 /**
- * Processes public/tr-provinces.geojson and public/tr-ilceler.geojson:
- * 1. Normalizes province plate codes ("01".."81") and Turkish names.
- * 2. Matches every ilçe polygon in tr-ilceler.geojson to its parent province (ilId),
- *    updated electoral district (districtId), and canonical ilceId in baseline2023.json.
- * 3. Dissolves/merges adjacent ilçe polygons by districtId inside multi-district provinces
- *    (İstanbul 1-2-3, Ankara 1-2-3, İzmir 1-2, Bursa 1-2) using TopoJSON topological union,
- *    generating public/tr-districts-87.geojson with 87 unified electoral region polygons!
+ * Generates public/tr-districts-87.geojson (87), public/tr-provinces.geojson (81),
+ * and public/tr-ilceler.geojson (973) directly from AnketDelisi/600's geoBoundaries SVGs:
+ * - scripts/data/repo600_turkey_il.svg (87 dissolved electoral districts)
+ * - scripts/data/repo600_turkey.svg (all 973 modern ilçe boundaries)
+ *
+ * Also updates lat/lng centroids in baseline2023.json and baseline2024.json.
  */
 
-const baseline2023 = JSON.parse(
-  fs.readFileSync(path.resolve('src/data/baseline2023.json'), 'utf8')
-);
-const rawProvincesGeo = JSON.parse(
-  fs.readFileSync(path.resolve('public/tr-provinces.geojson'), 'utf8')
-);
-const rawIlcelerGeo = JSON.parse(
-  fs.readFileSync(path.resolve('public/tr-ilceler.geojson'), 'utf8')
+const SVG_PROJECTION = geoMercator().fitExtent(
+  [
+    [0, 0],
+    [1000, 446.4],
+  ],
+  {
+    type: 'MultiPoint',
+    coordinates: [
+      [25.6685, 35.8084],
+      [44.8179, 42.1067],
+    ],
+  }
 );
 
 function normalizeTr(str) {
@@ -43,180 +46,275 @@ function normalizeTr(str) {
     .replace(/[^a-z0-9]/g, '');
 }
 
-const provByNormName = {};
-for (const p of baseline2023.provinces) {
-  provByNormName[normalizeTr(p.name)] = p;
+function roundCoord(pt) {
+  return [Number(pt[0].toFixed(5)), Number(pt[1].toFixed(5))];
 }
-provByNormName['afyon'] = provByNormName['afyonkarahisar'];
-provByNormName['hakari'] = provByNormName['hakkari'];
-provByNormName['kmaras'] = provByNormName['kahramanmaras'];
-provByNormName['icel'] = provByNormName['mersin'];
 
-const cleanProvinceFeatures = [];
-for (const feat of rawProvincesGeo.features) {
-  const rawName = feat.properties?.name || '';
-  const norm = normalizeTr(rawName);
-  let matchedProv = provByNormName[norm];
-  if (!matchedProv) {
-    const [cLng, cLat] = geoCentroid(feat);
-    let bestDist = Infinity;
-    for (const p of baseline2023.provinces) {
-      const d = (p.lat - cLat) ** 2 + (p.lng - cLng) ** 2;
-      if (d < bestDist) {
-        bestDist = d;
-        matchedProv = p;
+/**
+ * Parses an SVG path `d` attribute (M/L/Z commands in the 1000x446.4 Mercator canvas)
+ * into a spherical-RFC7946 GeoJSON Polygon or MultiPolygon with normalized winding and holes.
+ */
+function svgPathToGeoJSON(dStr) {
+  const rawSubpaths = dStr.trim().split(/(?=M)/);
+  const candidateRings = [];
+
+  for (const sub of rawSubpaths) {
+    const pts = [];
+    for (const match of sub.matchAll(/([0-9.-]+),([0-9.-]+)/g)) {
+      const x = Number(match[1]);
+      const y = Number(match[2]);
+      const lonLat = SVG_PROJECTION.invert([x, y]);
+      if (!lonLat || Number.isNaN(lonLat[0]) || Number.isNaN(lonLat[1])) continue;
+      const rounded = roundCoord(lonLat);
+      if (
+        pts.length === 0 ||
+        pts[pts.length - 1][0] !== rounded[0] ||
+        pts[pts.length - 1][1] !== rounded[1]
+      ) {
+        pts.push(rounded);
       }
+    }
+
+    if (pts.length < 3) continue;
+    if (pts[0][0] !== pts[pts.length - 1][0] || pts[0][1] !== pts[pts.length - 1][1]) {
+      pts.push([...pts[0]]);
+    }
+    if (pts.length < 4) continue;
+
+    let polyArea = geoArea({ type: 'Polygon', coordinates: [pts] });
+    if (polyArea > Math.PI) {
+      pts.reverse();
+      polyArea = geoArea({ type: 'Polygon', coordinates: [pts] });
+    }
+    if (polyArea <= 1e-10) continue;
+
+    candidateRings.push({
+      ring: pts,
+      area: polyArea,
+      centroid: geoCentroid({ type: 'Polygon', coordinates: [pts] }),
+    });
+  }
+
+  if (candidateRings.length === 0) {
+    throw new Error('SVG path produced zero valid non-degenerate rings');
+  }
+
+  // Classify outer rings vs holes using strictly larger area + centroid containment
+  const outerPolys = [];
+  const parentOfRing = new Array(candidateRings.length).fill(-1);
+  const depthOfRing = new Array(candidateRings.length).fill(0);
+
+  for (let j = 0; j < candidateRings.length; j++) {
+    const child = candidateRings[j];
+    const containers = [];
+    for (let i = 0; i < candidateRings.length; i++) {
+      if (i === j) continue;
+      const parent = candidateRings[i];
+      if (parent.area <= child.area * 1.001) continue;
+      if (geoContains({ type: 'Polygon', coordinates: [parent.ring] }, child.centroid)) {
+        containers.push(i);
+      }
+    }
+    depthOfRing[j] = containers.length;
+    if (containers.length % 2 === 1) {
+      // Immediate enclosing outer shell is the smallest-area container
+      containers.sort((a, b) => candidateRings[a].area - candidateRings[b].area);
+      parentOfRing[j] = containers[0];
     }
   }
 
-  const [cLng, cLat] = geoCentroid(feat);
-  cleanProvinceFeatures.push({
+  const outerIndexByRing = new Map();
+  for (let i = 0; i < candidateRings.length; i++) {
+    if (depthOfRing[i] % 2 === 0) {
+      outerIndexByRing.set(i, outerPolys.length);
+      outerPolys.push([candidateRings[i].ring]);
+    }
+  }
+
+  for (let j = 0; j < candidateRings.length; j++) {
+    const pIdx = parentOfRing[j];
+    if (pIdx >= 0 && outerIndexByRing.has(pIdx)) {
+      const hole = [...candidateRings[j].ring].reverse();
+      outerPolys[outerIndexByRing.get(pIdx)].push(hole);
+    }
+  }
+
+  const geom =
+    outerPolys.length === 1
+      ? { type: 'Polygon', coordinates: outerPolys[0] }
+      : { type: 'MultiPolygon', coordinates: outerPolys };
+
+  const totalArea = geoArea({ type: 'Feature', properties: {}, geometry: geom });
+  if (totalArea > 0.5) {
+    throw new Error(`Invalid spherical winding detected (geoArea=${totalArea})`);
+  }
+
+  return geom;
+}
+
+function parseSvgPaths(filePath, skipSeatArea = false) {
+  const svgText = fs.readFileSync(path.resolve(filePath), 'utf8');
+  const map = new Map();
+  for (const match of svgText.matchAll(/<path\b([^>]*)>/g)) {
+    const attrs = match[1];
+    if (skipSeatArea && attrs.includes('seat-area')) continue;
+    const idMatch = attrs.match(/\bid="([^"]+)"/);
+    const dMatch = attrs.match(/\bd="([^"]+)"/);
+    if (!idMatch || !dMatch) continue;
+    map.set(idMatch[1], dMatch[1]);
+  }
+  return map;
+}
+
+const baseline2023 = JSON.parse(
+  fs.readFileSync(path.resolve('src/data/baseline2023.json'), 'utf8')
+);
+const baseline2024 = JSON.parse(
+  fs.readFileSync(path.resolve('src/data/baseline2024.json'), 'utf8')
+);
+
+const svgDistPaths = parseSvgPaths('scripts/data/repo600_turkey_il.svg', false);
+const svgIlcePaths = parseSvgPaths('scripts/data/repo600_turkey.svg', true);
+
+const provFoldById = Object.fromEntries(
+  baseline2023.provinces.map((p) => [p.id, normalizeTr(p.name)])
+);
+
+// 1. Build 87 Electoral Districts GeoJSON from repo600_turkey_il.svg
+const districtFeatures87 = [];
+const districtGeomById = {};
+
+for (const dConfig of baseline2023.districts) {
+  const pFold = provFoldById[dConfig.ilId];
+  let svgKey = pFold;
+  if (dConfig.id.includes('-')) {
+    const subIdx = Number(dConfig.id.split('-')[1]);
+    svgKey = `${pFold}-${['', 'i', 'ii', 'iii'][subIdx]}`;
+  }
+  const dStr = svgDistPaths.get(svgKey);
+  if (!dStr) {
+    throw new Error(`Missing district path '${svgKey}' for district ${dConfig.id} in repo600_turkey_il.svg`);
+  }
+
+  const geometry = svgPathToGeoJSON(dStr);
+  districtGeomById[dConfig.id] = geometry;
+  const [cLng, cLat] = geoCentroid({ type: 'Feature', properties: {}, geometry });
+
+  districtFeatures87.push({
     type: 'Feature',
     properties: {
-      id: matchedProv.id,
-      plateCode: matchedProv.plateCode,
-      name: matchedProv.name,
-      region: matchedProv.region,
-      districtIds: matchedProv.districtIds,
+      id: dConfig.id,
+      ilId: dConfig.ilId,
+      name: dConfig.name,
+      mpCount: dConfig.mpCount,
       lat: Number(cLat.toFixed(4)),
       lng: Number(cLng.toFixed(4)),
     },
-    geometry: feat.geometry,
+    geometry,
+  });
+}
+
+// 2. Build 81 Provinces GeoJSON (merging split sub-districts for Ankara, Bursa, İstanbul, İzmir)
+const cleanProvinceFeatures = [];
+
+for (const prov of baseline2023.provinces) {
+  let geometry;
+  if (prov.districtIds.length === 1) {
+    geometry = districtGeomById[prov.districtIds[0]];
+  } else {
+    const subFc = {
+      type: 'FeatureCollection',
+      features: prov.districtIds.map((dId) => ({
+        type: 'Feature',
+        properties: { id: dId },
+        geometry: districtGeomById[dId],
+      })),
+    };
+    const topology = topojsonServer.topology({ sub: subFc }, 1e4);
+    geometry = topojsonClient.merge(topology, topology.objects.sub.geometries);
+    if (geoArea({ type: 'Feature', properties: {}, geometry }) > 0.5) {
+      throw new Error(`Invalid merged province winding for province ${prov.id}`);
+    }
+  }
+
+  const [cLng, cLat] = geoCentroid({ type: 'Feature', properties: {}, geometry });
+  cleanProvinceFeatures.push({
+    type: 'Feature',
+    properties: {
+      id: prov.id,
+      plateCode: prov.plateCode,
+      name: prov.name,
+      region: prov.region,
+      districtIds: prov.districtIds,
+      lat: Number(cLat.toFixed(4)),
+      lng: Number(cLng.toFixed(4)),
+    },
+    geometry,
   });
 }
 
 cleanProvinceFeatures.sort((a, b) => a.properties.plateCode - b.properties.plateCode);
 
-// Group baseline ilceler by province
-const ilcesByProv = {};
-for (const ilce of baseline2023.ilceler) {
-  if (!ilcesByProv[ilce.ilId]) ilcesByProv[ilce.ilId] = [];
-  ilcesByProv[ilce.ilId].push(ilce);
-}
+// 3. Build 973 İlçeler GeoJSON from repo600_turkey.svg (strict 1-to-1 match)
+const ILCE_SVG_SPECIAL = {
+  '28-merkez': 'giresun-giresundistrict',
+  '75-merkez': 'ardahan-ardahan',
+  '17-gokceada': 'canakkale-imbros',
+  '34-adalar': 'istanbul-princeislands',
+  '71-karakecili': 'kirikkale-karakeceli',
+  '55-19-mayis': 'samsun-ondokuzmayis',
+  '43-gediz': 'kutahya-gedizmerkez',
+};
 
 const cleanIlceFeatures = [];
-const matchedIlceIds = new Set();
+const usedSvgIlceKeys = new Set();
 
-for (const feat of rawIlcelerGeo.features) {
-  if (!feat.geometry) continue;
-  const rawName = feat.properties?.Name || feat.properties?.name || '';
-  const normName = normalizeTr(rawName);
-  const [cLng, cLat] = geoCentroid(feat);
-  if (isNaN(cLng) || isNaN(cLat)) continue;
+for (const ilce of baseline2023.ilceler) {
+  const pf = provFoldById[ilce.ilId];
+  const inf = normalizeTr(ilce.name);
+  const candidates = [
+    ILCE_SVG_SPECIAL[ilce.id],
+    `${pf}-${inf}`,
+    `${pf}-${pf}merkez`,
+    `${pf}-${pf}merkezilce`,
+    `${pf}-${pf}merkezi`,
+  ].filter(Boolean);
 
-  let parentProvId = feat.properties?.ilId || null;
-  if (!parentProvId) {
-    for (const pFeat of cleanProvinceFeatures) {
-      if (geoContains(pFeat, [cLng, cLat])) {
-        parentProvId = pFeat.properties.id;
-        break;
-      }
-    }
+  const svgKey = candidates.find((k) => svgIlcePaths.has(k));
+  if (!svgKey) {
+    throw new Error(`Missing ilçe path for ${ilce.id} (${ilce.name}) in repo600_turkey.svg`);
   }
-  if (!parentProvId) {
-    let bestD = Infinity;
-    for (const pFeat of cleanProvinceFeatures) {
-      const d = (pFeat.properties.lat - cLat) ** 2 + (pFeat.properties.lng - cLng) ** 2;
-      if (d < bestD) {
-        bestD = d;
-        parentProvId = pFeat.properties.id;
-      }
-    }
+  if (usedSvgIlceKeys.has(svgKey)) {
+    throw new Error(`Duplicate SVG key '${svgKey}' mapped for ilçe ${ilce.id}`);
   }
+  usedSvgIlceKeys.add(svgKey);
 
-  const candidates = ilcesByProv[parentProvId] || [];
-  let matchedIlce = candidates.find((c) => normalizeTr(c.name) === normName);
-  if (!matchedIlce) {
-    matchedIlce = candidates.find(
-      (c) =>
-        normalizeTr(c.name).includes(normName) ||
-        normName.includes(normalizeTr(c.name))
-    );
-  }
-  if (!matchedIlce) {
-    matchedIlce =
-      candidates.find((c) => !matchedIlceIds.has(c.id)) || candidates[0];
-  }
+  const geometry = svgPathToGeoJSON(svgIlcePaths.get(svgKey));
+  const [cLng, cLat] = geoCentroid({ type: 'Feature', properties: {}, geometry });
+  ilce.lat = Number(cLat.toFixed(4));
+  ilce.lng = Number(cLng.toFixed(4));
 
-  if (matchedIlce) {
-    matchedIlceIds.add(matchedIlce.id);
-    matchedIlce.lat = Number(cLat.toFixed(4));
-    matchedIlce.lng = Number(cLng.toFixed(4));
-
-    cleanIlceFeatures.push({
-      type: 'Feature',
-      properties: {
-        id: matchedIlce.id,
-        name: matchedIlce.name,
-        ilId: matchedIlce.ilId,
-        districtId: matchedIlce.districtId,
-        lat: Number(cLat.toFixed(4)),
-        lng: Number(cLng.toFixed(4)),
-      },
-      geometry: feat.geometry,
-    });
-  }
+  cleanIlceFeatures.push({
+    type: 'Feature',
+    properties: {
+      id: ilce.id,
+      name: ilce.name,
+      ilId: ilce.ilId,
+      districtId: ilce.districtId,
+      lat: ilce.lat,
+      lng: ilce.lng,
+    },
+    geometry,
+  });
 }
 
-// Build Merged 87-Electoral-District GeoJSON by dissolving ilçe polygons inside multi-district provinces
-const multiDistrictProvIds = new Set(['06', '16', '34', '35']);
-const districtFeatures87 = [];
-
-for (const dConfig of baseline2023.districts) {
-  if (!multiDistrictProvIds.has(dConfig.ilId)) {
-    // Single-district province -> use the clean province polygon directly
-    const pFeat = cleanProvinceFeatures.find((f) => f.properties.id === dConfig.ilId);
-    if (pFeat) {
-      districtFeatures87.push({
-        type: 'Feature',
-        properties: {
-          id: dConfig.id,
-          ilId: dConfig.ilId,
-          name: dConfig.name,
-          mpCount: dConfig.mpCount,
-          lat: pFeat.properties.lat,
-          lng: pFeat.properties.lng,
-        },
-        geometry: pFeat.geometry,
-      });
-    }
-  } else {
-    // Multi-district electoral region (e.g. 34-1, 06-2, 35-1, 16-2) -> dissolve constituent ilçe polygons via TopoJSON merge!
-    const regionIlceFeatures = cleanIlceFeatures.filter(
-      (f) => f.properties.districtId === dConfig.id
-    );
-    const fc = {
-      type: 'FeatureCollection',
-      features: regionIlceFeatures,
-    };
-    // Quantize coordinates so shared borders snap and dissolve cleanly
-    const topology = topojsonServer.topology({ ilceler: fc }, 1e4);
-    const mergedGeometry = topojsonClient.merge(
-      topology,
-      topology.objects.ilceler.geometries
-    );
-    const tempFeat = { type: 'Feature', properties: {}, geometry: mergedGeometry };
-    const [cLng, cLat] = geoCentroid(tempFeat);
-
-    districtFeatures87.push({
-      type: 'Feature',
-      properties: {
-        id: dConfig.id,
-        ilId: dConfig.ilId,
-        name: dConfig.name,
-        mpCount: dConfig.mpCount,
-        lat: Number(cLat.toFixed(4)),
-        lng: Number(cLng.toFixed(4)),
-      },
-      geometry: mergedGeometry,
-    });
-  }
+if (cleanIlceFeatures.length !== 973 || districtFeatures87.length !== 87 || cleanProvinceFeatures.length !== 81) {
+  throw new Error(
+    `Feature count mismatch: prov=${cleanProvinceFeatures.length}, dist=${districtFeatures87.length}, ilce=${cleanIlceFeatures.length}`
+  );
 }
 
 // Update centroids in baseline2023 and baseline2024
-const baseline2024 = JSON.parse(
-  fs.readFileSync(path.resolve('src/data/baseline2024.json'), 'utf8')
-);
 const coordMap = {};
 for (const ilce of baseline2023.ilceler) {
   coordMap[ilce.id] = { lat: ilce.lat, lng: ilce.lng };
@@ -253,6 +351,13 @@ fs.writeFileSync(
 const dSizeKb = (
   fs.statSync(path.resolve('public/tr-districts-87.geojson')).size / 1024
 ).toFixed(1);
+const pSizeKb = (
+  fs.statSync(path.resolve('public/tr-provinces.geojson')).size / 1024
+).toFixed(1);
+const iSizeKb = (
+  fs.statSync(path.resolve('public/tr-ilceler.geojson')).size / 1024
+).toFixed(1);
+
 console.log(
-  `Built 81 provinces, ${districtFeatures87.length} dissolved electoral districts (${dSizeKb} KB), and ${cleanIlceFeatures.length} ilçeler!`
+  `Built from 600: ${cleanProvinceFeatures.length} provinces (${pSizeKb} KB), ${districtFeatures87.length} electoral districts (${dSizeKb} KB), and ${cleanIlceFeatures.length} ilçeler (${iSizeKb} KB)!`
 );

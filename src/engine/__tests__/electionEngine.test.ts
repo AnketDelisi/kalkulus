@@ -677,16 +677,16 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     store.updateNationalPartyShare('CHP', 31.5);
     const savedShares = { ...useElectionStore.getState().nationalTargetShares };
 
-    useElectionStore.getState().setBaselineId('2024_local');
+    useElectionStore.getState().setBaselineId('2023_general');
     const afterSwitch = useElectionStore.getState();
 
-    expect(afterSwitch.baselineId).toBe('2024_local');
+    expect(afterSwitch.baselineId).toBe('2023_general');
     expect(afterSwitch.nationalTargetShares['CHP']).toBeCloseTo(savedShares['CHP'], 4);
     expect(afterSwitch.projection.totalSeatsAllocated).toBe(600);
     expect(afterSwitch.baselineProjection.totalSeatsAllocated).toBe(600);
 
-    // Cleanly reset back to 2023_general rest
-    useElectionStore.getState().setBaselineId('2023_general');
+    // Cleanly reset back to blended_90_10
+    useElectionStore.getState().setBaselineId('blended_90_10');
     useElectionStore.getState().resetAllToBaseline();
   });
 });

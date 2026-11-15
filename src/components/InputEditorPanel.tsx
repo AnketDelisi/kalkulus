@@ -11,17 +11,11 @@ import {
   Unlock,
   Users,
 } from 'lucide-react';
-import baseline2023Raw from '../data/baseline2023.json';
-import baseline2024Raw from '../data/baseline2024.json';
+import { BASELINES } from '../data/baselines';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
-import { BaselineDataset, BaselineId, SwingMode } from '../types/election';
+import { BaselineId, SwingMode } from '../types/election';
 import { formatInt, formatPct } from '../utils/format';
-
-const BASELINES: Record<string, BaselineDataset> = {
-  '2023_general': baseline2023Raw as unknown as BaselineDataset,
-  '2024_local': baseline2024Raw as unknown as BaselineDataset,
-};
 
 export const InputEditorPanel: React.FC = () => {
   const {
@@ -66,7 +60,9 @@ export const InputEditorPanel: React.FC = () => {
   const activeDataset =
     baselineId === 'custom' && customBaseline
       ? customBaseline
-      : BASELINES[baselineId] || BASELINES['2023_general'];
+      : baselineId === '2023_general'
+      ? BASELINES['2023_general']
+      : BASELINES['blended_90_10'];
 
   const scopeData = useMemo(() => {
     if (activeScope.type === 'national') {
@@ -257,8 +253,8 @@ export const InputEditorPanel: React.FC = () => {
             onChange={(e) => setBaselineId(e.target.value as BaselineId)}
             className="studio-input border-[#090A0F] px-2 py-1.5 text-body font-bold text-[#090A0F] cursor-pointer"
           >
-            <option value="2023_general">{lang === 'tr' ? '14 Mayıs 2023 MV' : 'May 14, 2023 general'}</option>
-            <option value="2024_local">{lang === 'tr' ? '31 Mart 2024 yerel' : 'March 31, 2024 local'}</option>
+            <option value="blended_90_10">{lang === 'tr' ? '%90 2023 + %10 2024' : '90% 2023 + 10% 2024'}</option>
+            <option value="2023_general">{lang === 'tr' ? 'Sadece 2023' : '2023 only'}</option>
             <option value="custom">{lang === 'tr' ? 'Özel CSV veri' : 'Custom CSV data'}</option>
           </select>
         </div>

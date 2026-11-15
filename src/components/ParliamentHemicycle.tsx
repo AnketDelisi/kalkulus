@@ -174,7 +174,7 @@ export const NationalResultsTable: React.FC = () => {
               <th className="py-2.5 px-2 text-right">{t.votesCol}</th>
               <th className="py-2.5 px-2 text-right">{t.seatsCol}</th>
               <th className="py-2.5 px-2 text-right">{lang === 'tr' ? 'Meclis %' : 'Seat %'}</th>
-              <th className="py-2.5 px-2 text-right">{lang === 'tr' ? '±Baz' : '±Base'}</th>
+              <th className="py-2.5 px-2 text-right">±2023</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#090A0F]/15">

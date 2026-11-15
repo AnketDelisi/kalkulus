@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import baseline2023Raw from '../data/baseline2023.json';
-import baseline2024Raw from '../data/baseline2024.json';
+import { BASELINE_2023, BASELINES } from '../data/baselines';
 import { DEFAULT_ALLIANCES, DEFAULT_PARTIES } from '../data/defaultParties';
 import {
   DistrictOverride,
@@ -24,11 +23,6 @@ import {
   PartyConfig,
   SwingMode,
 } from '../types/election';
-
-const BASELINES: Record<string, BaselineDataset> = {
-  '2023_general': baseline2023Raw as unknown as BaselineDataset,
-  '2024_local': baseline2024Raw as unknown as BaselineDataset,
-};
 
 export type ActiveEditorScope =
   | { type: 'national' }
@@ -133,7 +127,8 @@ interface ElectionStoreState {
 
 function getActiveBaseline(id: BaselineId, custom: BaselineDataset | null): BaselineDataset {
   if (id === 'custom' && custom) return custom;
-  return BASELINES[id] || BASELINES['2023_general'];
+  if (id === '2023_general') return BASELINES['2023_general'];
+  return BASELINES['blended_90_10'];
 }
 
 function recompute(state: {
@@ -188,18 +183,18 @@ const DEFAULT_TARGET_SHARES: Record<string, number> = {
   OTHER: 0.02,
 };
 
-const initialBaseline = BASELINES['2023_general'];
+const initialBaseline = BASELINES['blended_90_10'];
 const initialBaselineProjection = runMultiLayerProjection({
-  baseline: initialBaseline,
+  baseline: BASELINE_2023,
   parties: DEFAULT_PARTIES,
   alliances: DEFAULT_ALLIANCES,
   swingMode: 'proportional',
   dhondtMode: '2022_separate',
   thresholdPct: 7.0,
-  nationalTargetShares: { ...initialBaseline.nationalBaseShares },
-  nationalTargetTurnout: initialBaseline.nationalBaseTurnout,
+  nationalTargetShares: { ...BASELINE_2023.nationalBaseShares },
+  nationalTargetTurnout: BASELINE_2023.nationalBaseTurnout,
   nationalVoterScaleFactor: 1.0,
-  abroadConfig: { ...initialBaseline.abroad, partyShares: { ...initialBaseline.abroad.partyShares } },
+  abroadConfig: { ...BASELINE_2023.abroad, partyShares: { ...BASELINE_2023.abroad.partyShares } },
   ilceOverrides: {},
   districtOverrides: {},
   provinceOverrides: {},
@@ -225,7 +220,7 @@ const initialProjection = runMultiLayerProjection({
 
 export const useElectionStore = create<ElectionStoreState>((set, get) => ({
   lang: 'tr',
-  baselineId: '2023_general',
+  baselineId: 'blended_90_10',
   customBaseline: null,
   parties: DEFAULT_PARTIES,
   alliances: DEFAULT_ALLIANCES,
@@ -256,10 +251,6 @@ export const useElectionStore = create<ElectionStoreState>((set, get) => ({
   setBaselineId: (id) =>
     set((state) => {
       const base = getActiveBaseline(id, state.customBaseline);
-      const baseShares: Record<string, number> = {};
-      for (const p of state.parties) {
-        baseShares[p.id] = base.nationalBaseShares[p.id] ?? 0;
-      }
       const nextAbroad: AbroadVoteConfig = {
         ...base.abroad,
         partyShares: { ...base.abroad.partyShares },
@@ -276,14 +267,9 @@ export const useElectionStore = create<ElectionStoreState>((set, get) => ({
         ilceOverrides: {},
       };
       const proj = recompute(nextState);
-      const baseProj = recompute({
-        ...nextState,
-        nationalTargetShares: baseShares,
-      });
       return {
         ...nextState,
         projection: proj,
-        baselineProjection: baseProj,
       };
     }),
 

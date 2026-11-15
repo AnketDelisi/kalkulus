@@ -8,13 +8,11 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import baseline2023Raw from '../data/baseline2023.json';
+import { BASELINE_2023 } from '../data/baselines';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
-import { BaselineDataset, BaselineId, DHondtMode, SwingMode } from '../types/election';
+import { BaselineId, DHondtMode, SwingMode } from '../types/election';
 import { formatPct } from '../utils/format';
-
-const BASELINE_2023 = baseline2023Raw as unknown as BaselineDataset;
 
 interface AllianceAndRulesModalProps {
   isOpen: boolean;
@@ -100,8 +98,8 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
               onChange={(e) => setBaselineId(e.target.value as BaselineId)}
               className="w-full studio-input px-2 py-1.5 text-body font-medium"
             >
+              <option value="blended_90_10">{t.baselineBlended}</option>
               <option value="2023_general">{t.baseline2023}</option>
-              <option value="2024_local">{t.baseline2024}</option>
               <option value="custom">{t.baselineCustom}</option>
             </select>
           </div>

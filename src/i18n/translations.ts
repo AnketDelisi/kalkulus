@@ -2,8 +2,8 @@ export const translations = {
   tr: {
     appTitle: 'Kalkülüs',
     appSubtitle: 'Türkiye seçim projeksiyon ve milletvekili hesaplayıcı',
+    baselineBlended: '%90 2023 + %10 2024 bazı',
     baseline2023: '2023 Genel Seçim bazı',
-    baseline2024: '2024 Yerel Seçim bazı',
     baselineCustom: 'Özel veri bazı',
     swingProportional: 'Oransal salınım (PS)',
     swingUniform: 'Tekdüze salınım (UNS)',
@@ -68,8 +68,8 @@ export const translations = {
   en: {
     appTitle: 'Kalkülüs',
     appSubtitle: 'Turkey election projection and MP calculator',
+    baselineBlended: '90% 2023 + 10% 2024 baseline',
     baseline2023: '2023 General baseline',
-    baseline2024: '2024 Local baseline',
     baselineCustom: 'Custom baseline',
     swingProportional: 'Proportional swing (PS)',
     swingUniform: 'Uniform swing (UNS)',

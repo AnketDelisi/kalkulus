@@ -1,4 +1,4 @@
-export type BaselineId = '2023_general' | '2024_local' | 'custom';
+export type BaselineId = 'blended_90_10' | '2023_general' | 'custom';
 export type SwingMode = 'proportional' | 'uniform';
 export type DHondtMode = '2022_separate' | '2018_alliance';
 export type MapLayerMode = '81_il' | '87_district' | '973_ilce';

@@ -649,7 +649,7 @@ export const MapPanel: React.FC = () => {
                           fill={fill}
                           fillRule="evenodd"
                           stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#090a0f'}
-                          strokeWidth={isSelected ? 2.4 : isLocked ? 2.0 : 1.35}
+                          strokeWidth={isSelected ? 2.8 : isLocked ? 2.4 : 1.75}
                           strokeLinejoin="round"
                           className="cursor-pointer transition-opacity hover:opacity-85"
                           onClick={(e) => {
@@ -713,9 +713,8 @@ export const MapPanel: React.FC = () => {
                         d={pathGenerator(feat as any) || ''}
                         fill={fill}
                         fillRule="evenodd"
-                        stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#090a0f'}
-                        strokeWidth={isSelected ? 1.8 : 0.85}
-                        strokeLinejoin="round"
+                        stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#ffffff'}
+                        strokeWidth={isSelected ? 1.5 : 0.3}
                         className="cursor-pointer hover:opacity-85"
                         onClick={(e) => {
                           e.stopPropagation();

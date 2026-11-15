@@ -14,7 +14,7 @@ import { BaselineDataset } from '../../types/election';
 const baseline2023 = baseline2023Raw as unknown as BaselineDataset;
 
 describe('Kalkülüs Electoral Calculation Engine', () => {
-  it('allocates the exact official YSK May 14, 2023 600 MPs across all 87 electoral districts', () => {
+  it('allocates the exact official YSK May 14, 2023 600 MPs across all 87 electoral districts matching repo 600', () => {
     const result = runMultiLayerProjection({
       baseline: baseline2023,
       parties: DEFAULT_PARTIES,
@@ -45,6 +45,40 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     expect(result.partyTotalSeats['IYI']).toBe(43);
     expect(result.partyTotalSeats['YRP']).toBe(5);
     expect(result.partyTotalSeats['TIP']).toBe(4);
+
+    // Verify per-district seat match against repo 600's mv2023 across all 87 districts
+    const geo600Path = path.resolve(process.cwd(), 'scripts/data/repo600_geo.json');
+    const geo600 = JSON.parse(fs.readFileSync(geo600Path, 'utf8')).map;
+    const foldTr = (s: string) =>
+      s
+        .toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/i̇/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/â/g, 'a')
+        .replace(/[^a-z0-9]/g, '');
+    const provFold: Record<string, string> = {};
+    for (const p of baseline2023.provinces) provFold[p.id] = foldTr(p.name);
+
+    for (const d of baseline2023.districts) {
+      const pFold = provFold[d.ilId];
+      const key600 = d.id.includes('-')
+        ? `${pFold}-${['i', 'ii', 'iii'][parseInt(d.id.split('-')[1], 10) - 1]}`
+        : pFold;
+      const expectedMv = geo600.mv2023[key600] || {};
+      const actualSeats = result.districtResults[d.id].partySeats;
+      expect(actualSeats['AKP'] || 0).toBe(expectedMv['akp'] || 0);
+      expect(actualSeats['CHP'] || 0).toBe(expectedMv['chp'] || 0);
+      expect(actualSeats['MHP'] || 0).toBe(expectedMv['mhp'] || 0);
+      expect(actualSeats['IYI'] || 0).toBe(expectedMv['iyi'] || 0);
+      expect(actualSeats['DEM'] || 0).toBe(expectedMv['dem'] || 0);
+      expect(actualSeats['YRP'] || 0).toBe(expectedMv['yrp'] || 0);
+      expect(actualSeats['TIP'] || 0).toBe(expectedMv['tip'] || 0);
+    }
 
     // Verify major parties pass the 7% threshold via their alliances
     expect(result.partyPassedThreshold['AKP']).toBe(true);

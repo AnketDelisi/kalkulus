@@ -417,7 +417,10 @@ export const MapPanel: React.FC = () => {
                   setActiveScope({ type: 'province', ilId: selectedProvResult.id });
                 }}
                 className={`px-2 py-1 border transition-colors ${
-                  activeScope.type === 'province' && !selectedIlceResult
+                  (activeScope.type === 'province' ||
+                    (activeScope.type === 'district' &&
+                      !['34', '06', '35', '16'].includes(selectedProvResult.id))) &&
+                  !selectedIlceResult
                     ? 'bg-[#090A0F] text-white border-[#090A0F]'
                     : 'border-transparent text-slate-700 hover:border-[#090A0F]'
                 }`}
@@ -427,14 +430,16 @@ export const MapPanel: React.FC = () => {
             </>
           )}
 
-          {activeScope.type === 'district' && (
-            <>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              <span className="px-2 py-1 bg-[#090A0F] text-white">
-                {projection.districtResults[activeScope.districtId]?.name}
-              </span>
-            </>
-          )}
+          {activeScope.type === 'district' &&
+            selectedProvResult &&
+            ['34', '06', '35', '16'].includes(selectedProvResult.id) && (
+              <>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                <span className="px-2 py-1 bg-[#090A0F] text-white">
+                  {projection.districtResults[activeScope.districtId]?.name}
+                </span>
+              </>
+            )}
 
           {selectedIlceResult && (
             <>
@@ -472,6 +477,7 @@ export const MapPanel: React.FC = () => {
             {(
               [
                 ['87_district', lang === 'tr' ? '87 seçim çevresi' : '87 districts'],
+                ['81_il', lang === 'tr' ? '81 il' : '81 provinces'],
                 ['973_ilce', lang === 'tr' ? '973 ilçe' : '973 sub-districts'],
               ] as [MapLayerMode, string][]
             ).map(([lKey, label], idx) => (
@@ -484,8 +490,7 @@ export const MapPanel: React.FC = () => {
                 className={`px-2.5 py-1 transition-colors ${
                   idx > 0 ? 'border-l border-[#090A0F]' : ''
                 } ${
-                  (mapLayer === lKey || (lKey === '87_district' && mapLayer === '81_il')) &&
-                  !zoomedProvinceId
+                  mapLayer === lKey && !zoomedProvinceId
                     ? 'bg-[#090A0F] text-white'
                     : 'text-[#090A0F] hover:bg-slate-100'
                 }`}
@@ -760,7 +765,7 @@ export const MapPanel: React.FC = () => {
                     />
                   ))}
                 </g>
-              ) : mapLayer !== '973_ilce' ? (
+              ) : mapLayer === '87_district' ? (
                 /* CASE 3 (Default): Unified 87 Electoral Regions (Dissolved from İlçeler, Zero Clutter, No Labels) */
                 <g>
                   {districts87Geo.features.map((feat) => {

@@ -477,10 +477,22 @@ export const InputEditorPanel: React.FC = () => {
               key={party.id}
               className="group flex items-center gap-2.5 py-2 px-1 hover:bg-slate-50 transition-colors"
             >
-              {/* High-Saturation Signal Block + Party Code */}
-              <div className="flex items-center gap-2 w-20 shrink-0">
+              {/* Party Logo / Color Block + Party Code */}
+              <div className="flex items-center gap-2 w-24 shrink-0">
+                {party.logoUrl ? (
+                  <img
+                    src={party.logoUrl}
+                    alt={party.shortName}
+                    className="w-4 h-4 object-contain shrink-0"
+                  />
+                ) : (
+                  <span
+                    className="w-3.5 h-3.5 shrink-0 border border-[#090A0F]"
+                    style={{ backgroundColor: party.color }}
+                  />
+                )}
                 <span
-                  className="w-3.5 h-3.5 shrink-0 border border-[#090A0F]"
+                  className="w-2 h-2 rounded-full shrink-0"
                   style={{ backgroundColor: party.color }}
                 />
                 <span

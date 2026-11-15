@@ -188,8 +188,20 @@ export const NationalResultsTable: React.FC = () => {
               return (
                 <tr key={p.id} className="hover:bg-[#F4F5F7] transition-colors">
                   <td className="py-2.5 px-2 flex items-center gap-2">
+                    {p.logoUrl ? (
+                      <img
+                        src={p.logoUrl}
+                        alt={p.shortName}
+                        className="w-4 h-4 object-contain shrink-0"
+                      />
+                    ) : (
+                      <span
+                        className="w-3 h-3 border border-[#090A0F] shrink-0"
+                        style={{ backgroundColor: p.color }}
+                      />
+                    )}
                     <span
-                      className="w-3 h-3 border border-[#090A0F] shrink-0"
+                      className="w-2 h-2 rounded-full shrink-0"
                       style={{ backgroundColor: p.color }}
                     />
                     <span className="font-bold text-[#090A0F]">{p.shortName}</span>

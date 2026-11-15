@@ -10,6 +10,7 @@ export interface PartyConfig {
   shortName: string;
   fullName: string;
   color: string;
+  logoUrl?: string;
   allianceId: string | null;
   proxyWeights?: Record<string, number>;
   isCustom?: boolean;

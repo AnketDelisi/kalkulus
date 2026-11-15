@@ -472,7 +472,6 @@ export const MapPanel: React.FC = () => {
             {(
               [
                 ['87_district', lang === 'tr' ? '87 seçim çevresi' : '87 districts'],
-                ['81_il', lang === 'tr' ? '81 il' : '81 provinces'],
                 ['973_ilce', lang === 'tr' ? '973 ilçe' : '973 sub-districts'],
               ] as [MapLayerMode, string][]
             ).map(([lKey, label], idx) => (
@@ -485,7 +484,8 @@ export const MapPanel: React.FC = () => {
                 className={`px-2.5 py-1 transition-colors ${
                   idx > 0 ? 'border-l border-[#090A0F]' : ''
                 } ${
-                  mapLayer === lKey && !zoomedProvinceId
+                  (mapLayer === lKey || (lKey === '87_district' && mapLayer === '81_il')) &&
+                  !zoomedProvinceId
                     ? 'bg-[#090A0F] text-white'
                     : 'text-[#090A0F] hover:bg-slate-100'
                 }`}
@@ -644,7 +644,7 @@ export const MapPanel: React.FC = () => {
                           fill={fill}
                           fillRule="evenodd"
                           stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#090a0f'}
-                          strokeWidth={isSelected ? 2.2 : isLocked ? 1.8 : 0.95}
+                          strokeWidth={isSelected ? 2.4 : isLocked ? 2.0 : 1.35}
                           strokeLinejoin="round"
                           className="cursor-pointer transition-opacity hover:opacity-85"
                           onClick={(e) => {
@@ -709,7 +709,7 @@ export const MapPanel: React.FC = () => {
                         fill={fill}
                         fillRule="evenodd"
                         stroke={isSelected ? '#090a0f' : isLocked ? '#f59e0b' : '#090a0f'}
-                        strokeWidth={isSelected ? 1.6 : 0.55}
+                        strokeWidth={isSelected ? 1.8 : 0.85}
                         strokeLinejoin="round"
                         className="cursor-pointer hover:opacity-85"
                         onClick={(e) => {
@@ -760,7 +760,7 @@ export const MapPanel: React.FC = () => {
                     />
                   ))}
                 </g>
-              ) : mapLayer === '87_district' ? (
+              ) : mapLayer !== '973_ilce' ? (
                 /* CASE 3 (Default): Unified 87 Electoral Regions (Dissolved from İlçeler, Zero Clutter, No Labels) */
                 <g>
                   {districts87Geo.features.map((feat) => {

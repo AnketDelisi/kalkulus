@@ -63,7 +63,7 @@ export const DEFAULT_PARTIES: PartyConfig[] = [
     fullName: 'Yeniden Refah Partisi',
     color: '#2E8B57',
     logoUrl: 'logos/YRP.svg',
-    allianceId: 'cumhur',
+    allianceId: null,
   },
   {
     id: 'A',

@@ -15,12 +15,15 @@ import { useElectionStore } from '../../store/useElectionStore';
 
 const baseline2023 = baseline2023Raw as unknown as BaselineDataset;
 const baseline2024 = baseline2024Raw as unknown as BaselineDataset;
+const PARTIES_2023 = DEFAULT_PARTIES.map((p) =>
+  p.id === 'YRP' ? { ...p, allianceId: 'cumhur' } : p
+);
 
 describe('Kalkülüs Electoral Calculation Engine', () => {
   it('allocates the exact official YSK May 14, 2023 600 MPs across all 87 electoral districts matching repo 600', () => {
     const result = runMultiLayerProjection({
       baseline: baseline2023,
-      parties: DEFAULT_PARTIES,
+      parties: PARTIES_2023,
       alliances: DEFAULT_ALLIANCES,
       swingMode: 'proportional',
       dhondtMode: '2022_separate',
@@ -121,12 +124,14 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
   it('correctly applies National Threshold (Baraj) for solo parties vs. alliance members', () => {
     const votes = {
       AKP: 350000,
-      YRP: 25000, // 2.5% solo, but in Cumhur alliance with AKP (35% + 2.5% = 37.5% >= 7%)
-      ZP: 65000,  // 6.5% solo, in Ata alliance (6.5% < 7%)
-      CHP: 560000,
+      BBP: 25000, // 2.5% solo, but in Cumhur alliance with AKP (35% + 2.5% = 37.5% >= 7%)
+      YRP: 45000, // 4.5% solo, outside alliance (4.5% < 7%)
+      ZP: 65000,  // 6.5% solo (6.5% < 7%)
+      CHP: 515000,
     };
     const evalRes = evaluateNationalThreshold(votes, 1000000, DEFAULT_PARTIES, 7.0);
-    expect(evalRes.partyPassed['YRP']).toBe(true);
+    expect(evalRes.partyPassed['BBP']).toBe(true);
+    expect(evalRes.partyPassed['YRP']).toBe(false);
     expect(evalRes.partyPassed['ZP']).toBe(false);
   });
 
@@ -615,7 +620,7 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
   it('de-aliases 2023 joint-list uncontested provinces when inputs change while preserving exact YSK rest', () => {
     const restProj = runMultiLayerProjection({
       baseline: baseline2023,
-      parties: DEFAULT_PARTIES,
+      parties: PARTIES_2023,
       alliances: DEFAULT_ALLIANCES,
       swingMode: 'proportional',
       dhondtMode: '2022_separate',

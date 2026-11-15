@@ -56,7 +56,3 @@ npm run build
 ```
 
 ---
-
-## Yayınlama (GitHub Pages)
-
-Depoda [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) iş akışı hazırdır. **Settings → Pages → Build and deployment → Source** altından **GitHub Actions** seçildiğinde `main` dalına yapılan her `push` sonrasında testler çalışır ve uygulama otomatik olarak yayınlanır.

@@ -82,17 +82,38 @@ export function computeAndDistributeAbroadVotes(
     abroadPartyVotes[p.id] = Math.round(abroadValidVotes * (abroadPartyShares[p.id] / 100));
   }
 
-  // Distribute abroad party votes to each of the 87 electoral districts proportionally
+  // Distribute abroad party votes to each of the 87 electoral districts with exact conservation (Hare-Niemeyer)
   if (totalDomesticValidVotes > 0) {
-    for (const [dId, domValid] of Object.entries(districtDomesticValidVotes)) {
-      const ratio = domValid / totalDomesticValidVotes;
-      let dTotal = 0;
-      for (const p of parties) {
-        const added = Math.round((abroadPartyVotes[p.id] || 0) * ratio);
-        districtAbroadPartyVotes[dId][p.id] = added;
-        dTotal += added;
+    for (const p of parties) {
+      const totalPVotes = abroadPartyVotes[p.id] || 0;
+      if (totalPVotes <= 0) {
+        for (const dId of Object.keys(districtDomesticValidVotes)) {
+          districtAbroadPartyVotes[dId][p.id] = 0;
+        }
+        continue;
       }
-      districtAbroadTotalVotes[dId] = dTotal;
+
+      const allocations: { dId: string; votes: number; remainder: number }[] = [];
+      let allocatedSum = 0;
+
+      for (const [dId, domValid] of Object.entries(districtDomesticValidVotes)) {
+        const exact = totalPVotes * (domValid / totalDomesticValidVotes);
+        const floorVotes = Math.floor(exact);
+        allocations.push({ dId, votes: floorVotes, remainder: exact - floorVotes });
+        allocatedSum += floorVotes;
+      }
+
+      // Distribute remaining votes to districts with highest remainders
+      const remainderVotes = totalPVotes - allocatedSum;
+      allocations.sort((a, b) => b.remainder - a.remainder || a.dId.localeCompare(b.dId));
+      for (let i = 0; i < remainderVotes; i++) {
+        allocations[i].votes += 1;
+      }
+
+      for (const alloc of allocations) {
+        districtAbroadPartyVotes[alloc.dId][p.id] = alloc.votes;
+        districtAbroadTotalVotes[alloc.dId] = (districtAbroadTotalVotes[alloc.dId] || 0) + alloc.votes;
+      }
     }
   }
 

@@ -188,10 +188,11 @@ export function allocateDistrictSeatsDHondt(input: DistrictDHondtInput): Distric
       }
     }
 
-    // Sort descending by quotient, tie-break by raw votes
+    // Sort descending by quotient, tie-break by raw votes, then partyId
     allQuotients.sort((a, b) => {
       if (Math.abs(b.quotient - a.quotient) > 1e-6) return b.quotient - a.quotient;
-      return b.votes - a.votes;
+      if (b.votes !== a.votes) return b.votes - a.votes;
+      return a.partyId.localeCompare(b.partyId);
     });
 
     const winningEntries = allQuotients.slice(0, mpCount);
@@ -203,17 +204,46 @@ export function allocateDistrictSeatsDHondt(input: DistrictDHondtInput): Distric
       const lastWinner = winningEntries[winningEntries.length - 1];
       lastSeatWinnerPartyId = lastWinner.partyId;
       lastSeatQuotient = lastWinner.quotient;
+      const lastWinnerVotes = lastWinner.votes;
 
-      // Find highest losing quotient belonging to a DIFFERENT party than lastWinner
-      const remainingEntries = allQuotients.slice(mpCount);
-      const challenger = remainingEntries.find((e) => e.partyId !== lastWinner.partyId);
-      if (challenger) {
-        closestChallengerPartyId = challenger.partyId;
-        closestChallengerQuotient = challenger.quotient;
-        // Challenger needs its (currentSeats + 1) quotient to exceed lastSeatQuotient:
-        // newVotes / challenger.divisor > lastSeatQuotient
-        const neededVotes = Math.floor(lastSeatQuotient * challenger.divisor) + 1;
-        votesToFlipLastSeat = Math.max(1, neededVotes - challenger.votes);
+      // Find the eligible party requiring the MINIMUM additional votes to overtake lastSeatQuotient:
+      // Accounts for deterministic tie-breakers when lastSeatQuotient * nextDiv is an exact integer.
+      let minVotesToFlip = Infinity;
+      let bestChallengerId = '';
+      let bestChallengerQuotient = 0;
+
+      for (const p of competingParties) {
+        if (p.id === lastWinner.partyId) continue;
+        const nextDiv = (partySeats[p.id] || 0) + 1;
+        const v = effectivePartyVotes[p.id] || 0;
+        const q = v / nextDiv;
+        const T = lastSeatQuotient * nextDiv;
+        const K = Math.round(T);
+        let neededVotes: number;
+        if (Math.abs(T - K) < 1e-6) {
+          let winsTie = false;
+          if (K !== lastWinnerVotes) {
+            winsTie = K > lastWinnerVotes;
+          } else {
+            winsTie = p.id.localeCompare(lastWinner.partyId) < 0;
+          }
+          neededVotes = winsTie ? K : K + 1;
+        } else {
+          neededVotes = Math.floor(T) + 1;
+        }
+        const diff = Math.max(1, neededVotes - v);
+
+        if (diff < minVotesToFlip || (diff === minVotesToFlip && q > bestChallengerQuotient)) {
+          minVotesToFlip = diff;
+          bestChallengerId = p.id;
+          bestChallengerQuotient = q;
+        }
+      }
+
+      if (bestChallengerId) {
+        closestChallengerPartyId = bestChallengerId;
+        closestChallengerQuotient = bestChallengerQuotient;
+        votesToFlipLastSeat = minVotesToFlip;
       }
     }
   } else {
@@ -238,7 +268,11 @@ export function allocateDistrictSeatsDHondt(input: DistrictDHondtInput): Distric
         blocQuotients.push({ blocId, divisor: d, quotient: v / d, votes: v });
       }
     }
-    blocQuotients.sort((a, b) => b.quotient - a.quotient || b.votes - a.votes);
+    blocQuotients.sort((a, b) => {
+      if (Math.abs(b.quotient - a.quotient) > 1e-6) return b.quotient - a.quotient;
+      if (b.votes !== a.votes) return b.votes - a.votes;
+      return a.blocId.localeCompare(b.blocId);
+    });
 
     const blocSeats: Record<string, number> = {};
     const winningBlocs = blocQuotients.slice(0, mpCount);
@@ -260,7 +294,11 @@ export function allocateDistrictSeatsDHondt(input: DistrictDHondtInput): Distric
             internalQ.push({ partyId: pid, divisor: d, quotient: pv / d, votes: pv });
           }
         }
-        internalQ.sort((a, b) => b.quotient - a.quotient || b.votes - a.votes);
+        internalQ.sort((a, b) => {
+          if (Math.abs(b.quotient - a.quotient) > 1e-6) return b.quotient - a.quotient;
+          if (b.votes !== a.votes) return b.votes - a.votes;
+          return a.partyId.localeCompare(b.partyId);
+        });
         for (const w of internalQ.slice(0, seatsWon)) {
           partySeats[w.partyId] = (partySeats[w.partyId] || 0) + 1;
         }
@@ -277,25 +315,53 @@ export function allocateDistrictSeatsDHondt(input: DistrictDHondtInput): Distric
         flatPartyQ.push({ partyId: p.id, divisor: s, quotient: v / s, votes: v });
       }
     }
-    flatPartyQ.sort((a, b) => a.quotient - b.quotient);
+    flatPartyQ.sort((a, b) => {
+      if (Math.abs(a.quotient - b.quotient) > 1e-6) return a.quotient - b.quotient;
+      if (a.votes !== b.votes) return a.votes - b.votes;
+      return a.partyId.localeCompare(b.partyId);
+    });
+    let lastWinnerVotes = 0;
     if (flatPartyQ.length > 0) {
       lastSeatWinnerPartyId = flatPartyQ[0].partyId;
       lastSeatQuotient = flatPartyQ[0].quotient;
+      lastWinnerVotes = flatPartyQ[0].votes;
     }
 
-    let bestChallengerQ = -1;
+    let minVotesToFlip = Infinity;
+    let bestChallengerId = '';
+    let bestChallengerQuotient = 0;
+
     for (const p of parties) {
       if (p.isOther || !eligiblePartyIds.has(p.id) || p.id === lastSeatWinnerPartyId) continue;
       const v = effectivePartyVotes[p.id] || 0;
       const nextDiv = (partySeats[p.id] || 0) + 1;
       const q = v / nextDiv;
-      if (q > bestChallengerQ) {
-        bestChallengerQ = q;
-        closestChallengerPartyId = p.id;
-        closestChallengerQuotient = q;
-        const needed = Math.floor(lastSeatQuotient * nextDiv) + 1;
-        votesToFlipLastSeat = Math.max(1, needed - v);
+      const T = lastSeatQuotient * nextDiv;
+      const K = Math.round(T);
+      let needed: number;
+      if (Math.abs(T - K) < 1e-6) {
+        let winsTie = false;
+        if (K !== lastWinnerVotes) {
+          winsTie = K > lastWinnerVotes;
+        } else {
+          winsTie = p.id.localeCompare(lastSeatWinnerPartyId) < 0;
+        }
+        needed = winsTie ? K : K + 1;
+      } else {
+        needed = Math.floor(T) + 1;
       }
+      const diff = Math.max(1, needed - v);
+      if (diff < minVotesToFlip || (diff === minVotesToFlip && q > bestChallengerQuotient)) {
+        minVotesToFlip = diff;
+        bestChallengerId = p.id;
+        bestChallengerQuotient = q;
+      }
+    }
+
+    if (bestChallengerId) {
+      closestChallengerPartyId = bestChallengerId;
+      closestChallengerQuotient = bestChallengerQuotient;
+      votesToFlipLastSeat = minVotesToFlip;
     }
   }
 

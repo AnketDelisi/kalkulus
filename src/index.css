@@ -83,6 +83,17 @@
   border-color: #1e293b;
 }
 
+.studio-btn-primary {
+  background-color: #090a0f !important;
+  color: #ffffff !important;
+  border-color: #090a0f !important;
+}
+
+.studio-btn-primary:hover {
+  background-color: #1e293b !important;
+  border-color: #1e293b !important;
+}
+
 .studio-input {
   background-color: #ffffff;
   border: 1.5px solid #cbd5e1;

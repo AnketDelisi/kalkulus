@@ -323,7 +323,6 @@ export const InputEditorPanel: React.FC = () => {
               }
               return true;
             })
-            .slice(0, 300)
             .map((ilce) => (
               <option key={ilce.id} value={ilce.id}>
                 {ilce.name} ({ilce.districtId})

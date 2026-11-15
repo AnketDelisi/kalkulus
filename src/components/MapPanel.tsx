@@ -397,6 +397,16 @@ export const MapPanel: React.FC = () => {
             className={`w-full h-auto block ${
               isDragging ? 'cursor-grabbing' : 'cursor-grab'
             }`}
+            onMouseLeave={() => setHovered(null)}
+            onMouseMove={(e) => {
+              if (isDragging) {
+                if (hovered) setHovered(null);
+                return;
+              }
+              if ((e.target as SVGElement).tagName !== 'path') {
+                if (hovered) setHovered(null);
+              }
+            }}
           >
             <g
               transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}
@@ -414,6 +424,7 @@ export const MapPanel: React.FC = () => {
                         fill="#dfe3ea"
                         stroke="#cbd5e1"
                         strokeWidth={0.7}
+                        className="pointer-events-none"
                       />
                     ))}
 
@@ -449,6 +460,7 @@ export const MapPanel: React.FC = () => {
                             setActiveScope({ type: 'ilce', ilceId });
                           }}
                           onMouseMove={(e) => {
+                            if (isDragging || hovered?.id === ilceId) return;
                             const top = [...parties]
                               .filter((p) => !p.isOther)
                               .sort(
@@ -511,6 +523,7 @@ export const MapPanel: React.FC = () => {
                           setActiveScope({ type: 'ilce', ilceId });
                         }}
                         onMouseMove={(e) => {
+                          if (isDragging || hovered?.id === ilceId) return;
                           const provName =
                             projection.provinceResults[iRes.ilId]?.name || iRes.ilId;
                           const top = [...parties]
@@ -587,6 +600,7 @@ export const MapPanel: React.FC = () => {
                         }}
                         onDoubleClick={() => setZoomedProvinceId(dRes.ilId)}
                         onMouseMove={(e) => {
+                          if (isDragging || hovered?.id === dId) return;
                           const top = [...parties]
                             .filter((p) => !p.isOther)
                             .sort(
@@ -652,6 +666,7 @@ export const MapPanel: React.FC = () => {
                         }}
                         onDoubleClick={() => setZoomedProvinceId(ilId)}
                         onMouseMove={(e) => {
+                          if (isDragging || hovered?.id === ilId) return;
                           const top = [...parties]
                             .filter((p) => !p.isOther)
                             .sort(
@@ -687,8 +702,8 @@ export const MapPanel: React.FC = () => {
           </svg>
         )}
 
-        {/* Map Zoom Controls Overlay (Bottom Right) */}
-        <div className="absolute bottom-3 right-3 flex items-center bg-white border-[1.5px] border-[#090A0F] shadow-[2px_2px_0px_rgba(9,10,15,0.12)]">
+        {/* Map Zoom Controls Overlay (Top Right) */}
+        <div className="absolute top-3 right-3 flex items-center bg-white border-[1.5px] border-[#090A0F] shadow-[2px_2px_0px_rgba(9,10,15,0.12)] z-10">
           <button
             onClick={() => setZoom((z) => Math.min(6, Number((z * 1.35).toFixed(2))))}
             className="p-1.5 border-r border-[#090A0F] hover:bg-[#090A0F] hover:text-white text-[#090A0F] transition-colors"
@@ -763,7 +778,7 @@ export const MapPanel: React.FC = () => {
                     <span className="text-slate-300">%{tp.share.toFixed(1)}</span>
                     {tp.seats !== undefined && tp.seats > 0 && (
                       <span
-                        className="px-1.5 py-0.2 font-bold text-[10px] text-[#090A0F]"
+                        className="px-1.5 py-0.5 font-bold text-[10px] text-[#090A0F]"
                         style={{ backgroundColor: tp.color }}
                       >
                         {tp.seats} MV

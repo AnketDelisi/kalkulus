@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import baseline2023Raw from '../../data/baseline2023.json';
+import baseline2024Raw from '../../data/baseline2024.json';
 import { DEFAULT_ALLIANCES, DEFAULT_PARTIES } from '../../data/defaultParties';
 import { allocateDistrictSeatsDHondt, evaluateNationalThreshold } from '../dhondt';
 import {
@@ -12,6 +13,7 @@ import {
 import { BaselineDataset } from '../../types/election';
 
 const baseline2023 = baseline2023Raw as unknown as BaselineDataset;
+const baseline2024 = baseline2024Raw as unknown as BaselineDataset;
 
 describe('Kalkülüs Electoral Calculation Engine', () => {
   it('allocates the exact official YSK May 14, 2023 600 MPs across all 87 electoral districts matching repo 600', () => {
@@ -205,5 +207,317 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     expect(withOther['AKP']).toBe(40);
     expect(withOther['CHP']).toBe(40);
     expect(withOther['OTHER']).toBe(20);
+  });
+
+  it('projects exact 600 seats on 2024 local baseline without error', () => {
+    const res = runMultiLayerProjection({
+      baseline: baseline2024,
+      parties: DEFAULT_PARTIES,
+      alliances: DEFAULT_ALLIANCES,
+      swingMode: 'proportional',
+      dhondtMode: '2022_separate',
+      thresholdPct: 7.0,
+      nationalTargetShares: { ...baseline2024.nationalBaseShares },
+      nationalTargetTurnout: baseline2024.nationalBaseTurnout,
+      nationalVoterScaleFactor: 1.0,
+      abroadConfig: baseline2024.abroad,
+      ilceOverrides: {},
+      districtOverrides: {},
+      provinceOverrides: {},
+      jointListRules: [],
+    });
+
+    expect(res.totalSeatsAllocated).toBe(600);
+    expect(res.partyTotalSeats['AKP']).toBe(267);
+    expect(res.partyTotalSeats['CHP']).toBe(241);
+    expect(res.partyTotalSeats['YRP']).toBe(43);
+    expect(res.partyTotalSeats['MHP']).toBe(36);
+    expect(res.partyTotalSeats['IYI']).toBe(10);
+    expect(res.partyTotalSeats['BBP']).toBe(3);
+    expect(res.partyTotalSeats['DEM'] || 0).toBe(0); // DEM is at 5.88% below 7% threshold
+
+    // When threshold is lowered to 5%, DEM passes and wins seats
+    const resLowerBaraj = runMultiLayerProjection({
+      baseline: baseline2024,
+      parties: DEFAULT_PARTIES,
+      alliances: DEFAULT_ALLIANCES,
+      swingMode: 'proportional',
+      dhondtMode: '2022_separate',
+      thresholdPct: 5.0,
+      nationalTargetShares: { ...baseline2024.nationalBaseShares },
+      nationalTargetTurnout: baseline2024.nationalBaseTurnout,
+      nationalVoterScaleFactor: 1.0,
+      abroadConfig: baseline2024.abroad,
+      ilceOverrides: {},
+      districtOverrides: {},
+      provinceOverrides: {},
+      jointListRules: [],
+    });
+    expect(resLowerBaraj.partyTotalSeats['DEM']).toBe(45);
+    expect(resLowerBaraj.totalSeatsAllocated).toBe(600);
+  });
+
+  it('correctly executes 2018 alliance pool D\'Hondt mode', () => {
+    const eligible = new Set(['AKP', 'MHP', 'CHP', 'IYI']);
+    const partiesWithAlliances = DEFAULT_PARTIES.map((p) => {
+      if (p.id === 'AKP' || p.id === 'MHP') return { ...p, allianceId: 'cumhur' };
+      if (p.id === 'CHP' || p.id === 'IYI') return { ...p, allianceId: 'millet' };
+      return p;
+    });
+
+    const out = allocateDistrictSeatsDHondt({
+      districtId: '06-1',
+      mpCount: 5,
+      partyVotes: {
+        AKP: 120000,
+        MHP: 80000,
+        CHP: 150000,
+        IYI: 40000,
+      },
+      eligiblePartyIds: eligible,
+      parties: partiesWithAlliances,
+      dhondtMode: '2018_alliance',
+      jointListRules: [],
+    });
+
+    const cumhurSeats = (out.partySeats['AKP'] || 0) + (out.partySeats['MHP'] || 0);
+    const milletSeats = (out.partySeats['CHP'] || 0) + (out.partySeats['IYI'] || 0);
+    expect(cumhurSeats + milletSeats).toBe(5);
+    expect(out.partySeats['AKP']).toBeGreaterThanOrEqual(1);
+    expect(out.partySeats['CHP']).toBeGreaterThanOrEqual(1);
+  });
+
+  it('transfers votes and reserves seats under joint candidate list rules', () => {
+    const eligible = new Set(['AKP', 'CHP', 'TIP']);
+    const jointRule = {
+      id: 'rule-tip-chp',
+      sourcePartyId: 'TIP',
+      targetPartyId: 'CHP',
+      districtIds: ['01'],
+      transferEfficiency: 90,
+      reservedSeatsPerDistrict: 1,
+      enabled: true,
+    };
+
+    const out = allocateDistrictSeatsDHondt({
+      districtId: '01',
+      mpCount: 4,
+      partyVotes: {
+        AKP: 100000,
+        CHP: 60000,
+        TIP: 40000,
+      },
+      eligiblePartyIds: eligible,
+      parties: DEFAULT_PARTIES,
+      dhondtMode: '2022_separate',
+      jointListRules: [jointRule],
+    });
+
+    // Effective votes
+    expect(out.effectivePartyVotes['TIP']).toBe(0);
+    expect(out.effectivePartyVotes['CHP']).toBe(96000);
+    // Reserved seats transferred back to source party
+    expect(out.partySeats['TIP']).toBe(1);
+  });
+
+  it('identifies true closest challenger minimizing votes-to-flip rather than highest quotient', () => {
+    // Scenario where Party A has higher quotient but needs MORE votes because divisor is larger:
+    // Party A: 140,000 votes, 2 seats, next divisor 3, next quotient 46,666.7
+    // Party B: 45,000 votes, 0 seats, next divisor 1, next quotient 45,000.0
+    // Last seat winner Party C: 50,000 votes, 1 seat, last quotient 50,000.0
+    // Party A needed votes: floor(50,000 * 3) + 1 - 140,000 = 10,001 votes
+    // Party B needed votes: 50,000 * 1 = 50,000 (ties C's quotient and votes, wins alphabetical tie-break) -> 50,000 - 45,000 = 5,000 votes
+    // True closest challenger must be Party B (5,000 votes), NOT Party A (10,001 votes)!
+    const eligible = new Set(['A', 'B', 'C']);
+    const customParties = [
+      { id: 'A', name: 'Party A', shortName: 'A', color: '#ff0000', isOther: false },
+      { id: 'B', name: 'Party B', shortName: 'B', color: '#00ff00', isOther: false },
+      { id: 'C', name: 'Party C', shortName: 'C', color: '#0000ff', isOther: false },
+    ] as any;
+
+    const out = allocateDistrictSeatsDHondt({
+      districtId: 'TEST-1',
+      mpCount: 3,
+      partyVotes: {
+        A: 140000,
+        B: 45000,
+        C: 50000,
+      },
+      eligiblePartyIds: eligible,
+      parties: customParties,
+      dhondtMode: '2022_separate',
+      jointListRules: [],
+    });
+
+    expect(out.partySeats['A']).toBe(2);
+    expect(out.partySeats['C']).toBe(1);
+    expect(out.partySeats['B']).toBe(0);
+    expect(out.lastSeatWinnerPartyId).toBe('C');
+    expect(out.lastSeatQuotient).toBe(50000);
+
+    // True closest challenger must be B (min votes = 5,000 with tie-break awareness), not A
+    expect(out.closestChallengerPartyId).toBe('B');
+    expect(out.votesToFlipLastSeat).toBe(5000);
+
+    // Verify on 2023 baseline Antalya (07):
+    // AKP won the last seat (quotient 82,853.33).
+    // CHP has a higher losing quotient (78,938.14 vs TIP 77,792.0), but divisor 7 -> needs 27,407 votes.
+    // TIP has divisor 1 -> needs only 5,062 votes.
+    // Algorithmic fix ensures TIP is correctly identified as the true closest challenger!
+    const res23 = runMultiLayerProjection({
+      baseline: baseline2023,
+      parties: DEFAULT_PARTIES,
+      alliances: DEFAULT_ALLIANCES,
+      swingMode: 'proportional',
+      dhondtMode: '2022_separate',
+      thresholdPct: 7.0,
+      nationalTargetShares: { ...baseline2023.nationalBaseShares },
+      nationalTargetTurnout: baseline2023.nationalBaseTurnout,
+      nationalVoterScaleFactor: 1.0,
+      abroadConfig: baseline2023.abroad,
+      ilceOverrides: {},
+      districtOverrides: {},
+      provinceOverrides: {},
+      jointListRules: [],
+    });
+
+    const antalya = res23.districtResults['07'];
+    expect(antalya.lastSeatWinnerPartyId).toBe('AKP');
+    expect(antalya.closestChallengerPartyId).toBe('TIP');
+    expect(antalya.votesToFlipLastSeat).toBe(5062);
+  });
+
+  it('conserves abroad votes exactly across all 87 districts with Hare-Niemeyer', () => {
+    const res = runMultiLayerProjection({
+      baseline: baseline2023,
+      parties: DEFAULT_PARTIES,
+      alliances: DEFAULT_ALLIANCES,
+      swingMode: 'proportional',
+      dhondtMode: '2022_separate',
+      thresholdPct: 7.0,
+      nationalTargetShares: { ...baseline2023.nationalBaseShares },
+      nationalTargetTurnout: baseline2023.nationalBaseTurnout,
+      nationalVoterScaleFactor: 1.0,
+      abroadConfig: baseline2023.abroad,
+      ilceOverrides: {},
+      districtOverrides: {},
+      provinceOverrides: {},
+      jointListRules: [],
+    });
+
+    // Check exact conservation of abroad votes per party across all 87 districts
+    for (const p of DEFAULT_PARTIES) {
+      const nationalAbroad = res.abroadPartyVotes[p.id] || 0;
+      let sumDistrictAbroad = 0;
+      for (const d of baseline2023.districts) {
+        sumDistrictAbroad += res.districtResults[d.id].abroadPartyVotes[p.id] || 0;
+      }
+      expect(sumDistrictAbroad).toBe(nationalAbroad);
+    }
+
+    // Check exact conservation of total abroad valid votes across all 87 districts
+    let totalDistrictAbroadAdded = 0;
+    for (const d of baseline2023.districts) {
+      totalDistrictAbroadAdded += res.districtResults[d.id].abroadValidVotesAdded;
+    }
+    expect(totalDistrictAbroadAdded).toBe(res.abroadValidVotes);
+  });
+
+  it('handles zero turnout, zero MP, and 100% threshold boundary conditions safely', () => {
+    const outZeroMp = allocateDistrictSeatsDHondt({
+      districtId: '01',
+      mpCount: 0,
+      partyVotes: { AKP: 1000, CHP: 500 },
+      eligiblePartyIds: new Set(['AKP', 'CHP']),
+      parties: DEFAULT_PARTIES,
+      dhondtMode: '2022_separate',
+      jointListRules: [],
+    });
+    expect(outZeroMp.votesToFlipLastSeat).toBe(0);
+
+    const evalHigh = evaluateNationalThreshold({ AKP: 500000, CHP: 500000 }, 1000000, DEFAULT_PARTIES, 100.0);
+    expect(evalHigh.eligiblePartyIds.size).toBe(0);
+
+    const evalZero = evaluateNationalThreshold({}, 0, DEFAULT_PARTIES, 7.0);
+    expect(evalZero.eligiblePartyIds.size).toBe(0);
+  });
+
+  it('empirically verifies minimal votes to flip across all 87 electoral districts in baseline 2023', () => {
+    const proj = runMultiLayerProjection({
+      baseline: baseline2023,
+      parties: DEFAULT_PARTIES,
+      alliances: DEFAULT_ALLIANCES,
+      swingMode: 'proportional',
+      dhondtMode: '2022_separate',
+      thresholdPct: 7.0,
+      nationalTargetShares: { ...baseline2023.nationalBaseShares },
+      nationalTargetTurnout: baseline2023.nationalBaseTurnout,
+      nationalVoterScaleFactor: 1.0,
+      abroadConfig: baseline2023.abroad,
+      ilceOverrides: {},
+      districtOverrides: {},
+      provinceOverrides: {},
+      jointListRules: [],
+    });
+
+    const eligiblePartyIds = new Set(
+      Object.entries(proj.partyPassedThreshold)
+        .filter(([_, p]) => p)
+        .map(([id]) => id)
+    );
+
+    let districtsVerified = 0;
+
+    for (const d of baseline2023.districts) {
+      const dRes = proj.districtResults[d.id];
+      expect(dRes).toBeDefined();
+      expect(dRes.closestChallengerPartyId).toBeTruthy();
+      expect(dRes.votesToFlipLastSeat).toBeGreaterThan(0);
+
+      const chal = dRes.closestChallengerPartyId;
+      const lastWinner = dRes.lastSeatWinnerPartyId;
+      const origSeats = dRes.partySeats;
+      const votesToFlip = dRes.votesToFlipLastSeat;
+
+      // 1. Giving challenger exactly votesToFlipLastSeat must flip the seat (challenger gains, last winner loses)
+      const resExact = allocateDistrictSeatsDHondt({
+        districtId: d.id,
+        mpCount: dRes.mpCount,
+        partyVotes: {
+          ...dRes.effectivePartyVotes,
+          [chal]: (dRes.effectivePartyVotes[chal] || 0) + votesToFlip,
+        },
+        eligiblePartyIds,
+        parties: DEFAULT_PARTIES,
+        dhondtMode: '2022_separate',
+        jointListRules: [],
+      });
+
+      expect(resExact.partySeats[chal] || 0).toBe((origSeats[chal] || 0) + 1);
+      expect(resExact.partySeats[lastWinner] || 0).toBe((origSeats[lastWinner] || 0) - 1);
+
+      // 2. Giving challenger votesToFlipLastSeat - 1 must strictly FAIL to flip the seat
+      if (votesToFlip > 1) {
+        const resMinus1 = allocateDistrictSeatsDHondt({
+          districtId: d.id,
+          mpCount: dRes.mpCount,
+          partyVotes: {
+            ...dRes.effectivePartyVotes,
+            [chal]: (dRes.effectivePartyVotes[chal] || 0) + (votesToFlip - 1),
+          },
+          eligiblePartyIds,
+          parties: DEFAULT_PARTIES,
+          dhondtMode: '2022_separate',
+          jointListRules: [],
+        });
+
+        expect(resMinus1.partySeats[chal] || 0).toBe(origSeats[chal] || 0);
+        expect(resMinus1.partySeats[lastWinner] || 0).toBe(origSeats[lastWinner] || 0);
+      }
+
+      districtsVerified++;
+    }
+
+    expect(districtsVerified).toBe(87);
   });
 });

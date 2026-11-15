@@ -561,25 +561,6 @@ export const MapPanel: React.FC = () => {
         }}
         onMouseUp={() => setIsDragging(false)}
       >
-        {/* Top-Left Layer Label */}
-        <div className="absolute top-2.5 left-3 z-10 pointer-events-none flex items-center gap-2 text-micro font-medium text-slate-600">
-          <span className="px-2 py-0.5 bg-white/90 border border-slate-300 text-[#090A0F]">
-            {zoomedProvinceId
-              ? `${zoomedProvResult?.name} ${lang === 'tr' ? 'ilçeleri' : 'districts'}`
-              : mapLayer === '87_district'
-              ? lang === 'tr'
-                ? 'Harita katmanı: 87 seçim çevresi'
-                : 'Map layer: 87 districts'
-              : mapLayer === '81_il'
-              ? lang === 'tr'
-                ? 'Harita katmanı: 81 il'
-                : 'Map layer: 81 provinces'
-              : lang === 'tr'
-              ? 'Harita katmanı: 973 ilçe'
-              : 'Map layer: 973 sub-districts'}
-          </span>
-        </div>
-
         {!provincesGeo || !districts87Geo ? (
           <div className="h-[460px] flex items-center justify-center text-body text-slate-500">
             {lang === 'tr' ? 'Harita vektörleri yükleniyor...' : 'Loading map vectors...'}

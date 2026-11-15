@@ -692,7 +692,7 @@ export const useElectionStore = create<ElectionStoreState>((set, get) => ({
       const base = getActiveBaseline(state.baselineId, state.customBaseline);
       const nationalTargetShares: Record<string, number> = {};
       for (const p of state.parties) {
-        nationalTargetShares[p.id] = base.nationalBaseShares[p.id] ?? 0;
+        nationalTargetShares[p.id] = DEFAULT_TARGET_SHARES[p.id] ?? 0;
       }
       const abroadConfig: AbroadVoteConfig = {
         ...base.abroad,

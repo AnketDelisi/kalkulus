@@ -157,9 +157,6 @@ export const NationalResultsTable: React.FC = () => {
   return (
     <div className="studio-panel p-5 flex flex-col gap-4">
       <div className="border-b-[1.5px] border-[#090A0F] pb-3">
-        <div className="eyebrow">
-          {lang === 'tr' ? 'Ulusal sonuçlar' : 'National results'}
-        </div>
         <h2 className="text-heading font-bold text-[#090A0F]">
           {lang === 'tr' ? 'Ulusal oy dağılımı ve milletvekili tablosu' : 'National vote share and seat table'}
         </h2>

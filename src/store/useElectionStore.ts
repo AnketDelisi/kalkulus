@@ -172,8 +172,24 @@ function recompute(state: {
   });
 }
 
+const DEFAULT_TARGET_SHARES: Record<string, number> = {
+  AKP: 28.68,
+  CHP: 2.96,
+  MHP: 7.25,
+  IYI: 4.96,
+  DEM: 8.41,
+  YRP: 4.09,
+  ZP: 3.01,
+  TIP: 1.92,
+  A: 4.04,
+  YENI: 32.61,
+  SAADET: 1.02,
+  BBP: 1.03,
+  OTHER: 0.02,
+};
+
 const initialBaseline = BASELINES['2023_general'];
-const initialProjection = runMultiLayerProjection({
+const initialBaselineProjection = runMultiLayerProjection({
   baseline: initialBaseline,
   parties: DEFAULT_PARTIES,
   alliances: DEFAULT_ALLIANCES,
@@ -181,6 +197,23 @@ const initialProjection = runMultiLayerProjection({
   dhondtMode: '2022_separate',
   thresholdPct: 7.0,
   nationalTargetShares: { ...initialBaseline.nationalBaseShares },
+  nationalTargetTurnout: initialBaseline.nationalBaseTurnout,
+  nationalVoterScaleFactor: 1.0,
+  abroadConfig: { ...initialBaseline.abroad, partyShares: { ...initialBaseline.abroad.partyShares } },
+  ilceOverrides: {},
+  districtOverrides: {},
+  provinceOverrides: {},
+  jointListRules: [],
+});
+
+const initialProjection = runMultiLayerProjection({
+  baseline: initialBaseline,
+  parties: DEFAULT_PARTIES,
+  alliances: DEFAULT_ALLIANCES,
+  swingMode: 'proportional',
+  dhondtMode: '2022_separate',
+  thresholdPct: 7.0,
+  nationalTargetShares: { ...DEFAULT_TARGET_SHARES },
   nationalTargetTurnout: initialBaseline.nationalBaseTurnout,
   nationalVoterScaleFactor: 1.0,
   abroadConfig: { ...initialBaseline.abroad, partyShares: { ...initialBaseline.abroad.partyShares } },
@@ -200,7 +233,7 @@ export const useElectionStore = create<ElectionStoreState>((set, get) => ({
   dhondtMode: '2022_separate',
   thresholdPct: 7.0,
 
-  nationalTargetShares: { ...initialBaseline.nationalBaseShares },
+  nationalTargetShares: { ...DEFAULT_TARGET_SHARES },
   nationalTargetTurnout: initialBaseline.nationalBaseTurnout,
   nationalVoterScaleFactor: 1.0,
   abroadConfig: { ...initialBaseline.abroad, partyShares: { ...initialBaseline.abroad.partyShares } },
@@ -216,7 +249,7 @@ export const useElectionStore = create<ElectionStoreState>((set, get) => ({
   activeScope: { type: 'national' },
 
   projection: initialProjection,
-  baselineProjection: initialProjection,
+  baselineProjection: initialBaselineProjection,
 
   setLanguage: (lang) => set({ lang }),
 

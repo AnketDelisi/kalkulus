@@ -227,7 +227,7 @@ export const MapPanel: React.FC = () => {
     const baseHex = leader?.color || '#64748b';
 
     if (mapColorMode === 'leader') {
-      const intensity = Math.min(0.96, Math.max(0.72, 0.68 + marginPct / 45));
+      const intensity = Math.min(0.95, Math.max(0.55, 0.52 + marginPct / 45));
       return blendHexWithWhite(baseHex, intensity);
     }
     if (mapColorMode === 'alliance') {

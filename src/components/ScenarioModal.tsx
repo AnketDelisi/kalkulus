@@ -81,13 +81,13 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose })
     if (!jsonText.trim()) return;
     const ok = importScenarioJson(jsonText);
     if (ok) {
-      setStatusMsg('SENARYO BAŞARIYLA YÜKLENDİ!');
+      setStatusMsg(lang === 'tr' ? 'Senaryo başarıyla yüklendi.' : 'Scenario loaded successfully.');
       setTimeout(() => {
         setStatusMsg(null);
         onClose();
       }, 900);
     } else {
-      setStatusMsg('HATA: GEÇERSİZ JSON FORMATI.');
+      setStatusMsg(lang === 'tr' ? 'Hata: geçersiz JSON formatı.' : 'Error: invalid JSON format.');
     }
   };
 
@@ -100,15 +100,15 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose })
         const parsed = JSON.parse(String(ev.target?.result || ''));
         if (parsed && parsed.ilceler && parsed.districts) {
           loadCustomBaseline(parsed);
-          setStatusMsg('ÖZEL BAZ VERİ SETİ YÜKLENDİ!');
+          setStatusMsg(lang === 'tr' ? 'Özel baz veri seti yüklendi.' : 'Custom baseline loaded.');
         } else if (parsed && parsed.nationalTargetShares) {
           importScenarioJson(JSON.stringify(parsed));
-          setStatusMsg('SENARYO DOSYASI YÜKLENDİ!');
+          setStatusMsg(lang === 'tr' ? 'Senaryo dosyası yüklendi.' : 'Scenario file loaded.');
         } else {
-          setStatusMsg('DOSYA FORMATI TANINMADI.');
+          setStatusMsg(lang === 'tr' ? 'Dosya formatı tanınmadı.' : 'Unrecognized file format.');
         }
       } catch {
-        setStatusMsg('DOSYA OKUNAMADI.');
+        setStatusMsg(lang === 'tr' ? 'Dosya okunamadı.' : 'Failed to read file.');
       }
     };
     reader.readAsText(file);
@@ -118,7 +118,7 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose })
     <div className="fixed inset-0 z-50 bg-[#090A0F]/70 flex items-center justify-center p-4">
       <div className="studio-panel w-full max-w-2xl flex flex-col overflow-hidden">
         <div className="flex items-center justify-between px-5 py-3.5 bg-[#090A0F] text-white">
-          <h2 className="font-display text-sm font-bold uppercase tracking-wider">
+          <h2 className="text-title font-bold">
             {t.exportImportBtn}
           </h2>
           <button
@@ -129,37 +129,47 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose })
           </button>
         </div>
 
-        <div className="p-5 space-y-4 text-xs bg-white">
+        <div className="p-5 space-y-4 text-body bg-white">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <button
               onClick={handleCopyScenario}
-              className="studio-btn studio-btn-primary py-2.5 px-3 uppercase"
+              className="studio-btn studio-btn-primary py-2.5 px-3"
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              <span>{copied ? 'KOPYALANDI!' : 'SENARYO JSON KOPYALA'}</span>
+              <span>
+                {copied
+                  ? lang === 'tr'
+                    ? 'Kopyalandı'
+                    : 'Copied'
+                  : lang === 'tr'
+                  ? 'Senaryo JSON kopyala'
+                  : 'Copy scenario JSON'}
+              </span>
             </button>
 
-            <button onClick={handleDownloadJson} className="studio-btn py-2.5 px-3 uppercase">
+            <button onClick={handleDownloadJson} className="studio-btn py-2.5 px-3">
               <Download className="w-4 h-4" />
-              <span>SENARYO (.JSON) İNDİR</span>
+              <span>{lang === 'tr' ? 'Senaryo (.json) indir' : 'Download (.json)'}</span>
             </button>
 
-            <button onClick={handleDownloadCsv} className="studio-btn py-2.5 px-3 uppercase">
+            <button onClick={handleDownloadCsv} className="studio-btn py-2.5 px-3">
               <Download className="w-4 h-4 text-emerald-700" />
-              <span>87 BÖLGE (.CSV)</span>
+              <span>{lang === 'tr' ? '87 bölge (.csv)' : '87 districts (.csv)'}</span>
             </button>
           </div>
 
           <div className="bg-[#F4F5F7] border-[1.5px] border-[#090A0F] p-3.5 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <FileUp className="w-4 h-4 text-[#090A0F]" />
-              <span className="text-[#090A0F] font-display font-bold uppercase text-[11px]">
-                Bilgisayardan Senaryo veya Özel Baz Veri (.JSON) Yükle
+              <span className="text-[#090A0F] font-bold text-body">
+                {lang === 'tr'
+                  ? 'Bilgisayardan senaryo veya özel baz veri (.json) yükle'
+                  : 'Upload scenario or custom baseline (.json)'}
               </span>
             </div>
-            <label className="studio-btn px-3 py-1.5 cursor-pointer uppercase">
+            <label className="studio-btn px-3 py-1.5 cursor-pointer">
               <Upload className="w-3.5 h-3.5" />
-              <span>DOSYA SEÇ</span>
+              <span>{lang === 'tr' ? 'Dosya seç' : 'Choose file'}</span>
               <input
                 type="file"
                 accept=".json"
@@ -170,28 +180,30 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose })
           </div>
 
           <div className="space-y-2">
-            <label className="block font-mono uppercase text-[10px] tracking-wider text-slate-600">
-              SENARYO JSON METNİ (YAPIŞTIRIP YÜKLEYEBİLİRSİNİZ)
+            <label className="block eyebrow">
+              {lang === 'tr'
+                ? 'Senaryo JSON metni (yapıştırıp yükleyebilirsiniz)'
+                : 'Scenario JSON text (paste to load)'}
             </label>
             <textarea
               rows={6}
               value={jsonText}
               onChange={(e) => setJsonText(e.target.value)}
               placeholder='{"version": "1.0", "nationalTargetShares": ...}'
-              className="w-full studio-input p-2.5 font-mono text-[11px]"
+              className="w-full studio-input p-2.5 font-mono text-micro"
             />
             <div className="flex items-center justify-between pt-1">
               {statusMsg ? (
-                <span className="font-mono font-bold text-emerald-700">{statusMsg}</span>
+                <span className="font-bold text-emerald-700">{statusMsg}</span>
               ) : (
                 <span />
               )}
               <button
                 onClick={handleImportScenario}
-                className="studio-btn studio-btn-primary px-4 py-2 uppercase"
+                className="studio-btn studio-btn-primary px-4 py-2"
               >
                 <Upload className="w-3.5 h-3.5" />
-                <span>METİNDEN SENARYOYU YÜKLE</span>
+                <span>{lang === 'tr' ? 'Metinden senaryoyu yükle' : 'Load scenario from text'}</span>
               </button>
             </div>
           </div>

@@ -16,6 +16,7 @@ import baseline2024Raw from '../data/baseline2024.json';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
 import { BaselineDataset, BaselineId, SwingMode } from '../types/election';
+import { formatInt, formatPct } from '../utils/format';
 
 const BASELINES: Record<string, BaselineDataset> = {
   '2023_general': baseline2023Raw as unknown as BaselineDataset,
@@ -74,7 +75,7 @@ export const InputEditorPanel: React.FC = () => {
       const sum = Object.values(shares).reduce((a, b) => a + (Number(b) || 0), 0);
       return {
         title: t.nationalScope,
-        subtitle: '81 İL // 87 SEÇİM ÇEVRESİ // 973 İLÇE',
+        subtitle: lang === 'tr' ? '81 il, 87 seçim çevresi, 973 ilçe' : '81 provinces, 87 districts, 973 ilçeler',
         isLocked: false,
         canLock: false,
         registeredVoters: projection.domesticRegisteredVoters,
@@ -95,7 +96,7 @@ export const InputEditorPanel: React.FC = () => {
       const sum = Object.values(shares).reduce((a, b) => a + (Number(b) || 0), 0);
       return {
         title: t.abroadScope,
-        subtitle: 'YSK 87 SEÇİM ÇEVRESİNE ORANSAL DAĞITIM',
+        subtitle: lang === 'tr' ? '87 seçim çevresine oransal dağıtım' : 'Proportional distribution across 87 districts',
         isLocked: !abroadConfig.syncWithNationalSwing,
         canLock: true,
         registeredVoters: abroadConfig.registeredVoters,
@@ -116,8 +117,8 @@ export const InputEditorPanel: React.FC = () => {
       const baseShares = basePRes?.partyShares || {};
       const sum = Object.values(shares).reduce((a, b) => a + (Number(b) || 0), 0);
       return {
-        title: `${pRes?.plateCode || activeScope.ilId} // ${pRes?.name || ''}`,
-        subtitle: `${t.provinceScope} • ${pRes?.mpCount || 0} MİLLETVEKİLİ`,
+        title: `${pRes?.plateCode || activeScope.ilId} · ${pRes?.name || ''}`,
+        subtitle: `${t.provinceScope} · ${pRes?.mpCount || 0} ${lang === 'tr' ? 'milletvekili' : 'MPs'}`,
         isLocked: Boolean(ovr?.isLocked),
         canLock: true,
         registeredVoters: ovr?.registeredVoters ?? pRes?.registeredVoters ?? 0,
@@ -138,8 +139,8 @@ export const InputEditorPanel: React.FC = () => {
       const baseShares = baseDRes?.domesticPartyShares || {};
       const sum = Object.values(shares).reduce((a, b) => a + (Number(b) || 0), 0);
       return {
-        title: `${activeScope.districtId} // ${dRes?.name || ''}`,
-        subtitle: `${t.districtScope} • ${dRes?.mpCount || 0} MİLLETVEKİLİ`,
+        title: `${activeScope.districtId} · ${dRes?.name || ''}`,
+        subtitle: `${t.districtScope} · ${dRes?.mpCount || 0} ${lang === 'tr' ? 'milletvekili' : 'MPs'}`,
         isLocked: Boolean(ovr?.isLocked),
         canLock: true,
         registeredVoters: ovr?.registeredVoters ?? dRes?.registeredVoters ?? 0,
@@ -161,7 +162,7 @@ export const InputEditorPanel: React.FC = () => {
     const sum = Object.values(shares).reduce((a, b) => a + (Number(b) || 0), 0);
     return {
       title: `${iRes?.name || activeScope.ilceId} (${provName})`,
-      subtitle: `${t.ilceScope} • BÖLGE: ${iRes?.districtId || ''}`,
+      subtitle: `${t.ilceScope} · ${lang === 'tr' ? 'Bölge' : 'District'}: ${iRes?.districtId || ''}`,
       isLocked: Boolean(ovr?.isLocked),
       canLock: true,
       registeredVoters: ovr?.registeredVoters ?? iRes?.registeredVoters ?? 0,
@@ -244,41 +245,41 @@ export const InputEditorPanel: React.FC = () => {
   const isSumBalanced = Math.abs(sumDiff) < 0.08;
 
   return (
-    <div className="studio-panel studio-crosshair p-4 flex flex-col gap-3.5">
+    <div className="studio-panel p-4 flex flex-col gap-3.5">
       {/* Model Parameters: Base Election & Swing Mode */}
       <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col gap-1">
-          <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500">
-            {lang === 'tr' ? 'BAZ SEÇİM' : 'BASE ELECTION'}
+          <label className="eyebrow">
+            {lang === 'tr' ? 'Baz seçim' : 'Base election'}
           </label>
           <select
             value={baselineId}
             onChange={(e) => setBaselineId(e.target.value as BaselineId)}
-            className="studio-input border-[#090A0F] px-2 py-1.5 text-xs font-mono font-semibold text-[#090A0F] cursor-pointer"
+            className="studio-input border-[#090A0F] px-2 py-1.5 text-body font-bold text-[#090A0F] cursor-pointer"
           >
-            <option value="2023_general">14 MAYIS 2023 MV</option>
-            <option value="2024_local">31 MART 2024 YEREL</option>
-            <option value="custom">{lang === 'tr' ? 'ÖZEL CSV VERİ' : 'CUSTOM DATA'}</option>
+            <option value="2023_general">{lang === 'tr' ? '14 Mayıs 2023 MV' : 'May 14, 2023 general'}</option>
+            <option value="2024_local">{lang === 'tr' ? '31 Mart 2024 yerel' : 'March 31, 2024 local'}</option>
+            <option value="custom">{lang === 'tr' ? 'Özel CSV veri' : 'Custom CSV data'}</option>
           </select>
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500">
-            {lang === 'tr' ? 'SALINIM MODELİ' : 'SWING MODEL'}
+          <label className="eyebrow">
+            {lang === 'tr' ? 'Salınım modeli' : 'Swing model'}
           </label>
           <select
             value={swingMode}
             onChange={(e) => setSwingMode(e.target.value as SwingMode)}
-            className="studio-input border-[#090A0F] px-2 py-1.5 text-xs font-mono font-semibold text-[#090A0F] cursor-pointer"
+            className="studio-input border-[#090A0F] px-2 py-1.5 text-body font-bold text-[#090A0F] cursor-pointer"
           >
-            <option value="proportional">{lang === 'tr' ? 'ORANSAL (PS)' : 'PROPORTIONAL (PS)'}</option>
-            <option value="uniform">{lang === 'tr' ? 'TEKDÜZE (UNS)' : 'UNIFORM (UNS)'}</option>
+            <option value="proportional">{lang === 'tr' ? 'Oransal (PS)' : 'Proportional (PS)'}</option>
+            <option value="uniform">{lang === 'tr' ? 'Tekdüze (UNS)' : 'Uniform (UNS)'}</option>
           </select>
         </div>
       </div>
 
       {/* Top Scope Selector Tabs (National vs Abroad) */}
-      <div className="grid grid-cols-2 border-[1.5px] border-[#090A0F] bg-white text-xs font-display font-bold">
+      <div className="grid grid-cols-2 border-[1.5px] border-[#090A0F] bg-white text-body font-bold">
         <button
           onClick={() => setActiveScope({ type: 'national' })}
           className={`flex items-center justify-center gap-1.5 py-2 px-2 border-r border-[#090A0F] transition-colors ${
@@ -321,17 +322,17 @@ export const InputEditorPanel: React.FC = () => {
             else if (val.startsWith('d:'))
               setActiveScope({ type: 'district', districtId: val.slice(2) });
           }}
-          className="studio-input border-[#090A0F] px-2.5 py-1.5 text-xs font-mono font-semibold text-[#090A0F]"
+          className="studio-input border-[#090A0F] px-2.5 py-1.5 text-body font-medium text-[#090A0F]"
         >
-          <option value="">BÖLGE / İL SEÇİN...</option>
-          <optgroup label="87 Seçim Çevresi">
+          <option value="">{lang === 'tr' ? 'Bölge veya il seçin...' : 'Select district or province...'}</option>
+          <optgroup label={lang === 'tr' ? '87 seçim çevresi' : '87 electoral districts'}>
             {activeDataset.districts.map((d) => (
               <option key={d.id} value={`d:${d.id}`}>
-                {d.id} - {d.name} ({projection.districtResults[d.id]?.mpCount || d.mpCount} MV)
+                {d.id} - {d.name} ({projection.districtResults[d.id]?.mpCount || d.mpCount} {lang === 'tr' ? 'MV' : 'MP'})
               </option>
             ))}
           </optgroup>
-          <optgroup label="81 İl">
+          <optgroup label={lang === 'tr' ? '81 il' : '81 provinces'}>
             {activeDataset.provinces.map((p) => (
               <option key={p.id} value={`p:${p.id}`}>
                 {p.id} - {p.name}
@@ -345,9 +346,9 @@ export const InputEditorPanel: React.FC = () => {
           onChange={(e) => {
             if (e.target.value) setActiveScope({ type: 'ilce', ilceId: e.target.value });
           }}
-          className="studio-input border-[#090A0F] px-2.5 py-1.5 text-xs font-mono font-semibold text-[#090A0F]"
+          className="studio-input border-[#090A0F] px-2.5 py-1.5 text-body font-medium text-[#090A0F]"
         >
-          <option value="">İLÇE SEÇİN (973)...</option>
+          <option value="">{lang === 'tr' ? 'İlçe seçin (973)...' : 'Select ilçe (973)...'}</option>
           {activeDataset.ilceler
             .filter((ilce) => {
               if (activeScope.type === 'province') return ilce.ilId === activeScope.ilId;
@@ -371,11 +372,11 @@ export const InputEditorPanel: React.FC = () => {
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <h2 className="font-display text-sm font-bold tracking-tight uppercase truncate">
+            <h2 className="text-title font-bold truncate">
               {scopeData.title}
             </h2>
           </div>
-          <p className="text-[10px] font-mono text-slate-400 mt-0.5">{scopeData.subtitle}</p>
+          <p className="text-micro text-slate-400 mt-0.5">{scopeData.subtitle}</p>
         </div>
 
         {scopeData.canLock && (
@@ -383,16 +384,16 @@ export const InputEditorPanel: React.FC = () => {
             {scopeData.isLocked ? (
               <button
                 onClick={handleUnlockActive}
-                className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-mono font-bold bg-amber-400 text-[#090A0F] hover:bg-amber-300"
+                className="inline-flex items-center gap-1 px-2 py-1 text-micro font-bold bg-amber-400 text-[#090A0F] hover:bg-amber-300"
                 title={t.resetUnitLock}
               >
                 <Lock className="w-3 h-3" />
-                <span>KİLİTLİ ×</span>
+                <span>{lang === 'tr' ? 'Kilitli ×' : 'Locked ×'}</span>
               </button>
             ) : (
-              <span className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-mono border border-slate-700 text-slate-300">
+              <span className="inline-flex items-center gap-1 px-2 py-1 text-micro border border-slate-700 text-slate-300">
                 <Unlock className="w-3 h-3 text-slate-400" />
-                <span>OTO SWING</span>
+                <span>{lang === 'tr' ? 'Otomatik' : 'Auto'}</span>
               </span>
             )}
           </div>
@@ -401,8 +402,8 @@ export const InputEditorPanel: React.FC = () => {
 
       {/* Abroad Checkboxes */}
       {activeScope.type === 'abroad' && (
-        <div className="bg-slate-50 border border-[#090A0F] p-2.5 flex flex-col gap-1.5 text-xs font-mono">
-          <label className="flex items-center gap-2 cursor-pointer font-semibold text-[#090A0F]">
+        <div className="bg-slate-50 border border-[#090A0F] p-2.5 flex flex-col gap-1.5 text-body">
+          <label className="flex items-center gap-2 cursor-pointer font-medium text-[#090A0F]">
             <input
               type="checkbox"
               checked={abroadConfig.enabled}
@@ -425,23 +426,23 @@ export const InputEditorPanel: React.FC = () => {
 
       {/* Total Share Indicator & Normalization Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-100 border border-[#090A0F] px-3 py-2">
-        <div className="flex items-center gap-1.5 text-xs font-mono">
+        <div className="flex items-center gap-1.5 text-body">
           <CheckCircle2
             className={`w-4 h-4 ${
               isSumBalanced ? 'text-emerald-600' : 'text-amber-600'
             }`}
           />
-          <span className="text-slate-600 font-semibold">TOPLAM:</span>
+          <span className="text-slate-600 font-medium">{lang === 'tr' ? 'Toplam:' : 'Total:'}</span>
           <span
             className={`font-bold ${
               isSumBalanced ? 'text-[#090A0F]' : 'text-amber-700'
             }`}
           >
-            %{scopeData.sum.toFixed(1)}
+            {formatPct(scopeData.sum, lang, 1)}
           </span>
           {!isSumBalanced && (
-            <span className="text-[11px] font-bold text-amber-700">
-              ({sumDiff >= 0 ? `+${sumDiff.toFixed(1)}` : sumDiff.toFixed(1)}%)
+            <span className="text-micro font-bold text-amber-700">
+              ({sumDiff >= 0 ? `+${formatPct(sumDiff, lang, 1)}` : formatPct(sumDiff, lang, 1)})
             </span>
           )}
         </div>
@@ -449,16 +450,16 @@ export const InputEditorPanel: React.FC = () => {
         <div className="flex items-center gap-1.5">
           <button
             onClick={normalizeActiveScopeShares}
-            className="studio-btn px-2 py-1 text-[10px] font-mono uppercase"
+            className="studio-btn px-2 py-1 text-micro"
           >
             <Sparkles className="w-3 h-3" />
-            <span>100%'E TAMAMLA</span>
+            <span>{t.normalize100}</span>
           </button>
           <button
             onClick={sendActiveScopeRemainderToOther}
-            className="studio-btn px-2 py-1 text-[10px] font-mono uppercase"
+            className="studio-btn px-2 py-1 text-micro"
           >
-            <span>DİĞER'E AKTAR</span>
+            <span>{t.sendToOther}</span>
           </button>
         </div>
       </div>
@@ -476,14 +477,14 @@ export const InputEditorPanel: React.FC = () => {
               key={party.id}
               className="group flex items-center gap-2.5 py-2 px-1 hover:bg-slate-50 transition-colors"
             >
-              {/* High-Saturation Neon Signal Block + Party Code */}
+              {/* High-Saturation Signal Block + Party Code */}
               <div className="flex items-center gap-2 w-20 shrink-0">
                 <span
                   className="w-3.5 h-3.5 shrink-0 border border-[#090A0F]"
                   style={{ backgroundColor: party.color }}
                 />
                 <span
-                  className="font-display font-bold text-xs text-[#090A0F] tracking-tight truncate"
+                  className="font-bold text-body text-[#090A0F] truncate"
                   title={party.fullName}
                 >
                   {party.shortName}
@@ -505,7 +506,7 @@ export const InputEditorPanel: React.FC = () => {
 
               {/* Delta Badge */}
               <span
-                className={`w-11 text-right font-mono text-[11px] font-semibold shrink-0 ${
+                className={`w-12 text-right text-micro font-bold shrink-0 ${
                   delta > 0.05
                     ? 'text-emerald-600'
                     : delta < -0.05
@@ -525,9 +526,9 @@ export const InputEditorPanel: React.FC = () => {
                   step={0.1}
                   value={val}
                   onChange={(e) => handleShareChange(party.id, parseFloat(e.target.value) || 0)}
-                  className="w-16 studio-input border-[#090A0F] pr-4 pl-1.5 py-1 text-right font-mono text-xs font-bold text-[#090A0F]"
+                  className="w-16 studio-input border-[#090A0F] pr-4 pl-1.5 py-1 text-right text-body font-bold text-[#090A0F]"
                 />
-                <span className="absolute right-1.5 text-[10px] font-mono text-slate-400 pointer-events-none">
+                <span className="absolute right-1.5 text-micro text-slate-400 pointer-events-none">
                   %
                 </span>
               </div>
@@ -535,13 +536,13 @@ export const InputEditorPanel: React.FC = () => {
               {/* Projected Seats Pill */}
               {seats !== undefined && (
                 <span
-                  className={`w-12 text-center py-1 font-mono text-[11px] font-bold shrink-0 border ${
+                  className={`w-14 text-center py-1 text-micro font-bold shrink-0 border ${
                     seats > 0
                       ? 'bg-[#090A0F] text-white border-[#090A0F]'
                       : 'bg-slate-100 text-slate-400 border-slate-200'
                   }`}
                 >
-                  {seats} MV
+                  {seats} {lang === 'tr' ? 'MV' : 'MP'}
                 </span>
               )}
             </div>
@@ -553,13 +554,13 @@ export const InputEditorPanel: React.FC = () => {
       <div className="pt-1">
         <button
           onClick={() => setShowVoterDetails((v) => !v)}
-          className="w-full flex items-center justify-between text-xs font-mono font-bold text-[#090A0F] hover:bg-slate-100 px-2 py-1.5 border border-slate-300"
+          className="w-full flex items-center justify-between text-body font-bold text-[#090A0F] hover:bg-slate-100 px-2.5 py-2 border border-slate-300"
         >
           <div className="flex items-center gap-1.5">
             <Users className="w-3.5 h-3.5" />
             <span>
-              KATILIM: %{scopeData.turnout.toFixed(1)} // GEÇERLİ OY:{' '}
-              {scopeData.validVotes.toLocaleString('tr-TR')}
+              {lang === 'tr' ? 'Katılım' : 'Turnout'}: {formatPct(scopeData.turnout, lang, 1)} ·{' '}
+              {lang === 'tr' ? 'Geçerli oy' : 'Valid votes'}: {formatInt(scopeData.validVotes, lang)}
             </span>
           </div>
           {showVoterDetails ? (
@@ -570,9 +571,9 @@ export const InputEditorPanel: React.FC = () => {
         </button>
 
         {showVoterDetails && (
-          <div className="mt-2 grid grid-cols-3 gap-2 bg-slate-50 border border-[#090A0F] p-2.5 text-xs font-mono">
+          <div className="mt-2 grid grid-cols-3 gap-2 bg-slate-50 border border-[#090A0F] p-2.5 text-body">
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+              <label className="block text-micro font-medium text-slate-500 mb-1">
                 {t.registeredVoters}
               </label>
               <input
@@ -581,12 +582,12 @@ export const InputEditorPanel: React.FC = () => {
                 step={1000}
                 value={Math.round(scopeData.registeredVoters)}
                 onChange={(e) => handleVotersChange(Math.max(0, parseInt(e.target.value, 10) || 0))}
-                className="w-full studio-input border-[#090A0F] px-2 py-1 text-xs font-bold"
+                className="w-full studio-input border-[#090A0F] px-2 py-1 text-body font-bold"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+              <label className="block text-micro font-medium text-slate-500 mb-1">
                 {t.turnoutPct}
               </label>
               <input
@@ -596,16 +597,16 @@ export const InputEditorPanel: React.FC = () => {
                 step={0.1}
                 value={Number(scopeData.turnout.toFixed(2))}
                 onChange={(e) => handleTurnoutChange(parseFloat(e.target.value) || 0)}
-                className="w-full studio-input border-[#090A0F] px-2 py-1 text-xs font-bold"
+                className="w-full studio-input border-[#090A0F] px-2 py-1 text-body font-bold"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+              <label className="block text-micro font-medium text-slate-500 mb-1">
                 {t.validVotes}
               </label>
-              <div className="px-2 py-1 bg-white border border-[#090A0F] text-xs font-bold text-[#090A0F] truncate">
-                {scopeData.validVotes.toLocaleString('tr-TR')}
+              <div className="px-2 py-1 bg-white border border-[#090A0F] text-body font-bold text-[#090A0F] truncate">
+                {formatInt(scopeData.validVotes, lang)}
               </div>
             </div>
           </div>

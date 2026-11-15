@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
+import { formatInt, formatPct } from '../utils/format';
 
 type ActiveTab = 'districts' | 'closest' | 'ilceler';
 
@@ -81,10 +82,10 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
   }, [projection.ilceResults, projection.provinceResults, search]);
 
   return (
-    <div className="studio-panel studio-crosshair p-5 flex flex-col gap-4">
+    <div className="studio-panel p-5 flex flex-col gap-4">
       {/* Top Bar: Tabs + Search */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b-[1.5px] border-[#090A0F] pb-3">
-        <div className="inline-flex border-[1.5px] border-[#090A0F] bg-[#F4F5F7] text-xs font-display font-bold uppercase tracking-wider">
+        <div className="inline-flex border-[1.5px] border-[#090A0F] bg-[#F4F5F7] text-body font-bold">
           <button
             onClick={() => setTab('districts')}
             className={`flex items-center gap-1.5 px-3.5 py-2 border-r-[1.5px] border-[#090A0F] transition-colors ${
@@ -130,7 +131,7 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t.searchPlaceholder}
-            className="w-full studio-input pl-9 pr-3 py-1.5 text-xs font-mono"
+            className="w-full studio-input pl-9 pr-3 py-1.5 text-body"
           />
         </div>
       </div>
@@ -138,13 +139,13 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
       {/* TAB 1: 87 Electoral Districts Breakdown */}
       {tab === 'districts' && (
         <div className="overflow-x-auto max-h-[580px] border-[1.5px] border-[#090A0F]">
-          <table className="w-full text-xs border-collapse font-mono">
-            <thead className="sticky top-0 bg-[#090A0F] text-white z-10 font-mono uppercase text-[10px] tracking-wider">
+          <table className="w-full text-body border-collapse">
+            <thead className="sticky top-0 bg-[#090A0F] text-white z-10 text-micro font-medium">
               <tr>
-                <th className="py-2.5 px-3 text-left">SEÇİM ÇEVRESİ</th>
+                <th className="py-2.5 px-3 text-left">{lang === 'tr' ? 'Seçim çevresi' : 'District'}</th>
                 <th className="py-2.5 px-3 text-right">MV</th>
-                <th className="py-2.5 px-3 text-right">KATILIM</th>
-                <th className="py-2.5 px-3 text-right">GEÇERLİ OY</th>
+                <th className="py-2.5 px-3 text-right">{lang === 'tr' ? 'Katılım' : 'Turnout'}</th>
+                <th className="py-2.5 px-3 text-right">{lang === 'tr' ? 'Geçerli oy' : 'Valid votes'}</th>
                 {nonOtherParties.slice(0, 8).map((p) => (
                   <th key={p.id} className="py-2.5 px-3 text-right">
                     <span
@@ -154,7 +155,7 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
                     {p.shortName}
                   </th>
                 ))}
-                <th className="py-2.5 px-3 text-center">HARİTA</th>
+                <th className="py-2.5 px-3 text-center">{lang === 'tr' ? 'Harita' : 'Map'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#090A0F]/15">
@@ -169,8 +170,8 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
                     }}
                     className="hover:bg-[#F4F5F7] cursor-pointer transition-colors"
                   >
-                    <td className="py-2 px-3 font-display font-bold text-[#090A0F] flex items-center gap-2">
-                      <span className="font-mono text-[10px] px-1.5 py-0.5 bg-[#090A0F] text-white font-bold">
+                    <td className="py-2 px-3 font-bold text-[#090A0F] flex items-center gap-2">
+                      <span className="font-mono text-micro px-1.5 py-0.5 bg-[#090A0F] text-white font-bold">
                         {d.id}
                       </span>
                       <span>{d.name}</span>
@@ -180,20 +181,20 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
                       {d.mpCount}
                     </td>
                     <td className="py-2 px-3 text-right text-slate-600">
-                      %{d.turnout.toFixed(1)}
+                      {formatPct(d.turnout, lang)}
                     </td>
                     <td className="py-2 px-3 text-right text-slate-500">
-                      {d.totalValidVotes.toLocaleString('tr-TR')}
+                      {formatInt(d.totalValidVotes, lang)}
                     </td>
                     {nonOtherParties.slice(0, 8).map((p) => {
                       const share = d.partyShares[p.id] || 0;
                       const seats = d.partySeats[p.id] || 0;
                       return (
                         <td key={p.id} className="py-2 px-3 text-right">
-                          <span className="text-slate-700">{share.toFixed(1)}%</span>
+                          <span className="text-slate-700">{formatPct(share, lang)}</span>
                           {seats > 0 && (
                             <span
-                              className="ml-1.5 px-1.5 py-0.5 text-[10px] font-bold text-white border border-[#090A0F]"
+                              className="ml-1.5 px-1.5 py-0.5 text-micro font-bold text-white border border-[#090A0F]"
                               style={{ backgroundColor: p.color }}
                             >
                               {seats}
@@ -202,17 +203,17 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
                         </td>
                       );
                     })}
-                    <td className="py-2 px-3 text-center font-sans">
+                    <td className="py-2 px-3 text-center">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setZoomedProvinceId(d.ilId);
                           onSelectAndGoToMap?.();
                         }}
-                        className="studio-btn px-2 py-0.5 text-[10px] uppercase"
+                        className="studio-btn px-2 py-0.5 text-micro"
                       >
                         <ZoomIn className="w-3 h-3" />
-                        <span>İLÇELER</span>
+                        <span>{lang === 'tr' ? 'İlçeler' : 'Districts'}</span>
                       </button>
                     </td>
                   </tr>
@@ -226,12 +227,12 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
       {/* TAB 2: Closest Races (Last Seat Flip Analyzer across 87 Districts) */}
       {tab === 'closest' && (
         <div className="overflow-x-auto max-h-[580px] border-[1.5px] border-[#090A0F]">
-          <table className="w-full text-xs border-collapse font-mono">
-            <thead className="sticky top-0 bg-[#090A0F] text-white z-10 font-mono uppercase text-[10px] tracking-wider">
+          <table className="w-full text-body border-collapse">
+            <thead className="sticky top-0 bg-[#090A0F] text-white z-10 text-micro font-medium">
               <tr>
-                <th className="py-2.5 px-3 text-left">SIRA</th>
-                <th className="py-2.5 px-3 text-left">SEÇİM ÇEVRESİ</th>
-                <th className="py-2.5 px-3 text-right">TOPLAM MV</th>
+                <th className="py-2.5 px-3 text-left">{lang === 'tr' ? 'Sıra' : 'Rank'}</th>
+                <th className="py-2.5 px-3 text-left">{lang === 'tr' ? 'Seçim çevresi' : 'District'}</th>
+                <th className="py-2.5 px-3 text-right">{lang === 'tr' ? 'Toplam MV' : 'Total MPs'}</th>
                 <th className="py-2.5 px-3 text-left">{t.lastWinnerCol}</th>
                 <th className="py-2.5 px-3 text-left">{t.closestChallengerCol}</th>
                 <th className="py-2.5 px-3 text-right">{t.votesToFlipCol}</th>
@@ -251,47 +252,47 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
                     }}
                     className="hover:bg-[#F4F5F7] cursor-pointer"
                   >
-                    <td className="py-2 px-3 text-slate-500 font-bold">#{idx + 1}</td>
-                    <td className="py-2 px-3 font-display font-bold text-[#090A0F]">
-                      <span className="font-mono text-[10px] px-1.5 py-0.5 bg-[#090A0F] text-white mr-2">
+                    <td className="py-2 px-3 text-slate-500 font-bold font-mono">#{idx + 1}</td>
+                    <td className="py-2 px-3 font-bold text-[#090A0F]">
+                      <span className="font-mono text-micro px-1.5 py-0.5 bg-[#090A0F] text-white mr-2">
                         {d.id}
                       </span>
                       {d.name}
                     </td>
                     <td className="py-2 px-3 text-right text-slate-700 font-bold">{d.mpCount} MV</td>
-                    <td className="py-2 px-3 font-sans">
+                    <td className="py-2 px-3">
                       {winner && (
                         <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#F4F5F7] border border-[#090A0F]">
                           <span
                             className="w-2.5 h-2.5 border border-[#090A0F]"
                             style={{ backgroundColor: winner.color }}
                           />
-                          <span className="font-display font-bold text-[#090A0F]">{winner.shortName}</span>
-                          <span className="font-mono text-slate-500 text-[10px]">
+                          <span className="font-bold text-[#090A0F]">{winner.shortName}</span>
+                          <span className="text-slate-500 text-micro">
                             ({d.partySeats[winner.id] || 0}. MV)
                           </span>
                         </span>
                       )}
                     </td>
-                    <td className="py-2 px-3 font-sans">
+                    <td className="py-2 px-3">
                       {challenger && (
                         <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#F4F5F7] border border-[#090A0F]">
                           <span
                             className="w-2.5 h-2.5 border border-[#090A0F]"
                             style={{ backgroundColor: challenger.color }}
                           />
-                          <span className="font-display font-bold text-[#090A0F]">{challenger.shortName}</span>
-                          <span className="font-mono text-slate-500 text-[10px]">
-                            ({(d.partySeats[challenger.id] || 0) + 1}. MV ADAYI)
+                          <span className="font-bold text-[#090A0F]">{challenger.shortName}</span>
+                          <span className="text-slate-500 text-micro">
+                            ({(d.partySeats[challenger.id] || 0) + 1}. {lang === 'tr' ? 'MV adayı' : 'runner-up'})
                           </span>
                         </span>
                       )}
                     </td>
                     <td className="py-2 px-3 text-right font-bold text-[#090A0F]">
-                      +{d.votesToFlipLastSeat.toLocaleString('tr-TR')} OY
+                      +{formatInt(d.votesToFlipLastSeat, lang)} {lang === 'tr' ? 'oy' : 'votes'}
                     </td>
                     <td className="py-2 px-3 text-right text-rose-700 font-bold">
-                      %{d.pctToFlipLastSeat.toFixed(2)}
+                      {formatPct(d.pctToFlipLastSeat, lang, 2)}
                     </td>
                   </tr>
                 );
@@ -304,15 +305,15 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
       {/* TAB 3: 973 İlçe Database */}
       {tab === 'ilceler' && (
         <div className="overflow-x-auto max-h-[580px] border-[1.5px] border-[#090A0F]">
-          <table className="w-full text-xs border-collapse font-mono">
-            <thead className="sticky top-0 bg-[#090A0F] text-white z-10 font-mono uppercase text-[10px] tracking-wider">
+          <table className="w-full text-body border-collapse">
+            <thead className="sticky top-0 bg-[#090A0F] text-white z-10 text-micro font-medium">
               <tr>
-                <th className="py-2.5 px-3 text-left">İLÇE & İL</th>
-                <th className="py-2.5 px-3 text-left">BÖLGE</th>
-                <th className="py-2.5 px-3 text-right">SEÇMEN</th>
-                <th className="py-2.5 px-3 text-right">KATILIM</th>
-                <th className="py-2.5 px-3 text-right">GEÇERLİ OY</th>
-                <th className="py-2.5 px-3 text-left">1. PARTİ</th>
+                <th className="py-2.5 px-3 text-left">{lang === 'tr' ? 'İlçe ve il' : 'District & province'}</th>
+                <th className="py-2.5 px-3 text-left">{lang === 'tr' ? 'Bölge' : 'Region'}</th>
+                <th className="py-2.5 px-3 text-right">{lang === 'tr' ? 'Seçmen' : 'Voters'}</th>
+                <th className="py-2.5 px-3 text-right">{lang === 'tr' ? 'Katılım' : 'Turnout'}</th>
+                <th className="py-2.5 px-3 text-right">{lang === 'tr' ? 'Geçerli oy' : 'Valid votes'}</th>
+                <th className="py-2.5 px-3 text-left">{lang === 'tr' ? '1. parti' : 'Leader'}</th>
                 {nonOtherParties.slice(0, 6).map((p) => (
                   <th key={p.id} className="py-2.5 px-3 text-right">
                     {p.shortName} %
@@ -335,35 +336,35 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
                     }}
                     className="hover:bg-[#F4F5F7] cursor-pointer"
                   >
-                    <td className="py-2 px-3 font-display font-bold text-[#090A0F] flex items-center gap-1.5">
+                    <td className="py-2 px-3 font-bold text-[#090A0F] flex items-center gap-1.5">
                       <MapPin className="w-3.5 h-3.5 text-[#090A0F] shrink-0" />
                       <span>{i.name}</span>
-                      <span className="font-mono text-slate-500 text-[10px]">({provName})</span>
+                      <span className="text-slate-500 text-micro font-normal">({provName})</span>
                       {isLocked && <Lock className="w-3.5 h-3.5 text-amber-600" />}
                     </td>
-                    <td className="py-2 px-3 text-slate-600 font-bold">{i.districtId}</td>
+                    <td className="py-2 px-3 text-slate-600 font-bold font-mono">{i.districtId}</td>
                     <td className="py-2 px-3 text-right text-slate-600">
-                      {i.registeredVoters.toLocaleString('tr-TR')}
+                      {formatInt(i.registeredVoters, lang)}
                     </td>
                     <td className="py-2 px-3 text-right text-slate-600">
-                      %{i.turnout.toFixed(1)}
+                      {formatPct(i.turnout, lang)}
                     </td>
                     <td className="py-2 px-3 text-right text-slate-500">
-                      {i.validVotes.toLocaleString('tr-TR')}
+                      {formatInt(i.validVotes, lang)}
                     </td>
-                    <td className="py-2 px-3 font-sans">
+                    <td className="py-2 px-3">
                       {leader && (
                         <span
-                          className="px-2 py-0.5 text-[10px] font-mono font-bold text-white border border-[#090A0F]"
+                          className="px-2 py-0.5 text-micro font-bold text-white border border-[#090A0F]"
                           style={{ backgroundColor: leader.color }}
                         >
-                          {leader.shortName} %{i.partyShares[leader.id]?.toFixed(1)}
+                          {leader.shortName} {formatPct(i.partyShares[leader.id] || 0, lang)}
                         </span>
                       )}
                     </td>
                     {nonOtherParties.slice(0, 6).map((p) => (
                       <td key={p.id} className="py-2 px-3 text-right text-slate-700">
-                        {(i.partyShares[p.id] || 0).toFixed(1)}%
+                        {formatPct(i.partyShares[p.id] || 0, lang)}
                       </td>
                     ))}
                   </tr>

@@ -13,6 +13,7 @@ import {
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
 import { MapColorMode, MapLayerMode } from '../types/election';
+import { formatInt, formatPct } from '../utils/format';
 
 interface GeoFeature {
   type: 'Feature';
@@ -389,11 +390,11 @@ export const MapPanel: React.FC = () => {
   };
 
   return (
-    <div className="studio-panel studio-crosshair flex flex-col overflow-hidden">
+    <div className="studio-panel flex flex-col overflow-hidden">
       {/* Top Map Header: Architectural Breadcrumb + Layer & Color Controls */}
       <div className="px-4 py-2.5 border-b-[1.5px] border-[#090A0F] flex flex-wrap items-center justify-between gap-3 bg-white">
         {/* Interactive Breadcrumb Trail */}
-        <div className="flex items-center gap-1.5 text-xs font-mono font-semibold">
+        <div className="flex items-center gap-1.5 text-body font-medium">
           <button
             onClick={() => {
               setZoomedProvinceId(null);
@@ -405,7 +406,7 @@ export const MapPanel: React.FC = () => {
                 : 'border-transparent text-slate-600 hover:border-[#090A0F] hover:text-[#090A0F]'
             }`}
           >
-            TÜRKİYE
+            {lang === 'tr' ? 'Türkiye' : 'Turkey'}
           </button>
 
           {selectedProvResult && (
@@ -415,13 +416,13 @@ export const MapPanel: React.FC = () => {
                 onClick={() => {
                   setActiveScope({ type: 'province', ilId: selectedProvResult.id });
                 }}
-                className={`px-2 py-1 border transition-colors uppercase ${
+                className={`px-2 py-1 border transition-colors ${
                   activeScope.type === 'province' && !selectedIlceResult
                     ? 'bg-[#090A0F] text-white border-[#090A0F]'
                     : 'border-transparent text-slate-700 hover:border-[#090A0F]'
                 }`}
               >
-                {selectedProvResult.id} • {selectedProvResult.name} ({selectedProvResult.mpCount} MV)
+                <span className="font-mono">{selectedProvResult.id}</span> · {selectedProvResult.name} ({selectedProvResult.mpCount} MV)
               </button>
             </>
           )}
@@ -429,7 +430,7 @@ export const MapPanel: React.FC = () => {
           {activeScope.type === 'district' && (
             <>
               <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              <span className="px-2 py-1 bg-[#090A0F] text-white uppercase">
+              <span className="px-2 py-1 bg-[#090A0F] text-white">
                 {projection.districtResults[activeScope.districtId]?.name}
               </span>
             </>
@@ -438,7 +439,7 @@ export const MapPanel: React.FC = () => {
           {selectedIlceResult && (
             <>
               <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              <span className="px-2 py-1 bg-[#090A0F] text-white uppercase">
+              <span className="px-2 py-1 bg-[#090A0F] text-white">
                 {selectedIlceResult.name}
               </span>
             </>
@@ -447,32 +448,32 @@ export const MapPanel: React.FC = () => {
           {selectedProvResult && !zoomedProvinceId && (
             <button
               onClick={() => setZoomedProvinceId(selectedProvResult.id)}
-              className="ml-2 studio-btn px-2.5 py-1 text-[11px]"
+              className="ml-2 studio-btn px-2.5 py-1 text-micro"
             >
               <ZoomIn className="w-3 h-3" />
-              <span>İLÇE SINIRLARINA YAKINLAŞ</span>
+              <span>{lang === 'tr' ? 'İlçe sınırlarına yakınlaş' : 'Zoom to districts'}</span>
             </button>
           )}
 
           {zoomedProvinceId && (
             <button
               onClick={() => setZoomedProvinceId(null)}
-              className="ml-2 studio-btn px-2.5 py-1 text-[11px]"
+              className="ml-2 studio-btn px-2.5 py-1 text-micro"
             >
               <RotateCcw className="w-3 h-3" />
-              <span>TÜM TÜRKİYE HARİTASI</span>
+              <span>{lang === 'tr' ? 'Tüm Türkiye haritası' : 'All Turkey map'}</span>
             </button>
           )}
         </div>
 
         {/* Right Toolbar: Layer Toggle + Color Mode */}
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <div className="inline-flex border-[1.5px] border-[#090A0F] bg-white font-mono text-[11px] font-bold">
+        <div className="flex flex-wrap items-center gap-2 text-body">
+          <div className="inline-flex border-[1.5px] border-[#090A0F] bg-white text-micro font-medium">
             {(
               [
-                ['87_district', '87 SEÇİM ÇEVRESİ'],
-                ['81_il', '81 İL'],
-                ['973_ilce', '973 İLÇE'],
+                ['87_district', lang === 'tr' ? '87 seçim çevresi' : '87 districts'],
+                ['81_il', lang === 'tr' ? '81 il' : '81 provinces'],
+                ['973_ilce', lang === 'tr' ? '973 ilçe' : '973 sub-districts'],
               ] as [MapLayerMode, string][]
             ).map(([lKey, label], idx) => (
               <button
@@ -497,7 +498,7 @@ export const MapPanel: React.FC = () => {
           <select
             value={mapColorMode}
             onChange={(e) => setMapColorMode(e.target.value as MapColorMode)}
-            className="studio-input border-[#090A0F] px-2.5 py-1 text-[11px] font-mono font-bold text-[#090A0F] uppercase cursor-pointer"
+            className="studio-input border-[#090A0F] px-2.5 py-1 text-micro font-medium text-[#090A0F] cursor-pointer"
           >
             <option value="leader">{t.colorLeader}</option>
             <option value="alliance">{t.colorAlliance}</option>
@@ -509,26 +510,26 @@ export const MapPanel: React.FC = () => {
           {!zoomedProvinceId && (mapLayer === '87_district' || mapLayer === '81_il') && (
             <button
               onClick={() => setShowSeatCircles((s) => !s)}
-              className={`px-2.5 py-1 border-[1.5px] border-[#090A0F] font-mono text-[11px] font-bold flex items-center gap-1.5 transition-colors ${
+              className={`px-2.5 py-1 border-[1.5px] border-[#090A0F] text-micro font-medium flex items-center gap-1.5 transition-colors ${
                 showSeatCircles
                   ? 'bg-[#090A0F] text-white'
                   : 'bg-white text-[#090A0F] hover:bg-slate-100'
               }`}
-              title={lang === 'tr' ? 'Harita Üzerinde MV Dairelerini Göster/Gizle' : 'Toggle Seat Circles'}
+              title={lang === 'tr' ? 'Harita üzerinde MV dairelerini göster/gizle' : 'Toggle seat circles'}
             >
               <CircleDot className="w-3.5 h-3.5" />
-              <span>{lang === 'tr' ? 'MV DAİRELERİ' : 'SEAT CIRCLES'}</span>
+              <span>{lang === 'tr' ? 'MV daireleri' : 'Seat circles'}</span>
             </button>
           )}
 
           <button
             onClick={handleExportPng}
             disabled={!provincesGeo || !districts87Geo}
-            className="studio-btn px-2.5 py-1 text-[11px] font-mono font-bold disabled:opacity-40"
-            title={lang === 'tr' ? 'Haritayı PNG Olarak İndir' : 'Export Map as PNG'}
+            className="studio-btn px-2.5 py-1 text-micro font-medium disabled:opacity-40"
+            title={lang === 'tr' ? 'Haritayı PNG olarak indir' : 'Export map as PNG'}
           >
             <Download className="w-3.5 h-3.5" />
-            <span>{lang === 'tr' ? 'PNG İNDİR' : 'EXPORT PNG'}</span>
+            <span>{lang === 'tr' ? 'PNG indir' : 'Export PNG'}</span>
           </button>
         </div>
       </div>
@@ -555,26 +556,28 @@ export const MapPanel: React.FC = () => {
         }}
         onMouseUp={() => setIsDragging(false)}
       >
-        {/* Top-Left Technical Coordinate Telemetry Tag */}
-        <div className="absolute top-2.5 left-3 z-10 pointer-events-none flex items-center gap-2 font-mono text-[10px] text-slate-500">
-          <span className="px-1.5 py-0.5 bg-white/90 border border-slate-300 text-[#090A0F] font-semibold">
-            PROJ: MERCATOR // TR-87
-          </span>
-          <span>
-            KATMAN:{' '}
+        {/* Top-Left Layer Label */}
+        <div className="absolute top-2.5 left-3 z-10 pointer-events-none flex items-center gap-2 text-micro font-medium text-slate-600">
+          <span className="px-2 py-0.5 bg-white/90 border border-slate-300 text-[#090A0F]">
             {zoomedProvinceId
-              ? `${zoomedProvResult?.name.toUpperCase()} İLÇELERİ`
+              ? `${zoomedProvResult?.name} ${lang === 'tr' ? 'ilçeleri' : 'districts'}`
               : mapLayer === '87_district'
-              ? '87 SEÇİM ÇEVRESİ (BİRLEŞTİRİLMİŞ)'
+              ? lang === 'tr'
+                ? 'Harita katmanı: 87 seçim çevresi'
+                : 'Map layer: 87 districts'
               : mapLayer === '81_il'
-              ? '81 İL SINIRI'
-              : '973 İLÇE SINIRI'}
+              ? lang === 'tr'
+                ? 'Harita katmanı: 81 il'
+                : 'Map layer: 81 provinces'
+              : lang === 'tr'
+              ? 'Harita katmanı: 973 ilçe'
+              : 'Map layer: 973 sub-districts'}
           </span>
         </div>
 
         {!provincesGeo || !districts87Geo ? (
-          <div className="h-[460px] flex items-center justify-center text-xs font-mono uppercase tracking-wider text-slate-500">
-            HARİTA VEKTÖRLERİ YÜKLENİYOR...
+          <div className="h-[460px] flex items-center justify-center text-body text-slate-500">
+            {lang === 'tr' ? 'Harita vektörleri yükleniyor...' : 'Loading map vectors...'}
           </div>
         ) : (
           <svg
@@ -731,7 +734,7 @@ export const MapPanel: React.FC = () => {
                           setHovered({
                             id: ilceId,
                             title: `${iRes.name} (${provName})`,
-                            subtitle: `SEÇİM ÇEVRESİ: ${iRes.districtId}`,
+                            subtitle: `${lang === 'tr' ? 'Seçim çevresi' : 'District'}: ${iRes.districtId}`,
                             turnout: iRes.turnout,
                             validVotes: iRes.validVotes,
                             isLocked,
@@ -808,8 +811,11 @@ export const MapPanel: React.FC = () => {
                             }));
                           setHovered({
                             id: dId,
-                            title: `${dId} // ${dRes.name}`,
-                            subtitle: `${dRes.mpCount} MİLLETVEKİLİ • ÇİFT TIKLA: İLÇELER`,
+                            title: `${dId} · ${dRes.name}`,
+                            subtitle:
+                              lang === 'tr'
+                                ? `${dRes.mpCount} milletvekili · Çift tıkla: ilçeler`
+                                : `${dRes.mpCount} MPs · Double-click: districts`,
                             turnout: dRes.turnout,
                             validVotes: dRes.totalValidVotes,
                             isLocked,
@@ -891,8 +897,11 @@ export const MapPanel: React.FC = () => {
                             }));
                           setHovered({
                             id: ilId,
-                            title: `${pRes.id} // ${pRes.name}`,
-                            subtitle: `${pRes.mpCount} MİLLETVEKİLİ • ÇİFT TIKLA: İLÇELER`,
+                            title: `${pRes.id} · ${pRes.name}`,
+                            subtitle:
+                              lang === 'tr'
+                                ? `${pRes.mpCount} milletvekili · Çift tıkla: ilçeler`
+                                : `${pRes.mpCount} MPs · Double-click: districts`,
                             turnout: pRes.turnout,
                             validVotes: pRes.totalValidVotes,
                             isLocked,
@@ -963,35 +972,34 @@ export const MapPanel: React.FC = () => {
               right: hovered.clientX <= window.innerWidth / 2 ? '14px' : 'auto',
               bottom: '14px',
             }}
-            className="absolute z-20 w-72 bg-[#090A0F] text-white border-[1.5px] border-[#090A0F] shadow-[4px_4px_0px_rgba(9,10,15,0.25)] p-3 pointer-events-none text-xs"
+            className="absolute z-20 w-72 bg-[#090A0F] text-white border-[1.5px] border-[#090A0F] shadow-[4px_4px_0px_rgba(9,10,15,0.25)] p-3 pointer-events-none text-body"
           >
             <div className="flex items-start justify-between gap-2 border-b border-slate-800 pb-2 mb-2">
               <div>
-                <div className="font-display font-bold text-white text-sm tracking-tight flex items-center gap-1.5">
+                <div className="font-bold text-white text-title flex items-center gap-1.5">
                   <span>{hovered.title}</span>
                   {hovered.isLocked && <Lock className="w-3.5 h-3.5 text-amber-400" />}
                 </div>
-                <div className="text-[10px] font-mono text-slate-400 mt-0.5">
+                <div className="text-micro text-slate-400 mt-0.5">
                   {hovered.subtitle}
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-between text-[10px] font-mono text-slate-300 mb-2 bg-slate-900 border border-slate-800 px-2 py-1">
+            <div className="flex justify-between text-micro text-slate-300 mb-2 bg-slate-900 border border-slate-800 px-2 py-1">
               <span>
-                KATILIM: <strong className="text-white">%{hovered.turnout.toFixed(1)}</strong>
+                {lang === 'tr' ? 'Katılım' : 'Turnout'}:{' '}
+                <strong className="text-white">{formatPct(hovered.turnout, lang)}</strong>
               </span>
               <span>
-                GEÇERLİ:{' '}
-                <strong className="text-white">
-                  {hovered.validVotes.toLocaleString('tr-TR')}
-                </strong>
+                {lang === 'tr' ? 'Geçerli oy' : 'Valid'}:{' '}
+                <strong className="text-white">{formatInt(hovered.validVotes, lang)}</strong>
               </span>
             </div>
 
-            <div className="space-y-1.5 font-mono">
+            <div className="space-y-1.5">
               {hovered.topParties.map((tp) => (
-                <div key={tp.shortName} className="flex items-center justify-between text-xs">
+                <div key={tp.shortName} className="flex items-center justify-between text-body">
                   <div className="flex items-center gap-2">
                     <span
                       className="w-3 h-3 shrink-0"
@@ -1000,10 +1008,10 @@ export const MapPanel: React.FC = () => {
                     <span className="font-bold text-white">{tp.shortName}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-300">%{tp.share.toFixed(1)}</span>
+                    <span className="text-slate-300">{formatPct(tp.share, lang)}</span>
                     {tp.seats !== undefined && tp.seats > 0 && (
                       <span
-                        className="px-1.5 py-0.5 font-bold text-[10px] text-[#090A0F]"
+                        className="px-1.5 py-0.5 font-bold text-micro text-[#090A0F]"
                         style={{ backgroundColor: tp.color }}
                       >
                         {tp.seats} MV
@@ -1018,8 +1026,8 @@ export const MapPanel: React.FC = () => {
       </div>
 
       {/* Sharp Monochrome Signal Legend Bar */}
-      <div className="px-4 py-2.5 bg-white border-t-[1.5px] border-[#090A0F] flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div className="flex flex-wrap items-center gap-3 font-mono">
+      <div className="px-4 py-2.5 bg-white border-t-[1.5px] border-[#090A0F] flex flex-wrap items-center justify-between gap-2 text-body">
+        <div className="flex flex-wrap items-center gap-3">
           {parties
             .filter((p) => !p.isOther)
             .map((p) => (
@@ -1028,12 +1036,14 @@ export const MapPanel: React.FC = () => {
                   className="w-3 h-3 border border-[#090A0F]"
                   style={{ backgroundColor: p.color }}
                 />
-                <span className="font-bold text-[#090A0F] text-[11px]">{p.shortName}</span>
+                <span className="font-bold text-[#090A0F] text-micro">{p.shortName}</span>
               </div>
             ))}
         </div>
-        <span className="text-[11px] font-mono text-slate-500">
-          TIKLA: SEÇ & DÜZENLE // ÇİFT TIKLA: İLÇE HARİTASI
+        <span className="text-micro text-slate-500">
+          {lang === 'tr'
+            ? 'Tıkla: seç ve düzenle · Çift tıkla: ilçe haritası'
+            : 'Click: select & edit · Double-click: district map'}
         </span>
       </div>
     </div>

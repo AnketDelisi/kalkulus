@@ -3,15 +3,41 @@
 @tailwind utilities;
 
 @layer base {
+  html,
+  body,
+  table,
+  input,
+  select,
+  button {
+    font-variant-numeric: tabular-nums;
+  }
+
   body {
     background-color: #f2f3f6;
     color: #090a0f;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Geist', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    line-height: 1.45;
     overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.015em;
   }
 }
 
-/* High-Contrast Monochrome & Neon Signal Studio System */
+/* High-Contrast Editorial Studio System */
+.eyebrow {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  line-height: 1.35;
+}
+
 .studio-panel {
   position: relative;
   background-color: #ffffff;
@@ -28,26 +54,6 @@
   border-radius: 0px;
 }
 
-/* Architectural Crosshair Corner Accent */
-.studio-crosshair::before,
-.studio-crosshair::after {
-  content: '+';
-  position: absolute;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  line-height: 1;
-  color: #94a3b8;
-  pointer-events: none;
-}
-.studio-crosshair::before {
-  top: 4px;
-  right: 6px;
-}
-.studio-crosshair::after {
-  bottom: 4px;
-  right: 6px;
-}
-
 .studio-btn {
   display: inline-flex;
   align-items: center;
@@ -57,9 +63,8 @@
   background-color: #ffffff;
   color: #090a0f;
   border-radius: 0px;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  font-family: 'Geist', system-ui, -apple-system, sans-serif;
+  font-weight: 500;
   transition: all 0.1s ease;
 }
 
@@ -73,8 +78,8 @@
   background-color: #090a0f;
   color: #ffffff;
   border-radius: 0px;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 600;
+  font-family: 'Geist', system-ui, -apple-system, sans-serif;
+  font-weight: 500;
   transition: all 0.1s ease;
 }
 

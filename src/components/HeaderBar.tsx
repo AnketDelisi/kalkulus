@@ -55,8 +55,8 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           />
         </div>
 
-        {/* Center: Sharp Architectural Workspace Tabs */}
-        <nav className="flex items-center border-[1.5px] border-[#090A0F] bg-white text-xs font-display font-semibold overflow-x-auto">
+        {/* Center: Workspace Tabs */}
+        <nav className="flex items-center border-[1.5px] border-[#090A0F] bg-white text-body font-medium overflow-x-auto">
           <button
             onClick={() => onChangeTab('studio')}
             className={`flex items-center gap-2 px-3.5 py-2 border-r border-[#090A0F] whitespace-nowrap transition-colors ${
@@ -65,9 +65,9 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                 : 'text-[#090A0F] hover:bg-slate-100'
             }`}
           >
-            <span className="font-mono text-[10px] opacity-60">01</span>
+            <span className="font-mono text-micro opacity-60">01</span>
             <Map className="w-3.5 h-3.5" />
-            <span>{lang === 'tr' ? 'HARİTA & PROJEKSİYON' : 'MAP & PROJECTION'}</span>
+            <span>{lang === 'tr' ? 'Harita ve projeksiyon' : 'Map and projection'}</span>
           </button>
 
           <button
@@ -78,60 +78,61 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                 : 'text-[#090A0F] hover:bg-slate-100'
             }`}
           >
-            <span className="font-mono text-[10px] opacity-60">02</span>
+            <span className="font-mono text-micro opacity-60">02</span>
             <BarChart3 className="w-3.5 h-3.5" />
-            <span>{lang === 'tr' ? 'VERİ TABLOLARI & KRİTİK MV' : 'TABLES & CLOSEST'}</span>
+            <span>{lang === 'tr' ? 'Veri tabloları ve kritik MV' : 'Tables and closest races'}</span>
           </button>
         </nav>
 
         {/* Right: Compact Action Controls */}
-        <div className="flex items-center gap-2 text-xs shrink-0">
+        <div className="flex items-center gap-2 text-body shrink-0">
           {/* Locked Units Counter */}
           {totalLocks > 0 && (
             <button
               onClick={resetAllLocks}
               title={t.resetAllLocks}
-              className="studio-btn px-2.5 py-1.5 bg-amber-400 text-[#090A0F] font-mono text-xs font-bold"
+              className="studio-btn px-2.5 py-1.5 bg-amber-400 text-[#090A0F] text-micro font-bold"
             >
               <Lock className="w-3.5 h-3.5" />
-              <span>{totalLocks} KİLİT ×</span>
+              <span className="font-mono">{totalLocks}</span>
+              <span>{lang === 'tr' ? 'kilit ×' : 'locks ×'}</span>
             </button>
           )}
 
           {/* Rules & Alliances */}
           <button
             onClick={onOpenRulesModal}
-            className="studio-btn px-2.5 py-1.5 text-xs"
+            className="studio-btn px-2.5 py-1.5 text-body"
             title={t.rulesAndAlliancesBtn}
           >
             <Settings2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{lang === 'tr' ? 'KURALLAR & İTTİFAK' : 'RULES'}</span>
+            <span className="hidden sm:inline">{lang === 'tr' ? 'Kurallar ve ittifaklar' : 'Rules and alliances'}</span>
           </button>
 
           {/* Save / Load */}
           <button
             onClick={onOpenScenarioModal}
-            className="studio-btn px-2.5 py-1.5 text-xs"
+            className="studio-btn px-2.5 py-1.5 text-body"
             title={t.exportImportBtn}
           >
             <Download className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{lang === 'tr' ? 'SENARYO' : 'SCENARIO'}</span>
+            <span className="hidden sm:inline">{lang === 'tr' ? 'Senaryo' : 'Scenario'}</span>
           </button>
 
           {/* Reset */}
           <button
             onClick={resetAllToBaseline}
-            className="studio-btn px-2.5 py-1.5 text-xs hover:bg-rose-600 hover:border-rose-600 hover:text-white"
+            className="studio-btn px-2.5 py-1.5 text-body hover:bg-rose-600 hover:border-rose-600 hover:text-white"
             title={t.resetToBaseline}
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden lg:inline">{lang === 'tr' ? 'SIFIRLA' : 'RESET'}</span>
+            <span className="hidden lg:inline">{lang === 'tr' ? 'Sıfırla' : 'Reset'}</span>
           </button>
 
           {/* Language Toggle */}
           <button
             onClick={() => setLanguage(lang === 'tr' ? 'en' : 'tr')}
-            className="studio-btn px-2 py-1.5 text-xs font-mono font-bold"
+            className="studio-btn px-2.5 py-1.5 text-micro font-mono font-bold"
             title="Dil / Language"
           >
             <Globe className="w-3.5 h-3.5" />

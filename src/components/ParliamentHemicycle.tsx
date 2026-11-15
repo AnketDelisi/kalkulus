@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
+import { formatInt, formatPct } from '../utils/format';
 
 export const ParliamentHemicycle: React.FC = () => {
   const {
@@ -70,18 +71,18 @@ export const ParliamentHemicycle: React.FC = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
       {/* Left 6 cols: Large 600-Seat Hemicycle & Alliance Cards */}
-      <div className="lg:col-span-6 studio-panel studio-crosshair p-5 flex flex-col justify-between gap-6">
+      <div className="lg:col-span-6 studio-panel p-5 flex flex-col justify-between gap-6">
         <div className="flex items-center justify-between border-b-[1.5px] border-[#090A0F] pb-3">
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
-              PARLAMENTO SİMÜLASYONU // D&apos;HONDT
+            <div className="eyebrow">
+              {lang === 'tr' ? 'Meclis' : 'Parliament'}
             </div>
-            <h2 className="font-display text-base font-bold uppercase tracking-tight text-[#090A0F]">
+            <h2 className="text-heading font-bold text-[#090A0F]">
               {t.tbmmTitle}
             </h2>
           </div>
-          <span className="px-3 py-1 bg-[#090A0F] text-white font-mono text-xs font-bold uppercase tracking-wider">
-            {totalSeats} MV
+          <span className="px-3 py-1 bg-[#090A0F] text-white text-body font-bold">
+            {totalSeats} {lang === 'tr' ? 'MV' : 'MPs'}
           </span>
         </div>
 
@@ -100,9 +101,9 @@ export const ParliamentHemicycle: React.FC = () => {
               x="210"
               y="6"
               textAnchor="middle"
-              className="fill-[#090A0F] font-mono font-bold text-[9px]"
+              className="fill-[#090A0F] font-medium text-micro"
             >
-              301 SALT ÇOĞUNLUK
+              {lang === 'tr' ? '301 salt çoğunluk' : '301 majority'}
             </text>
 
             {seatDots.map((dot, idx) => (
@@ -123,19 +124,19 @@ export const ParliamentHemicycle: React.FC = () => {
 
             <text
               x="210"
-              y="172"
+              y="174"
               textAnchor="middle"
-              className="fill-[#090A0F] font-mono text-2xl font-bold"
+              className="fill-[#090A0F] text-hero font-bold"
             >
               {totalSeats}
             </text>
             <text
               x="210"
-              y="188"
+              y="190"
               textAnchor="middle"
-              className="fill-slate-600 font-mono text-[10px] font-bold tracking-widest"
+              className="fill-slate-600 text-micro font-medium"
             >
-              TBMM GENEL KURULU
+              {lang === 'tr' ? 'TBMM Genel Kurulu' : 'Grand National Assembly'}
             </text>
           </svg>
         </div>
@@ -154,25 +155,25 @@ export const ParliamentHemicycle: React.FC = () => {
                 style={{ borderTopColor: a.color, borderTopWidth: '4px' }}
               >
                 <div className="flex items-center justify-between gap-1">
-                  <span className="font-display font-bold text-xs text-[#090A0F] uppercase truncate">
-                    {a.shortName}
+                  <span className="font-bold text-body text-[#090A0F] truncate">
+                    {a.name}
                   </span>
                   <span
-                    className={`text-[10px] px-1.5 py-0.5 font-mono font-bold ${
+                    className={`text-micro px-1.5 py-0.5 font-bold shrink-0 ${
                       passed
                         ? 'bg-[#090A0F] text-emerald-300'
                         : 'bg-rose-950 text-rose-300'
                     }`}
                   >
-                    %{voteShare.toFixed(1)}
+                    {formatPct(voteShare, lang, 1)}
                   </span>
                 </div>
                 <div className="mt-2 flex items-baseline justify-between">
-                  <span className="font-mono text-lg font-bold text-[#090A0F]">
-                    {seats} MV
+                  <span className="text-heading font-bold text-[#090A0F]">
+                    {seats} <span className="text-micro font-medium text-slate-500">{lang === 'tr' ? 'MV' : 'MPs'}</span>
                   </span>
-                  <span className="text-[11px] font-mono text-slate-500">
-                    %{((seats / totalSeats) * 100).toFixed(1)}
+                  <span className="text-micro text-slate-500">
+                    {formatPct((seats / totalSeats) * 100, lang, 1)}
                   </span>
                 </div>
               </div>
@@ -182,30 +183,30 @@ export const ParliamentHemicycle: React.FC = () => {
       </div>
 
       {/* Right 6 cols: Detailed National Party Results Table */}
-      <div className="lg:col-span-6 studio-panel studio-crosshair p-5 flex flex-col gap-4">
+      <div className="lg:col-span-6 studio-panel p-5 flex flex-col gap-4">
         <div className="border-b-[1.5px] border-[#090A0F] pb-3">
-          <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
-            ULUSAL TELEMETRİ MATRİSİ
+          <div className="eyebrow">
+            {lang === 'tr' ? 'Ulusal sonuçlar' : 'National results'}
           </div>
-          <h2 className="font-display text-base font-bold uppercase tracking-tight text-[#090A0F]">
-            Ulusal Oy Dağılımı & Milletvekili Tablosu
+          <h2 className="text-heading font-bold text-[#090A0F]">
+            {lang === 'tr' ? 'Ulusal oy dağılımı ve milletvekili tablosu' : 'National vote share and seat table'}
           </h2>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-xs border-collapse">
+          <table className="w-full text-body border-collapse">
             <thead>
-              <tr className="border-b-[1.5px] border-[#090A0F] bg-[#F4F5F7] text-[#090A0F] font-mono uppercase text-[10px] tracking-wider">
+              <tr className="border-b-[1.5px] border-[#090A0F] bg-[#F4F5F7] text-[#090A0F] text-micro font-bold">
                 <th className="py-2.5 px-2 text-left">{t.partyCol}</th>
-                <th className="py-2.5 px-2 text-center">BARAJ</th>
+                <th className="py-2.5 px-2 text-center">{lang === 'tr' ? 'Baraj' : 'Threshold'}</th>
                 <th className="py-2.5 px-2 text-right">{t.voteShareCol}</th>
                 <th className="py-2.5 px-2 text-right">{t.votesCol}</th>
                 <th className="py-2.5 px-2 text-right">{t.seatsCol}</th>
-                <th className="py-2.5 px-2 text-right">MECLİS %</th>
-                <th className="py-2.5 px-2 text-right">±BAZ MV</th>
+                <th className="py-2.5 px-2 text-right">{lang === 'tr' ? 'Meclis %' : 'Seat %'}</th>
+                <th className="py-2.5 px-2 text-right">{lang === 'tr' ? '±Baz' : '±Base'}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#090A0F]/15 font-mono">
+            <tbody className="divide-y divide-[#090A0F]/15">
               {parties.map((p) => {
                 const share = projection.nationalPartyShares[p.id] || 0;
                 const votes = projection.nationalPartyVotes[p.id] || 0;
@@ -216,40 +217,40 @@ export const ParliamentHemicycle: React.FC = () => {
 
                 return (
                   <tr key={p.id} className="hover:bg-[#F4F5F7] transition-colors">
-                    <td className="py-2.5 px-2 flex items-center gap-2 font-sans">
+                    <td className="py-2.5 px-2 flex items-center gap-2">
                       <span
                         className="w-3 h-3 border border-[#090A0F] shrink-0"
                         style={{ backgroundColor: p.color }}
                       />
-                      <span className="font-display font-bold text-[#090A0F]">{p.shortName}</span>
-                      <span className="text-slate-500 text-[11px] truncate max-w-[140px] hidden sm:inline">
+                      <span className="font-bold text-[#090A0F]">{p.shortName}</span>
+                      <span className="text-slate-500 text-micro truncate max-w-[140px] hidden sm:inline">
                         {p.fullName}
                       </span>
                     </td>
                     <td className="py-2.5 px-2 text-center">
                       {!p.isOther && (
                         <span
-                          className={`text-[10px] px-1.5 py-0.5 font-mono font-bold uppercase ${
+                          className={`text-micro px-1.5 py-0.5 font-bold ${
                             passed
                               ? 'bg-[#090A0F] text-emerald-300'
                               : 'bg-slate-200 text-slate-600'
                           }`}
                         >
-                          {passed ? 'GEÇTİ' : 'ALTI'}
+                          {passed ? (lang === 'tr' ? 'Geçti' : 'Pass') : (lang === 'tr' ? 'Altı' : 'Below')}
                         </span>
                       )}
                     </td>
                     <td className="py-2.5 px-2 text-right font-bold text-[#090A0F]">
-                      %{share.toFixed(2)}
+                      {formatPct(share, lang, 2)}
                     </td>
                     <td className="py-2.5 px-2 text-right text-slate-600">
-                      {votes.toLocaleString('tr-TR')}
+                      {formatInt(votes, lang)}
                     </td>
-                    <td className="py-2.5 px-2 text-right font-bold text-[#090A0F] text-sm">
+                    <td className="py-2.5 px-2 text-right font-bold text-[#090A0F] text-title">
                       {seats}
                     </td>
                     <td className="py-2.5 px-2 text-right text-slate-500">
-                      %{((seats / totalSeats) * 100).toFixed(1)}
+                      {formatPct((seats / totalSeats) * 100, lang, 1)}
                     </td>
                     <td className="py-2.5 px-2 text-right font-bold">
                       {seatDiff > 0 ? (

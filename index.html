@@ -3,15 +3,148 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KALKÜLÜS - Seçim Simülatörü</title>
+    <title>KALKÜLÜS — Türkiye Seçim Simülatörü | Genel Seçim, Cumhurbaşkanlığı &amp; Yerel Seçim</title>
+    <meta
+      name="description"
+      content="Türkiye için interaktif seçim simülatörü: 81 il, 87 seçim çevresi, 973 ilçe ve yurt dışı oylarıyla D'Hondt milletvekili dağılımı, Cumhurbaşkanlığı 2. tur ve yerel seçim projeksiyonu."
+    />
+    <meta
+      name="keywords"
+      content="seçim simülatörü, türkiye seçim simülatörü, milletvekili hesaplama, d'hondt hesaplama, genel seçim projeksiyonu, cumhurbaşkanlığı seçim simülatörü, yerel seçim simülatörü, anket projeksiyonu, 81 il seçim haritası, kalkülüs"
+    />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="author" content="KALKÜLÜS" />
+    <meta name="theme-color" content="#090A0F" />
+
+    <link rel="canonical" href="https://anketdelisi.github.io/kalkulus/" />
+    <link rel="alternate" hreflang="tr" href="https://anketdelisi.github.io/kalkulus/" />
+    <link rel="alternate" hreflang="x-default" href="https://anketdelisi.github.io/kalkulus/" />
+
     <link rel="icon" type="image/png" href="%BASE_URL%favicon.png" />
     <link rel="apple-touch-icon" href="%BASE_URL%favicon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="%BASE_URL%site.webmanifest" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="tr_TR" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:site_name" content="KALKÜLÜS" />
+    <meta
+      property="og:title"
+      content="KALKÜLÜS — Türkiye Seçim Simülatörü | Genel, Cumhurbaşkanlığı &amp; Yerel Seçim"
+    />
+    <meta
+      property="og:description"
+      content="81 il, 87 seçim çevresi, 973 ilçe ve 73 yurt dışı temsilciliğiyle Türkiye genel, cumhurbaşkanlığı ve yerel seçim simülasyonları oluşturun."
+    />
+    <meta property="og:url" content="https://anketdelisi.github.io/kalkulus/" />
+    <meta property="og:image" content="https://anketdelisi.github.io/kalkulus/kalkulus-logo.png" />
+    <meta property="og:image:alt" content="KALKÜLÜS Türkiye Seçim Simülatörü" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="KALKÜLÜS — Türkiye Seçim Simülatörü"
+    />
+    <meta
+      name="twitter:description"
+      content="81 il, 87 seçim çevresi ve 973 ilçede D'Hondt milletvekili dağılımı, Cumhurbaşkanlığı 2. tur ve yerel seçim simülasyonu."
+    />
+    <meta name="twitter:image" content="https://anketdelisi.github.io/kalkulus/kalkulus-logo.png" />
+
+    <!-- Structured Data (Schema.org) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "KALKÜLÜS — Türkiye Seçim Simülatörü",
+            "alternateName": ["Kalkülüs", "Kalkulus Election Simulator"],
+            "url": "https://anketdelisi.github.io/kalkulus/",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Web",
+            "inLanguage": ["tr", "en"],
+            "isAccessibleForFree": true,
+            "description": "81 il, 87 seçim çevresi, 973 ilçe ve yurt dışı sandıklarıyla D'Hondt TBMM milletvekili dağılımı, Cumhurbaşkanlığı 1. ve 2. tur projeksiyonu ve yerel seçim simülatörü.",
+            "featureList": [
+              "87 seçim çevresinde D'Hondt milletvekili hesaplama",
+              "973 ilçe ve 73 yurt dışı ülkesi bazlı oy salınımı",
+              "Cumhurbaşkanlığı 1. tur ve 2. tur oy geçiş matrisi",
+              "Yerel seçim büyükşehir ve ilçe belediye projeksiyonu",
+              "İl/ilçe bazlı yerel aday ve lider gücü buff sistemi",
+              "TBMM koalisyon ve 301/360/400 çoğunluk hesaplayıcı",
+              "Yüksek çözünürlüklü PNG infografik stüdyosu"
+            ]
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Kalkülüs Seçim Simülatörü nasıl çalışır?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Kalkülüs, 2023 Genel Seçimleri ve 2024 Yerel Seçimleri resmi YSK verilerini temel alarak ulusal anket oranlarını orantılı (PS) veya uniform (UNS) salınım modelleriyle 973 ilçeye ve 73 yurt dışı ülkesine dağıtır."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Milletvekili dağılımı hangi sistemle hesaplanır?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "TBMM 600 milletvekili dağılımı, 87 seçim çevresinde seçilen seçim barajı (%7 veya özel baraj) ve 2022/2018 ittifak-D'Hondt kurallarına göre hesaplanır."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Cumhurbaşkanlığı 2. tur oy geçişleri nasıl modellenir?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "İlk turda %50+1 sağlanamazsa ilk iki aday ikinci tura kalır; elenen adayların oyları özelleştirilebilir oy geçiş matrisi ve katılım oranıyla ikinci tura aktarılır."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "İl ve ilçe bazlı yerel aday etkisi eklenebilir mi?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Evet. Yerel Güç / Buff özelliği ile il, seçim çevresi veya ilçe düzeyinde parti ve adaylara ±puan (pp) eklenebilir; kilitli olmayan alt birimlere otomatik aktarılır."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&family=Geist+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body class="bg-[#F2F3F6] text-[#090A0F] antialiased selection:bg-[#090A0F] selection:text-white">
     <div id="root"></div>
+    <noscript>
+      <main style="max-width:960px;margin:2rem auto;padding:1.5rem;font-family:sans-serif;background:#fff;border:1px solid #090A0F">
+        <h1>KALKÜLÜS — Türkiye Seçim Simülatörü</h1>
+        <p>
+          81 il, 87 seçim çevresi, 973 ilçe ve yurt dışı sandıkları için etkileşimli Genel Seçim
+          (D'Hondt 600 milletvekili), Cumhurbaşkanlığı (1. ve 2. tur) ve Yerel Seçim projeksiyon
+          simülatörü.
+        </p>
+        <ul>
+          <li><strong>Genel Seçim Projeksiyonu:</strong> D'Hondt dağılımı, ittifak ve ortak liste kuralları, TBMM 301/360/400 koalisyon hesaplayıcı.</li>
+          <li><strong>Cumhurbaşkanlığı Projeksiyonu:</strong> 1. tur aday dağılımı ve özelleştirilebilir 2. tur oy geçiş matrisi.</li>
+          <li><strong>Yerel Seçim Projeksiyonu:</strong> 81 il ve 973 ilçede belediye başkanlığı ve meclis projeksiyonu.</li>
+          <li><strong>Yurt Dışı &amp; İnfografik:</strong> 73 ülke + gümrük haritası ve yüksek çözünürlüklü PNG infografik dışa aktarımı.</li>
+        </ul>
+        <p>Bu uygulamayı kullanmak için tarayıcınızda JavaScript'i etkinleştirin.</p>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

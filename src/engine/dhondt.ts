@@ -207,12 +207,14 @@ export function allocateDistrictSeatsDHondt(input: DistrictDHondtInput): Distric
       const lastWinnerVotes = lastWinner.votes;
 
       // Find the eligible party requiring the MINIMUM additional votes to overtake lastSeatQuotient:
+      // Includes all eligible parties (even those with 0 current district votes).
       // Accounts for deterministic tie-breakers when lastSeatQuotient * nextDiv is an exact integer.
       let minVotesToFlip = Infinity;
       let bestChallengerId = '';
       let bestChallengerQuotient = 0;
 
-      for (const p of competingParties) {
+      const eligibleParties = parties.filter((p) => !p.isOther && eligiblePartyIds.has(p.id));
+      for (const p of eligibleParties) {
         if (p.id === lastWinner.partyId) continue;
         const nextDiv = (partySeats[p.id] || 0) + 1;
         const v = effectivePartyVotes[p.id] || 0;
@@ -374,6 +376,16 @@ export function allocateDistrictSeatsDHondt(input: DistrictDHondtInput): Distric
         partySeats[rule.targetPartyId] -= transferredSeats;
         partySeats[rule.sourcePartyId] = (partySeats[rule.sourcePartyId] || 0) + transferredSeats;
       }
+    }
+  }
+
+  // Update lastSeatWinnerPartyId if the host party transferred all its won seats
+  if (lastSeatWinnerPartyId && (partySeats[lastSeatWinnerPartyId] || 0) === 0) {
+    const appliedRule = activeJointRules.find(
+      (r) => r.targetPartyId === lastSeatWinnerPartyId && r.reservedSeatsPerDistrict > 0
+    );
+    if (appliedRule && (partySeats[appliedRule.sourcePartyId] || 0) > 0) {
+      lastSeatWinnerPartyId = appliedRule.sourcePartyId;
     }
   }
 

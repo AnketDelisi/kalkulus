@@ -14,6 +14,12 @@ const geo600 = JSON.parse(
 const loc2024_600 = JSON.parse(
   fs.readFileSync(path.resolve('scripts/data/repo600_2024_local.json'), 'utf8')
 );
+const loc2019_mert = JSON.parse(
+  fs.readFileSync(path.resolve('scripts/data/mert_2019_local.json'), 'utf8')
+);
+const ysk973 = JSON.parse(
+  fs.readFileSync(path.resolve('scripts/data/ysk_973_ilceler.json'), 'utf8')
+);
 
 const PROVINCES_RAW = [
   // [plate, name, region, lat, lng, voters2023, turnout2023, mpCount, ilcelerList]
@@ -234,14 +240,17 @@ function find600IlceKey(ilId, ilceName, ilceId) {
   return subMatch || pFold;
 }
 
-function toKalkulusSharesFrom600(sh600) {
+function toKalkulusSharesFrom600(sh600, includeSaadet = false) {
   const res = {
     A: 0,
     YENI: 0,
     SAADET: 0,
   };
+  const mapEntries = includeSaadet
+    ? { ...PARTY_MAP_600, saadet: 'SAADET' }
+    : PARTY_MAP_600;
   let sum = 0;
-  for (const [k600, kKal] of Object.entries(PARTY_MAP_600)) {
+  for (const [k600, kKal] of Object.entries(mapEntries)) {
     const v = Math.max(0, Number(sh600?.[k600] ?? 0));
     res[kKal] = v;
     sum += v;
@@ -249,13 +258,13 @@ function toKalkulusSharesFrom600(sh600) {
   if (sum > 100) {
     const f = 100 / sum;
     sum = 0;
-    for (const kKal of Object.values(PARTY_MAP_600)) {
+    for (const kKal of Object.values(mapEntries)) {
       res[kKal] = Number((res[kKal] * f).toFixed(2));
       sum += res[kKal];
     }
     res.OTHER = Number(Math.max(0, 100 - sum).toFixed(2));
   } else {
-    for (const kKal of Object.values(PARTY_MAP_600)) {
+    for (const kKal of Object.values(mapEntries)) {
       res[kKal] = Number(res[kKal].toFixed(2));
     }
     res.OTHER = Number(Math.max(0, 100 - sum).toFixed(2));
@@ -266,23 +275,23 @@ function toKalkulusSharesFrom600(sh600) {
 const ABROAD_2023 = {
   enabled: true,
   syncWithNationalSwing: true,
-  registeredVoters: 3416098,
+  registeredVoters: 3423759,
   turnout: 53.8,
-  validVoteRatio: 98.4,
+  validVoteRatio: 98.5,
   partyShares: {
-    AKP: 45.4,
-    CHP: 24.5,
-    MHP: 12.6,
-    IYI: 3.5,
-    DEM: 9.4,
-    YRP: 1.1,
-    ZP: 0.9,
-    TIP: 1.5,
+    AKP: 44.33,
+    CHP: 23.53,
+    MHP: 11.09,
+    IYI: 3.55,
+    DEM: 9.92,
+    YRP: 1.18,
+    ZP: 0.98,
+    TIP: 2.89,
     A: 0,
     YENI: 0,
     SAADET: 0,
-    BBP: 0.4,
-    OTHER: 0.7,
+    BBP: 0.46,
+    OTHER: 2.07,
   },
 };
 
@@ -300,20 +309,23 @@ function generateIlcelerForDistrict(
   const distKey600 = get600DistKey(districtId, ilId);
   const distShares600 = toKalkulusSharesFrom600(geo600.gebiete[distKey600]);
 
-  // Initial Zipf-like urban/rural weights
+  // Authentic per-ilçe voter weights from YSK 973-ilçe dataset (fallback to gentle rank weight)
   let weights = ilceNames.map((name, idx) => {
-    const r = seededRandom(`${districtId}-${name}-w`);
-    return Math.pow(n - idx, 1.35) * (0.75 + 0.5 * r);
+    const id = `${ilId}-${slugify(name)}`;
+    const reg = ysk973[id]?.reg2019;
+    return reg && reg > 0 ? reg : Math.max(1200, (n - idx) * 5000);
   });
-  let totalW = weights.reduce((a, b) => a + b, 0);
+  const totalW = weights.reduce((a, b) => a + b, 0);
   weights = weights.map((w) => w / totalW);
 
-  // Gather raw 2023 ilçe shares from AnketDelisi/600 (repo600_geo.json)
+  // Gather authentic 2023 ilçe shares (prefer YSK ADProjeksiyon v23 per-ilçe, fallback to repo600_geo)
   const rawIlceSharesList = ilceNames.map((name) => {
     const id = `${ilId}-${slugify(name)}`;
+    const yskV23 = ysk973[id]?.v23;
     const key600 = find600IlceKey(ilId, name, id);
-    const sh = toKalkulusSharesFrom600(geo600.gebiete[key600]);
-    // Fix Adıyaman DEM missing in Wikipedia ilçe table if district has >5% DEM and ilçe has 0%
+    const sh600 = toKalkulusSharesFrom600(geo600.gebiete[key600]);
+    const sh = yskV23 ? { ...yskV23 } : sh600;
+    // Fix Adıyaman/alliance DEM missing in table if district has >5% DEM and ilçe has 0%
     if (distShares600.DEM > 5 && sh.DEM === 0) {
       sh.DEM = distShares600.DEM;
       let s = 0;
@@ -345,39 +357,25 @@ function generateIlcelerForDistrict(
     domTargetShares[pKey] = domTargetSum > 0 ? (domTargetShares[pKey] / domTargetSum) * 100 : 0;
   }
 
-  // Step 1: Optimize ilçe voter weights (w_i > 0) via multiplicative gradient updates so that
-  // the voter-weighted average of raw 600 ilçe shares matches domTargetShares as closely as possible!
-  if (n > 1) {
-    for (let iter = 0; iter < 120; iter++) {
-      const currentAvg = {};
-      for (const pKey of PARTY_KEYS) {
-        let s = 0;
-        for (let i = 0; i < n; i++) s += weights[i] * rawIlceSharesList[i][pKey];
-        currentAvg[pKey] = s;
-      }
-      const newWeights = weights.map((w, i) => {
-        let grad = 0;
-        for (const pKey of PARTY_KEYS) {
-          if (pKey === 'OTHER') continue;
-          const err = currentAvg[pKey] - domTargetShares[pKey];
-          grad += err * (rawIlceSharesList[i][pKey] - currentAvg[pKey]);
-        }
-        const step = Math.exp(-0.0015 * grad);
-        return Math.max(0.003, Math.min(0.65, w * step));
-      });
-      const sumW = newWeights.reduce((a, b) => a + b, 0);
-      weights = newWeights.map((w) => w / sumW);
-    }
+  // Authentic per-ilçe turnout anchored around official 2023 district turnout
+  let rawTurnoutWeighted = 0;
+  for (let i = 0; i < n; i++) {
+    const id = `${ilId}-${slugify(ilceNames[i])}`;
+    const t19 = ysk973[id]?.turnout2019 ?? districtTurnout;
+    rawTurnoutWeighted += weights[i] * t19;
   }
+  const turnoutOffset = districtTurnout - rawTurnoutWeighted;
 
-  // Build ilçe objects with optimized registeredVoters and raw 600 shares
+  // Build ilçe objects with authentic registeredVoters, turnout variation, and YSK 2023 shares
   const ilceler = ilceNames.map((name, idx) => {
     const id = `${ilId}-${slugify(name)}`;
-    const registeredVoters = Math.max(1200, Math.round(districtVoters * weights[idx]));
-    const rTurn = seededRandom(`${id}-turn`);
+    const registeredVoters = Math.max(1000, Math.round(districtVoters * weights[idx]));
+    const baseTurn = ysk973[id]?.turnout2019 ?? districtTurnout;
     const turnout = Number(
-      Math.min(95.5, Math.max(72.0, districtTurnout + (rTurn - 0.5) * 2.4)).toFixed(2)
+      Math.min(96.5, Math.max(66.0, baseTurn + turnoutOffset)).toFixed(2)
     );
+    const baseValid = ysk973[id]?.validRatio2019 ?? 96.5;
+    const validVoteRatio = Number(Math.min(99.0, Math.max(94.0, baseValid + 1.1)).toFixed(2));
     const angle = (idx / Math.max(1, n)) * Math.PI * 2 + seededRandom(`${id}-ang`) * 0.5;
     const radius = idx === 0 ? 0.04 : 0.12 + (idx / n) * 0.38;
     const lat = Number((baseLat + Math.sin(angle) * radius * 0.75).toFixed(4));
@@ -390,7 +388,7 @@ function generateIlcelerForDistrict(
       districtId,
       registeredVoters,
       turnout,
-      validVoteRatio: 97.6,
+      validVoteRatio,
       partyShares: { ...rawIlceSharesList[idx] },
       lat,
       lng,
@@ -456,14 +454,22 @@ function generateIlcelerForDistrict(
   return ilceler;
 }
 
-// Build 2024 Local Election ilçe shares calibrated to repo600_2024_local.json province totals
-function calibrateIlcelerTo2024From600(ilceler2023) {
+// Calibrate ilçe shares via IPF to match province-level target shares
+function calibrateIlcelerToProvinceTargets(
+  seedIlceler,
+  getProvinceTarget,
+  { voterScale = 1, turnoutShift = 0, minTurnout = 65.0, overrideTurnoutFrom } = {}
+) {
+  const overrideMap = overrideTurnoutFrom
+    ? new Map(overrideTurnoutFrom.map((i) => [i.id, i.turnout]))
+    : null;
   const ilcesByProv = {};
-  for (const ilce of ilceler2023) {
+  for (const ilce of seedIlceler) {
+    const baseTurnout = overrideMap ? (overrideMap.get(ilce.id) ?? ilce.turnout) : ilce.turnout;
     const clone = {
       ...ilce,
-      registeredVoters: Math.round(ilce.registeredVoters * 1.012),
-      turnout: Number(Math.max(65.0, ilce.turnout - 10.1).toFixed(2)),
+      registeredVoters: Math.round(ilce.registeredVoters * voterScale),
+      turnout: Number(Math.max(minTurnout, baseTurnout + turnoutShift).toFixed(2)),
       partyShares: { ...ilce.partyShares },
     };
     if (!ilcesByProv[ilce.ilId]) ilcesByProv[ilce.ilId] = [];
@@ -472,9 +478,7 @@ function calibrateIlcelerTo2024From600(ilceler2023) {
 
   const outIlceler = [];
   for (const [ilId, provIlces] of Object.entries(ilcesByProv)) {
-    const pFold = provFoldById[ilId];
-    const locSh600 = loc2024_600[pFold];
-    const target2024 = toKalkulusSharesFrom600(locSh600);
+    const targetShares = getProvinceTarget(ilId);
 
     for (let pass = 0; pass < 6; pass++) {
       const weightedVotes = {};
@@ -491,7 +495,7 @@ function calibrateIlcelerTo2024From600(ilceler2023) {
         let sum = 0;
         const nextShares = {};
         for (const pKey of PARTY_KEYS) {
-          const tPct = target2024[pKey];
+          const tPct = targetShares[pKey] ?? 0;
           const aPct = totalValid > 0 ? (weightedVotes[pKey] / totalValid) * 100 : tPct;
           if (tPct <= 0.001) {
             nextShares[pKey] = 0;
@@ -531,6 +535,42 @@ function calibrateIlcelerTo2024From600(ilceler2023) {
   }
 
   return outIlceler;
+}
+
+function summarizeNational(ilceler, abroadData) {
+  let totalValid = 0;
+  let totalVoters = 0;
+  let totalCast = 0;
+  const partyVotes = {};
+  for (const pKey of PARTY_KEYS) partyVotes[pKey] = 0;
+
+  for (const ilce of ilceler) {
+    const cast = Math.round(ilce.registeredVoters * (ilce.turnout / 100));
+    const valid = Math.round(cast * (ilce.validVoteRatio / 100));
+    totalVoters += ilce.registeredVoters;
+    totalCast += cast;
+    totalValid += valid;
+    for (const pKey of PARTY_KEYS) {
+      partyVotes[pKey] += Math.round(valid * (ilce.partyShares[pKey] / 100));
+    }
+  }
+
+  if (abroadData?.enabled && abroadData.registeredVoters > 0) {
+    const abroadValid = Math.round(
+      abroadData.registeredVoters * (abroadData.turnout / 100) * (abroadData.validVoteRatio / 100)
+    );
+    totalValid += abroadValid;
+    for (const pKey of PARTY_KEYS) {
+      partyVotes[pKey] += Math.round(abroadValid * ((abroadData.partyShares[pKey] ?? 0) / 100));
+    }
+  }
+
+  const nationalBaseShares = {};
+  for (const pKey of PARTY_KEYS) {
+    nationalBaseShares[pKey] = Number(((partyVotes[pKey] / Math.max(1, totalValid)) * 100).toFixed(2));
+  }
+  const nationalBaseTurnout = Number(((totalCast / Math.max(1, totalVoters)) * 100).toFixed(2));
+  return { nationalBaseShares, nationalBaseTurnout };
 }
 
 function buildDatasets() {
@@ -627,67 +667,92 @@ function buildDatasets() {
     }
   }
 
-  // Compute exact national baseline shares from generated ilceler + abroad
-  let totalValid2023 = 0;
-  let totalVoters2023 = 0;
-  let totalCast2023 = 0;
-  const partyVotes2023 = {};
-  for (const pKey of PARTY_KEYS) partyVotes2023[pKey] = 0;
+  const { nationalBaseShares: nationalBaseShares2023, nationalBaseTurnout: nationalBaseTurnout2023 } =
+    summarizeNational(ilceler2023, ABROAD_2023);
 
-  for (const ilce of ilceler2023) {
-    const cast = Math.round(ilce.registeredVoters * (ilce.turnout / 100));
-    const valid = Math.round(cast * (ilce.validVoteRatio / 100));
-    totalVoters2023 += ilce.registeredVoters;
-    totalCast2023 += cast;
-    totalValid2023 += valid;
+  // Seed 2024 Local Election ilçe shares with authentic YSK per-ilçe 2024 swing profiles
+  // (using 2023 fallback only when an alliance withdrawal left v24[party] == 0 despite council list)
+  const seed2024Ilceler = ilceler2023.map((ilce) => {
+    const row = ysk973[ilce.id];
+    const provTarget24 = toKalkulusSharesFrom600(loc2024_600[provFoldById[ilce.ilId]], true);
+    const seededShares = {};
+    let s = 0;
     for (const pKey of PARTY_KEYS) {
-      partyVotes2023[pKey] += Math.round(valid * (ilce.partyShares[pKey] / 100));
+      const v24Val = row?.v24?.[pKey] ?? 0;
+      const v23Val = ilce.partyShares[pKey] ?? 0;
+      const tVal = provTarget24[pKey] ?? 0;
+      let val = v24Val;
+      if (tVal > 0 && v24Val <= 0.001) {
+        val = v23Val > 0.05 ? v23Val * 0.5 : tVal * 0.4;
+      } else if (v24Val > 0 && tVal > 0) {
+        val = 0.7 * v24Val + 0.3 * v23Val;
+      }
+      seededShares[pKey] = val;
+      s += val;
     }
-  }
+    if (s > 0) {
+      for (const pKey of PARTY_KEYS) seededShares[pKey] = (seededShares[pKey] / s) * 100;
+    }
+    return { ...ilce, partyShares: seededShares };
+  });
 
-  const abroadValid = Math.round(
-    ABROAD_2023.registeredVoters * (ABROAD_2023.turnout / 100) * (ABROAD_2023.validVoteRatio / 100)
+  // Calibrate 2024 Local Election baseline dataset to repo600_2024_local.json province council totals
+  const ilceler2024 = calibrateIlcelerToProvinceTargets(
+    seed2024Ilceler,
+    (ilId) => toKalkulusSharesFrom600(loc2024_600[provFoldById[ilId]], true),
+    { voterScale: 1.012, turnoutShift: -10.1, minTurnout: 65.0 }
   );
-  totalValid2023 += abroadValid;
-  for (const pKey of PARTY_KEYS) {
-    partyVotes2023[pKey] += Math.round(abroadValid * (ABROAD_2023.partyShares[pKey] / 100));
-  }
+  const { nationalBaseShares: nationalBaseShares2024, nationalBaseTurnout: nationalBaseTurnout2024 } =
+    summarizeNational(ilceler2024, null);
 
-  const nationalBaseShares2023 = {};
-  for (const pKey of PARTY_KEYS) {
-    nationalBaseShares2023[pKey] = Number(
-      ((partyVotes2023[pKey] / totalValid2023) * 100).toFixed(2)
-    );
-  }
-  const nationalBaseTurnout2023 = Number(((totalCast2023 / totalVoters2023) * 100).toFixed(2));
-
-  // Build 2024 Local Election baseline dataset from repo600_2024_local.json
-  const ilceler2024 = calibrateIlcelerTo2024From600(ilceler2023);
-
-  let totalValid2024 = 0;
-  let totalVoters2024 = 0;
-  let totalCast2024 = 0;
-  const partyVotes2024 = {};
-  for (const pKey of PARTY_KEYS) partyVotes2024[pKey] = 0;
-
-  for (const ilce of ilceler2024) {
-    const cast = Math.round(ilce.registeredVoters * (ilce.turnout / 100));
-    const valid = Math.round(cast * (ilce.validVoteRatio / 100));
-    totalVoters2024 += ilce.registeredVoters;
-    totalCast2024 += cast;
-    totalValid2024 += valid;
+  // Seed 2019 Local Election ilçe shares with authentic YSK per-ilçe 2019 council shares + turnout
+  const seed2019Ilceler = ilceler2023.map((ilce) => {
+    const row = ysk973[ilce.id];
+    const provTarget19 = loc2019_mert[ilce.ilId] || {};
+    const seededShares = {};
+    let s = 0;
     for (const pKey of PARTY_KEYS) {
-      partyVotes2024[pKey] += Math.round(valid * (ilce.partyShares[pKey] / 100));
+      const v19Val = row?.v19?.[pKey] ?? 0;
+      const v23Val = ilce.partyShares[pKey] ?? 0;
+      const tVal = provTarget19[pKey] ?? 0;
+      let val = v19Val;
+      if (tVal > 0 && v19Val <= 0.001) {
+        val = v23Val > 0.05 ? v23Val * 0.4 : tVal * 0.4;
+      }
+      seededShares[pKey] = val;
+      s += val;
     }
-  }
+    if (s > 0) {
+      for (const pKey of PARTY_KEYS) seededShares[pKey] = (seededShares[pKey] / s) * 100;
+    }
+    return {
+      ...ilce,
+      turnout: row?.turnout2019 ?? ilce.turnout,
+      validVoteRatio: row?.validRatio2019 ?? ilce.validVoteRatio,
+      partyShares: seededShares,
+    };
+  });
 
-  const nationalBaseShares2024 = {};
-  for (const pKey of PARTY_KEYS) {
-    nationalBaseShares2024[pKey] = Number(
-      ((partyVotes2024[pKey] / totalValid2024) * 100).toFixed(2)
-    );
-  }
-  const nationalBaseTurnout2024 = Number(((totalCast2024 / totalVoters2024) * 100).toFixed(2));
+  // Build 2019 Local Election (Belediye/İl Genel Meclisi) baseline dataset from mert_2019_local.json
+  const ilceler2019 = calibrateIlcelerToProvinceTargets(
+    seed2019Ilceler,
+    (ilId) => {
+      const m = loc2019_mert[ilId] || {};
+      const t = { YRP: 0, ZP: 0, TIP: 0, A: 0, YENI: 0 };
+      for (const pKey of PARTY_KEYS) {
+        if (t[pKey] === undefined) t[pKey] = m[pKey] ?? 0;
+      }
+      return t;
+    },
+    { voterScale: 0.96, turnoutShift: 0, minTurnout: 68.0 }
+  );
+  const { nationalBaseShares: nationalBaseShares2019, nationalBaseTurnout: nationalBaseTurnout2019 } =
+    summarizeNational(ilceler2019, null);
+
+  const disabledAbroad = {
+    ...ABROAD_2023,
+    enabled: false,
+  };
 
   const dataset2023 = {
     id: '2023_general',
@@ -708,24 +773,35 @@ function buildDatasets() {
     provinces,
     districts: districts2023,
     ilceler: ilceler2024,
-    abroad: {
-      ...ABROAD_2023,
-      enabled: false,
-    },
+    abroad: disabledAbroad,
     nationalBaseShares: nationalBaseShares2024,
     nationalBaseTurnout: nationalBaseTurnout2024,
+  };
+
+  const dataset2019 = {
+    id: '2019_local',
+    nameTr: '31 Mart 2019 Yerel Seçimi (İl Genel/Belediye Meclisi)',
+    nameEn: 'March 31, 2019 Local Election Baseline',
+    provinces,
+    districts: districts2023,
+    ilceler: ilceler2019,
+    abroad: disabledAbroad,
+    nationalBaseShares: nationalBaseShares2019,
+    nationalBaseTurnout: nationalBaseTurnout2019,
   };
 
   const outDir = path.resolve('src/data');
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(path.join(outDir, 'baseline2023.json'), JSON.stringify(dataset2023));
   fs.writeFileSync(path.join(outDir, 'baseline2024.json'), JSON.stringify(dataset2024));
+  fs.writeFileSync(path.join(outDir, 'baseline2019.json'), JSON.stringify(dataset2019));
 
   console.log(
-    `Generated from repo 600: ${provinces.length} provinces, ${districts2023.length} electoral districts (${districts2023.reduce((s, d) => s + d.mpCount, 0)} MPs), and ${ilceler2023.length} ilçeler!`
+    `Generated: ${provinces.length} provinces, ${districts2023.length} electoral districts (${districts2023.reduce((s, d) => s + d.mpCount, 0)} MPs), and ${ilceler2023.length} ilçeler!`
   );
   console.log('National 2023 shares:', nationalBaseShares2023);
   console.log('National 2024 shares:', nationalBaseShares2024);
+  console.log('National 2019 shares:', nationalBaseShares2019, 'turnout:', nationalBaseTurnout2019);
 }
 
 buildDatasets();

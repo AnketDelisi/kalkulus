@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import {
   AlertTriangle,
   Building2,
+  Globe2,
   Lock,
   MapPin,
   Search,
@@ -10,9 +11,11 @@ import {
 } from 'lucide-react';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
+import { getContrastTextColor } from '../utils/color';
 import { formatInt, formatPct } from '../utils/format';
+import { AbroadRacesTable } from './AbroadRacesTable';
 
-type ActiveTab = 'districts' | 'closest' | 'ilceler';
+type ActiveTab = 'districts' | 'closest' | 'ilceler' | 'abroad';
 
 interface DistrictAndClosestRacesTableProps {
   onSelectAndGoToMap?: () => void;
@@ -112,7 +115,7 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
 
           <button
             onClick={() => setTab('ilceler')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 transition-colors ${
+            className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 border-r-[1.5px] border-[#090A0F] transition-colors ${
               tab === 'ilceler'
                 ? 'bg-[#090A0F] text-white'
                 : 'text-[#090A0F] hover:bg-white'
@@ -120,6 +123,18 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
           >
             <Building2 className="w-3.5 h-3.5" />
             <span>{t.tabAllIlceler}</span>
+          </button>
+
+          <button
+            onClick={() => setTab('abroad')}
+            className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 transition-colors ${
+              tab === 'abroad'
+                ? 'bg-[#090A0F] text-white'
+                : 'text-[#090A0F] hover:bg-white'
+            }`}
+          >
+            <Globe2 className="w-3.5 h-3.5" />
+            <span>{lang === 'tr' ? 'Yurt Dışı (74)' : 'Abroad (74)'}</span>
           </button>
         </div>
 
@@ -194,8 +209,11 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
                           <span className="text-slate-700">{formatPct(share, lang)}</span>
                           {seats > 0 && (
                             <span
-                              className="ml-1.5 px-1.5 py-0.5 text-micro font-bold text-white border border-[#090A0F]"
-                              style={{ backgroundColor: p.color }}
+                              className="ml-1.5 px-1.5 py-0.5 text-micro font-bold border border-[#090A0F]"
+                              style={{
+                                backgroundColor: p.color,
+                                color: getContrastTextColor(p.color),
+                              }}
                             >
                               {seats}
                             </span>
@@ -355,8 +373,11 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
                     <td className="py-2 px-3">
                       {leader && (
                         <span
-                          className="px-2 py-0.5 text-micro font-bold text-white border border-[#090A0F]"
-                          style={{ backgroundColor: leader.color }}
+                          className="px-2 py-0.5 text-micro font-bold border border-[#090A0F]"
+                          style={{
+                            backgroundColor: leader.color,
+                            color: getContrastTextColor(leader.color),
+                          }}
                         >
                           {leader.shortName} {formatPct(i.partyShares[leader.id] || 0, lang)}
                         </span>
@@ -373,6 +394,14 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
             </tbody>
           </table>
         </div>
+      )}
+
+      {tab === 'abroad' && (
+        <AbroadRacesTable
+          mode="parliamentary"
+          searchQuery={search}
+          onSelectAndGoToMap={onSelectAndGoToMap}
+        />
       )}
     </div>
   );

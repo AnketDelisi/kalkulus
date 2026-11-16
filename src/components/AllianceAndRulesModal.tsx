@@ -4,15 +4,17 @@ import {
   Landmark,
   Plus,
   Shield,
+  Sparkles,
   Trash2,
   Users,
   X,
 } from 'lucide-react';
-import { BASELINE_2023 } from '../data/baselines';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
 import { BaselineId, DHondtMode, SwingMode } from '../types/election';
 import { formatPct } from '../utils/format';
+import { BuffManagerTab } from './BuffManagerTab';
+import { LocalDynamicsModal } from './LocalDynamicsModal';
 
 interface AllianceAndRulesModalProps {
   isOpen: boolean;
@@ -25,6 +27,7 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
 }) => {
   const {
     lang,
+    electionMode,
     baselineId,
     swingMode,
     dhondtMode,
@@ -46,7 +49,7 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
     updateDistrictMpCount,
   } = useElectionStore();
 
-  const [activeTab, setActiveTab] = useState<'parties' | 'joint' | 'seats'>('parties');
+  const [activeTab, setActiveTab] = useState<'parties' | 'joint' | 'seats' | 'buffs'>('parties');
 
   const [newPartyShort, setNewPartyShort] = useState('');
   const [newPartyFull, setNewPartyFull] = useState('');
@@ -67,6 +70,10 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
 
   if (!isOpen) return null;
   const t = translations[lang];
+
+  if (electionMode === 'local') {
+    return <LocalDynamicsModal isOpen={isOpen} onClose={onClose} initialTab="tactical" />;
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-[#090A0F]/70 flex items-center justify-center p-4">
@@ -180,6 +187,15 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                 ? `87 seçim çevresi MV (${projection.totalSeatsAllocated} MV)`
                 : `87 district MPs (${projection.totalSeatsAllocated} MPs)`}
             </span>
+          </button>
+          <button
+            onClick={() => setActiveTab('buffs')}
+            className={`studio-btn px-3 py-1.5 ${
+              activeTab === 'buffs' ? 'studio-btn-primary' : ''
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{lang === 'tr' ? 'Yerel Güç / Buff' : 'Local Buffs'}</span>
           </button>
         </div>
 
@@ -557,8 +573,10 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                 senaryolara göre aşağıdan değiştirebilirsiniz.
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-96 overflow-y-auto pr-1">
-                {BASELINE_2023.districts.map((d) => {
-                  const currentMp = projection.districtResults[d.id]?.mpCount ?? d.mpCount;
+                {Object.values(projection.districtResults)
+                  .sort((a, b) => a.id.localeCompare(b.id))
+                  .map((d) => {
+                  const currentMp = d.mpCount;
                   return (
                     <div
                       key={d.id}
@@ -584,6 +602,8 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
               </div>
             </div>
           )}
+
+          {activeTab === 'buffs' && <BuffManagerTab />}
         </div>
       </div>
     </div>

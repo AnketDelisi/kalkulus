@@ -1,8 +1,12 @@
+export type ElectionMode = 'parliamentary' | 'presidential' | 'local';
 export type BaselineId = 'blended_90_10' | '2023_general' | 'custom';
+export type LocalBaselineId = '2024_local' | 'local_50_30_20' | 'local_50_50';
+export type LocalProvinceMode = 'merkez_ilce' | 'province_wide';
+export type PresidentialRoundView = 'round1' | 'round2';
 export type SwingMode = 'proportional' | 'uniform';
 export type DHondtMode = '2022_separate' | '2018_alliance';
-export type MapLayerMode = '81_il' | '87_district' | '973_ilce';
-export type MapColorMode = 'leader' | 'alliance' | 'margin' | 'turnout' | 'swing';
+export type MapLayerMode = '81_il' | '87_district' | '973_ilce' | 'abroad_world';
+export type MapColorMode = 'leader' | 'alliance' | 'margin' | 'turnout' | 'swing' | 'flips';
 export type Language = 'tr' | 'en';
 
 export interface PartyConfig {
@@ -22,6 +26,20 @@ export interface AllianceConfig {
   name: string;
   shortName: string;
   color: string;
+}
+
+export type BuffUnitType = 'province' | 'district' | 'ilce';
+
+export interface LocalBuffRule {
+  id: string;
+  enabled: boolean;
+  mode: ElectionMode;
+  unitType: BuffUnitType;
+  unitId: string;
+  targetId: string; // partyId (parliamentary/local) or candidateId (presidential)
+  sourceId?: string | null; // optional donor party/candidate; null => proportional drain from others
+  bonusPp: number; // -30..+30 percentage points
+  label?: string;
 }
 
 export interface JointListRule {
@@ -71,6 +89,44 @@ export interface ProvinceConfig {
   lng: number;
 }
 
+export interface AbroadCountryData {
+  id: string; // ISO Alpha-3 e.g. "DEU", "USA", "KKTC", or "CUSTOMS"
+  atlasName: string | null;
+  nameTr: string;
+  fullNameTr: string;
+  nameEn: string;
+  region: string;
+  isCustoms: boolean;
+  isInset: boolean;
+  registeredVoters: number;
+  turnout: number;
+  validVoteRatio: number;
+  validVotes: number;
+  invalidVotes: number;
+  partyVotes: Record<string, number>;
+  partyShares: Record<string, number>;
+}
+
+export interface AbroadCountryResult {
+  id: string;
+  nameTr: string;
+  fullNameTr: string;
+  nameEn: string;
+  region: string;
+  isCustoms: boolean;
+  isInset: boolean;
+  registeredVoters: number;
+  turnout: number;
+  validVotes: number;
+  partyVotes: Record<string, number>;
+  partyShares: Record<string, number>;
+  leadingPartyId: string;
+  runnerUpPartyId: string;
+  marginVotes: number;
+  marginPct: number;
+  isLocked: boolean;
+}
+
 export interface AbroadVoteConfig {
   enabled: boolean;
   syncWithNationalSwing: boolean;
@@ -81,7 +137,7 @@ export interface AbroadVoteConfig {
 }
 
 export interface BaselineDataset {
-  id: BaselineId;
+  id: BaselineId | LocalBaselineId | string;
   nameTr: string;
   nameEn: string;
   provinces: ProvinceConfig[];
@@ -192,5 +248,241 @@ export interface ComputedElectionProjection {
   ilceResults: Record<string, ComputedIlceResult>;
   districtResults: Record<string, ComputedDistrictResult>;
   provinceResults: Record<string, ComputedProvinceResult>;
+  abroadCountryResults: Record<string, AbroadCountryResult>;
   closestDistrictRaces: ComputedDistrictResult[];
+}
+
+// ================================
+// PRESIDENTIAL ELECTION TYPES
+// ================================
+
+export interface PresidentialCandidateConfig {
+  id: string;
+  name: string;
+  shortName: string;
+  color: string;
+  backingPartyIds: string[];
+  isOther?: boolean;
+}
+
+/**
+ * Second-round vote transfer split for an eliminated 1st-round candidate.
+ * Values represent percentages (0..100) summing to 100.
+ */
+export interface PresidentialTransferSplit {
+  toFirstPct: number;
+  toSecondPct: number;
+  abstainPct: number;
+}
+
+export interface FinalistR2Dynamic {
+  /** % of Round 1 voters who turn out again in Round 2 (70..105). Default 100. */
+  retentionPct: number;
+  /** % of Round 1 non-voters newly mobilized for this finalist in Round 2 (0..15). Default 0. */
+  mobilizationPct: number;
+}
+
+export interface PresidentialRound2Dynamics {
+  /** Per-candidate R2 turnout retention & non-voter mobilization (used if candidate reaches R2) */
+  finalistDynamics: Record<string, FinalistR2Dynamic>;
+  /** 0..100: how strongly ilçe-level eliminated transfers tilt toward the locally stronger finalist */
+  geographicTransferTilt: number;
+  /** 0.50..1.50: independent Round 2 multiplier for abroad turnout */
+  abroadRound2TurnoutMultiplier: number;
+}
+
+export interface PresidentialCandidateSummary {
+  candidateId: string;
+  votes: number;
+  share: number;
+  domesticVotes: number;
+  abroadVotes: number;
+  provincesWon: number;
+  ilcelerWon: number;
+}
+
+export interface PresidentialUnitResult {
+  id: string;
+  name: string;
+  ilId?: string;
+  plateCode?: number;
+  registeredVoters: number;
+  turnout: number;
+  validVotes: number;
+  candidateVotes: Record<string, number>;
+  candidateShares: Record<string, number>;
+  leadingCandidateId: string;
+  runnerUpCandidateId: string;
+  marginVotes: number;
+  marginPct: number;
+  isLocked?: boolean;
+}
+
+export interface PresidentialRoundResult {
+  round: 1 | 2;
+  totalRegisteredVoters: number;
+  totalValidVotes: number;
+  domesticValidVotes: number;
+  abroadValidVotes: number;
+  turnout: number;
+  candidateSummaries: PresidentialCandidateSummary[];
+  leadingCandidateId: string;
+  runnerUpCandidateId: string;
+  marginVotes: number;
+  marginPct: number;
+  hasAbsoluteMajority: boolean; // > 50% + 1 in Round 1
+  provinceResults: Record<string, PresidentialUnitResult>;
+  ilceResults: Record<string, PresidentialUnitResult>;
+  abroadCountryResults: Record<string, PresidentialUnitResult>;
+  closestProvinces: PresidentialUnitResult[];
+}
+
+export interface ComputedPresidentialProjection {
+  decidedInRound: 1 | 2;
+  topTwoCandidateIds: [string, string];
+  winnerCandidateId: string;
+  round1: PresidentialRoundResult;
+  round2: PresidentialRoundResult;
+  flippedProvinceIds: string[]; // Provinces changing winner from Round 1 to Round 2
+}
+
+// ================================
+// LOCAL ELECTION TYPES
+// ================================
+
+export type LocalRuleMode = 'withdrawal' | 'tactical_soft';
+
+export interface LocalAllianceRule {
+  id: string;
+  name: string;
+  enabled: boolean;
+  /** 'withdrawal' removes sourceParty completely; 'tactical_soft' shifts voters in competitive races while keeping sourceParty on ballot */
+  mode?: LocalRuleMode;
+  sourcePartyId: string;
+  targetPartyId: string;
+  /** Province IDs ("01".."81") eligible for this rule. Empty => all (or none when applyNationwide is false). */
+  provinceIds: string[];
+  /** When true (useful for tactical_soft), rule applies across all 81 provinces where margin <= maxMarginTriggerPct */
+  applyNationwide?: boolean;
+  /** Percentage of eligible sourceParty votes transferring to targetParty (0..100). */
+  transferEfficiency: number;
+  /** Percentage of shifting voters who stay home instead of voting for targetParty (0..100). */
+  abstainPct?: number;
+  /** tactical_soft only: max preliminary |leader - runnerUp| pp gap at which tactical shift begins (default 12) */
+  maxMarginTriggerPct?: number;
+  /** tactical_soft only: minimum % of sourceParty's base votes retained on the ballot (default 30) */
+  retainFloorPct?: number;
+}
+
+export interface LocalProvinceBonus {
+  partyId: string;
+  /** Percentage-point shift added before province renormalization (-15 .. +25) */
+  bonusPp: number;
+  note?: string;
+}
+
+export interface LocalIncumbencyConfig {
+  /** Global multiplier in % (0 = off, 100 = calibrated baseline, max 150) */
+  intensityPct: number;
+  /** Map of provinceId ("01".."81") -> strong-candidate/incumbent bonus */
+  provinceBonuses: Record<string, LocalProvinceBonus>;
+}
+
+export type LocalReferenceBaseline = 'current' | '2024';
+
+export interface LocalDefectionEntry {
+  id: string;
+  unitType: 'province' | 'ilce';
+  unitId: string;
+  unitName: string;
+  kind: 'defection' | 'kayyim';
+  fromPartyId: string;
+  /** Destination party ID ('AKP', 'YENI', or 'OTHER' for independent / kayyım) */
+  toPartyId: string;
+  enabled: boolean;
+  /** Optional per-entry override (0..100%) on how much personal incumbency follows the mayor */
+  personalCarryoverPct?: number;
+  /** Optional per-entry override (pp) on anti-defection backlash against toPartyId */
+  backlashPp?: number;
+  note?: string;
+}
+
+export interface LocalDefectionConfig {
+  /** Which baseline drives ± deltas & flipped indicators ('current' = after defections, default) */
+  referenceBaseline: LocalReferenceBaseline;
+  /** Toggle whether trustee-appointed (kayyım) seats override elected holders in 'current' mode */
+  includeKayyim: boolean;
+  /** Global multiplier (0..100%) for personal vote carryover when a mayor defects across blocs */
+  carryoverPct: number;
+  /** Global anti-defection backlash (0..8 pp) subtracted from cross-bloc defector destination */
+  backlashPp: number;
+  entries: LocalDefectionEntry[];
+}
+
+export interface ComputedLocalIlceResult {
+  id: string;
+  name: string;
+  ilId: string;
+  isMerkez: boolean;
+  registeredVoters: number;
+  turnout: number;
+  validVotes: number;
+  partyVotes: Record<string, number>;
+  partyShares: Record<string, number>;
+  winnerPartyId: string;
+  runnerUpPartyId: string;
+  marginVotes: number;
+  marginPct: number;
+  baseline2024WinnerPartyId: string;
+  flippedFrom2024: boolean;
+  isLocked: boolean;
+}
+
+export interface ComputedLocalProvinceResult {
+  id: string;
+  plateCode: number;
+  name: string;
+  isBuyuksehir: boolean;
+  merkezIlceId: string | null;
+  countingBasis: LocalProvinceMode; // Whether this winner reflects province-wide or Merkez ilçe
+  registeredVoters: number;
+  turnout: number;
+  validVotes: number;
+  partyVotes: Record<string, number>;
+  partyShares: Record<string, number>;
+  winnerPartyId: string;
+  runnerUpPartyId: string;
+  marginVotes: number;
+  marginPct: number;
+  winner2024PartyId: string;
+  flippedFrom2024: boolean;
+}
+
+export interface LocalPartySeatSummary {
+  partyId: string;
+  nationalVotes: number;
+  nationalShare: number;
+  buyuksehirWins: number;
+  ilMerkezWins: number;
+  totalProvinceWins: number;
+  ilceWins: number;
+  deltaProvinceFrom2024: number;
+  deltaIlceFrom2024: number;
+}
+
+export interface ComputedLocalProjection {
+  referenceBaseline: LocalReferenceBaseline;
+  totalRegisteredVoters: number;
+  totalVotesCast: number;
+  totalValidVotes: number;
+  turnout: number;
+  nationalPartyVotes: Record<string, number>;
+  nationalPartyShares: Record<string, number>;
+  partySummaries: Record<string, LocalPartySeatSummary>;
+  provinceResults: Record<string, ComputedLocalProvinceResult>; // 81 provinces (30 BB + 51 İl)
+  ilceResults: Record<string, ComputedLocalIlceResult>; // 973 ilçeler
+  flippedProvinceIds: string[];
+  flippedIlceIds: string[];
+  closestProvinces: ComputedLocalProvinceResult[];
+  closestIlces: ComputedLocalIlceResult[];
 }

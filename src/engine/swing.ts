@@ -10,10 +10,12 @@ import {
   ElectoralDistrictConfig,
   IlceData,
   JointListRule,
+  LocalBuffRule,
   PartyConfig,
   SwingMode,
 } from '../types/election';
 import { computeAndDistributeAbroadVotes, getProxyShare } from './abroad';
+import { applyLocalBuffsToShares, resolveMatchingBuffs } from './buffs';
 import { allocateDistrictSeatsDHondt, evaluateNationalThreshold } from './dhondt';
 
 export { getProxyShare };
@@ -54,6 +56,8 @@ export interface ProjectionEngineInput {
   ilceOverrides: Record<string, IlceOverride>;
   districtOverrides: Record<string, DistrictOverride>;
   provinceOverrides: Record<string, ProvinceOverride>;
+  abroadCountryOverrides?: Record<string, ProvinceOverride>;
+  localBuffs?: LocalBuffRule[];
   jointListRules: JointListRule[];
 }
 
@@ -226,7 +230,7 @@ function isProjectionModifiedFromBaseline(input: ProjectionEngineInput): boolean
   return false;
 }
 
-function getEffectiveIlceBaseShares(
+export function getEffectiveIlceBaseShares(
   ilce: IlceData,
   applyJoint2023Dealiasing: boolean
 ): Record<string, number> {
@@ -270,8 +274,11 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
     ilceOverrides,
     districtOverrides,
     provinceOverrides,
+    abroadCountryOverrides = {},
+    localBuffs = [],
     jointListRules,
   } = input;
+  const partyIds = parties.map((p) => p.id);
 
   const applyJoint2023Dealiasing =
     baseline.id === '2023_general' && isProjectionModifiedFromBaseline(input);
@@ -417,6 +424,19 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
       );
     }
 
+    if (!isLocked && localBuffs.length > 0) {
+      const matchingBuffs = resolveMatchingBuffs(
+        localBuffs,
+        'parliamentary',
+        ilce.ilId,
+        ilce.districtId,
+        ilce.id
+      );
+      if (matchingBuffs.length > 0) {
+        effectiveShares = applyLocalBuffsToShares(effectiveShares, matchingBuffs, partyIds);
+      }
+    }
+
     const totalVotesCast = Math.round(effectiveVoters * (effectiveTurnout / 100));
     const validVotes = Math.round(totalVotesCast * (ilce.validVoteRatio / 100));
 
@@ -482,7 +502,8 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
     swingMode,
     districtDomesticValidVotes,
     domesticValidVotes,
-    parties
+    parties,
+    abroadCountryOverrides
   );
 
   const totalRegisteredVoters = domesticRegisteredVoters + abroadResult.abroadRegisteredVoters;
@@ -744,6 +765,7 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
     ilceResults,
     districtResults,
     provinceResults,
+    abroadCountryResults: abroadResult.abroadCountryResults,
     closestDistrictRaces,
   };
 }

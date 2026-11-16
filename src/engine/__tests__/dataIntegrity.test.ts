@@ -1,18 +1,21 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
+import baseline2019Raw from '../../data/baseline2019.json';
 import baseline2023Raw from '../../data/baseline2023.json';
 import baseline2024Raw from '../../data/baseline2024.json';
 import { DEFAULT_ALLIANCES, DEFAULT_PARTIES } from '../../data/defaultParties';
 import { runMultiLayerProjection } from '../swing';
 import { BaselineDataset } from '../../types/election';
 
+const b19 = baseline2019Raw as unknown as BaselineDataset;
 const b23 = baseline2023Raw as unknown as BaselineDataset;
 const b24 = baseline2024Raw as unknown as BaselineDataset;
 
 describe('Continuous Baseline Data Integrity Suite', () => {
-  it('validates 81 provinces, 87 districts, 973 ilceler, and exact 600 MPs in both baselines', () => {
+  it('validates 81 provinces, 87 districts, 973 ilceler, and exact 600 MPs in all baselines', () => {
     for (const [name, ds] of [
+      ['2019 Baseline', b19],
       ['2023 Baseline', b23],
       ['2024 Baseline', b24],
     ] as const) {
@@ -37,6 +40,7 @@ describe('Continuous Baseline Data Integrity Suite', () => {
 
   it('verifies all ilçeler have non-negative voters, valid turnout (0-100], and ~100% share sums', () => {
     for (const [name, ds] of [
+      ['2019 Baseline', b19],
       ['2023 Baseline', b23],
       ['2024 Baseline', b24],
     ] as const) {
@@ -61,6 +65,7 @@ describe('Continuous Baseline Data Integrity Suite', () => {
 
   it('validates relational consistency between provinces, districts, and ilçeler', () => {
     for (const [name, ds] of [
+      ['2019 Baseline', b19],
       ['2023 Baseline', b23],
       ['2024 Baseline', b24],
     ] as const) {

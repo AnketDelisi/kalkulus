@@ -169,3 +169,17 @@ input[type='range'].studio-slider::-moz-range-thumb {
 ::-webkit-scrollbar-thumb {
   background: #090a0f;
 }
+
+@media (pointer: coarse) {
+  input[type='range'].studio-slider {
+    height: 8px;
+  }
+  input[type='range'].studio-slider::-webkit-slider-thumb {
+    width: 18px;
+    height: 26px;
+  }
+  input[type='range'].studio-slider::-moz-range-thumb {
+    width: 18px;
+    height: 26px;
+  }
+}

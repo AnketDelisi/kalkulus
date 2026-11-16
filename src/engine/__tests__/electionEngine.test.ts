@@ -241,13 +241,13 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     });
 
     expect(res.totalSeatsAllocated).toBe(600);
-    expect(res.partyTotalSeats['AKP']).toBe(275);
-    expect(res.partyTotalSeats['CHP']).toBe(243);
-    expect(res.partyTotalSeats['YRP']).toBe(44);
-    expect(res.partyTotalSeats['MHP']).toBe(35);
-    expect(res.partyTotalSeats['IYI'] || 0).toBe(0); // IYI is at 3.77% below 7% threshold without alliance
-    expect(res.partyTotalSeats['BBP']).toBe(3);
-    expect(res.partyTotalSeats['DEM'] || 0).toBe(0); // DEM is at 5.88% below 7% threshold
+    expect(res.partyTotalSeats['AKP']).toBe(307);
+    expect(res.partyTotalSeats['CHP']).toBe(252);
+    expect(res.partyTotalSeats['YRP'] || 0).toBe(0); // YRP is at 6.99% under 7% threshold without alliance
+    expect(res.partyTotalSeats['MHP']).toBe(38);
+    expect(res.partyTotalSeats['IYI'] || 0).toBe(0); // IYI is at 4.61% below 7% threshold without alliance
+    expect(res.partyTotalSeats['BBP']).toBe(3); // In Cumhur alliance
+    expect(res.partyTotalSeats['DEM'] || 0).toBe(0); // DEM is at 5.81% below 7% threshold
 
     // When threshold is lowered to 5%, DEM passes and wins seats
     const resLowerBaraj = runMultiLayerProjection({
@@ -267,6 +267,7 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
       jointListRules: [],
     });
     expect(resLowerBaraj.partyTotalSeats['DEM']).toBe(46);
+    expect(resLowerBaraj.partyTotalSeats['YRP']).toBe(34);
     expect(resLowerBaraj.totalSeatsAllocated).toBe(600);
   });
 
@@ -403,7 +404,7 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     const antalya = res23.districtResults['07'];
     expect(antalya.lastSeatWinnerPartyId).toBe('AKP');
     expect(antalya.closestChallengerPartyId).toBe('TIP');
-    expect(antalya.votesToFlipLastSeat).toBe(5062);
+    expect(antalya.votesToFlipLastSeat).toBe(5047);
   });
 
   it('conserves abroad votes exactly across all 87 districts with Hare-Niemeyer', () => {
@@ -676,7 +677,8 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     expect(modifiedProj.totalSeatsAllocated).toBe(600);
   });
 
-  it('preserves user nationalTargetShares when switching base election in store', () => {
+  it('preserves user nationalTargetShares when switching base election in store', async () => {
+    await useElectionStore.getState().initBaselines();
     const store = useElectionStore.getState();
     store.resetAllToBaseline();
     store.updateNationalPartyShare('CHP', 31.5);
@@ -695,7 +697,8 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     useElectionStore.getState().resetAllToBaseline();
   });
 
-  it('retains non-vanishing CHP and YENI shares in Yozgat (66) and 2023 joint-list provinces under blended_90_10', () => {
+  it('retains non-vanishing CHP and YENI shares in Yozgat (66) and 2023 joint-list provinces under blended_90_10', async () => {
+    await useElectionStore.getState().initBaselines();
     useElectionStore.getState().setBaselineId('blended_90_10');
     useElectionStore.getState().setNationalSharesBulk({
       AKP: 28.68,
@@ -722,5 +725,17 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     expect(yozgat.partyShares['CHP']).toBeGreaterThan(0.5);
     expect(bayburt.partyShares['YENI']).toBeGreaterThan(5);
     expect(rize.partyShares['IYI']).toBeGreaterThan(0.5);
+  });
+
+  it('reflects authentic intra-province 2023 ilce differentiation (Kadikoy vs Sultanbeyli)', () => {
+    const kadikoy = baseline2023.ilceler.find((i) => i.id === '34-kadikoy')!;
+    const sultanbeyli = baseline2023.ilceler.find((i) => i.id === '34-sultanbeyli')!;
+
+    expect(kadikoy.registeredVoters).toBeGreaterThan(350000);
+    expect(sultanbeyli.registeredVoters).toBeGreaterThan(200000);
+    expect(kadikoy.partyShares.CHP).toBeGreaterThan(50);
+    expect(sultanbeyli.partyShares.CHP).toBeLessThan(15);
+    expect(sultanbeyli.partyShares.AKP).toBeGreaterThan(40);
+    expect(kadikoy.partyShares.AKP).toBeLessThan(20);
   });
 });

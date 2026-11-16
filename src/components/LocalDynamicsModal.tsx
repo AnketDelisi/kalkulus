@@ -7,9 +7,9 @@ import {
   RotateCcw,
   ShieldAlert,
   SlidersHorizontal,
-  Sparkles,
   Trash2,
   X,
+  Zap,
 } from 'lucide-react';
 import { getCachedLocalBaseline } from '../data/baselineCache';
 import { useElectionStore } from '../store/useElectionStore';
@@ -171,8 +171,8 @@ export const LocalDynamicsModal: React.FC<LocalDynamicsModalProps> = ({
                 : 'text-slate-600 hover:bg-white/60'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{lang === 'tr' ? 'Yerel Güç / Buff' : 'Local Buffs'}</span>
+            <Zap className="w-3.5 h-3.5" />
+            <span>{lang === 'tr' ? 'Yerel Güç' : 'Local Strength'}</span>
           </button>
         </div>
 

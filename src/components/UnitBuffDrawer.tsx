@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight, Plus, Sparkles, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, Trash2, Zap } from 'lucide-react';
 import { useElectionStore } from '../store/useElectionStore';
 import type { BuffUnitType, ElectionMode, LocalBuffRule } from '../types/election';
 
@@ -110,9 +110,9 @@ export const UnitBuffDrawer: React.FC<UnitBuffDrawerProps> = ({
           ) : (
             <ChevronRight className="w-3.5 h-3.5 text-[#090A0F] shrink-0" />
           )}
-          <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+          <Zap className="w-3.5 h-3.5 text-amber-600 shrink-0" />
           <span className="text-micro font-bold uppercase tracking-wider text-[#090A0F] truncate">
-            {lang === 'tr' ? 'Yerel Güç / Buff (±pp)' : 'Local Buff (±pp)'}
+            {lang === 'tr' ? 'Yerel Güç (±pp)' : 'Local Strength (±pp)'}
           </span>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">

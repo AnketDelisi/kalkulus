@@ -12,6 +12,7 @@ import { DEFAULT_ALLIANCES, DEFAULT_PARTIES } from '../data/defaultParties';
 import { DEFAULT_LOCAL_ALLIANCE_RULES } from '../data/local2024Winners';
 import { buildDefaultLocalDefectionConfig } from '../data/localDefections';
 import { buildDefaultLocalIncumbencyConfig } from '../data/localIncumbencyDefaults';
+import { buildDefaultLocalBuffs } from '../data/localBuffDefaults';
 import {
   DEFAULT_PRESIDENTIAL_CANDIDATES,
   buildDefaultPresidentialR2Dynamics,
@@ -496,6 +497,7 @@ const initialPresTransferMatrix = buildDefaultTransferMatrix(
 const initialPresR2Dynamics = buildDefaultPresidentialR2Dynamics(DEFAULT_PRESIDENTIAL_CANDIDATES);
 const initialLocalIncumbency = buildDefaultLocalIncumbencyConfig();
 const initialLocalDefections = buildDefaultLocalDefectionConfig();
+const initialLocalBuffs = buildDefaultLocalBuffs();
 const initialPresAbroadConfig: AbroadVoteConfig = {
   ...initialBaseline.abroad,
   partyShares: { ...initialBaseline.abroad.partyShares },
@@ -547,6 +549,7 @@ const initialBaselineProjection = runMultiLayerProjection({
   districtOverrides: {},
   provinceOverrides: {},
   jointListRules: [],
+  localBuffs: initialLocalBuffs,
 });
 
 const initialProjection = runMultiLayerProjection({
@@ -564,6 +567,7 @@ const initialProjection = runMultiLayerProjection({
   districtOverrides: {},
   provinceOverrides: {},
   jointListRules: [],
+  localBuffs: initialLocalBuffs,
 });
 
 const historyManager = new ScenarioHistoryManager();
@@ -605,7 +609,7 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
   ilceOverrides: {},
   abroadCountryOverrides: {},
   jointListRules: [],
-  localBuffs: [],
+  localBuffs: initialLocalBuffs,
 
   presBaselineId: 'blended_90_10',
   presSwingMode: 'proportional',
@@ -1358,7 +1362,10 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
         ilceOverrides: {},
         abroadCountryOverrides: {},
         jointListRules: [],
-        localBuffs: state.localBuffs.filter((b) => b.mode !== 'parliamentary'),
+        localBuffs: [
+          ...state.localBuffs.filter((b) => b.mode !== 'parliamentary'),
+          ...buildDefaultLocalBuffs(),
+        ],
       };
       return {
         ...next,

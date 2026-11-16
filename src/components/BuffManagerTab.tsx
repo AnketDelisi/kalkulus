@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Plus, Sparkles, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Zap } from 'lucide-react';
 import { useElectionStore } from '../store/useElectionStore';
 import type { BuffUnitType } from '../types/election';
 
@@ -146,12 +146,12 @@ export const BuffManagerTab: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="bg-slate-50 border border-[#090A0F]/25 p-3 text-micro text-slate-700 flex items-start gap-2">
-        <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+        <Zap className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
         <div>
           <div className="font-bold text-[#090A0F]">
             {lang === 'tr'
-              ? 'Yerel Aday & Lider Gücü Buff Kuralları (±pp)'
-              : 'Local Candidate & Leader Strength Buff Rules (±pp)'}
+              ? 'Yerel Güç — Aday & Lider Etkisi (±pp)'
+              : 'Local Strength — Candidate & Leader Effect (±pp)'}
           </div>
           <p className="mt-0.5 text-slate-600">
             {lang === 'tr'
@@ -161,13 +161,13 @@ export const BuffManagerTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Add Buff Form */}
+      {/* Add Form */}
       <form
         onSubmit={handleAdd}
         className="border border-[#090A0F] p-3 bg-white space-y-2.5"
       >
         <div className="text-micro font-bold uppercase tracking-wider text-[#090A0F]">
-          {lang === 'tr' ? 'Yeni Buff Kuralı Ekle' : 'Add New Buff Rule'}
+          {lang === 'tr' ? 'Yeni Yerel Güç Kuralı Ekle' : 'Add Local Strength Rule'}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
@@ -291,24 +291,24 @@ export const BuffManagerTab: React.FC = () => {
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-micro font-bold bg-[#090A0F] text-white hover:bg-[#090A0F]/85"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>{lang === 'tr' ? 'Buff Ekle' : 'Add Buff'}</span>
+            <span>{lang === 'tr' ? 'Kural Ekle' : 'Add Rule'}</span>
           </button>
         </div>
       </form>
 
-      {/* Active Buffs List */}
+      {/* Active Rules List */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-micro font-bold text-[#090A0F]">
           <span>
-            {lang === 'tr' ? 'Tanımlı Buff Kuralları' : 'Configured Buff Rules'} ({modeBuffs.length})
+            {lang === 'tr' ? 'Tanımlı Yerel Güç Kuralları' : 'Configured Local Strength Rules'} ({modeBuffs.length})
           </span>
         </div>
 
         {modeBuffs.length === 0 ? (
           <div className="border border-dashed border-slate-300 p-4 text-center text-micro text-slate-500">
             {lang === 'tr'
-              ? 'Bu seçim modu için henüz yerel buff kuralı eklenmedi.'
-              : 'No local buff rules defined for this election mode yet.'}
+              ? 'Bu seçim modu için henüz yerel güç kuralı eklenmedi.'
+              : 'No local strength rules defined for this election mode yet.'}
           </div>
         ) : (
           <div className="divide-y divide-slate-200 border border-[#090A0F]/30 bg-white">

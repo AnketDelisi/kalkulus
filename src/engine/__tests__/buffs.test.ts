@@ -292,6 +292,9 @@ describe('Local Buff System (Yerel Güç / Buff)', () => {
     const store = useElectionStore.getState();
     store.resetAllToBaseline();
 
+    const initialCount = useElectionStore.getState().localBuffs.length;
+    expect(initialCount).toBeGreaterThanOrEqual(17);
+
     const beforeChp26 = useElectionStore.getState().projection.provinceResults['26'].partyShares.CHP;
 
     store.addLocalBuff({
@@ -306,15 +309,17 @@ describe('Local Buff System (Yerel Güç / Buff)', () => {
     });
 
     const added = useElectionStore.getState().localBuffs;
-    expect(added.length).toBe(1);
-    const buffId = added[0].id;
+    expect(added.length).toBe(initialCount + 1);
+    const created = added.find((b) => b.label === 'Eskişehir test buff')!;
+    expect(created).toBeDefined();
+    const buffId = created.id;
     expect(useElectionStore.getState().projection.provinceResults['26'].partyShares.CHP).toBeGreaterThan(
       beforeChp26 + 3
     );
 
     // Toggle off
     useElectionStore.getState().toggleLocalBuff(buffId);
-    expect(useElectionStore.getState().localBuffs[0].enabled).toBe(false);
+    expect(useElectionStore.getState().localBuffs.find((b) => b.id === buffId)?.enabled).toBe(false);
     expect(useElectionStore.getState().projection.provinceResults['26'].partyShares.CHP).toBeCloseTo(
       beforeChp26,
       5
@@ -322,17 +327,18 @@ describe('Local Buff System (Yerel Güç / Buff)', () => {
 
     // Undo toggle -> back on
     useElectionStore.getState().undo();
-    expect(useElectionStore.getState().localBuffs[0].enabled).toBe(true);
+    expect(useElectionStore.getState().localBuffs.find((b) => b.id === buffId)?.enabled).toBe(true);
 
     // Export & Import round-trip
     const exported = useElectionStore.getState().exportScenarioJson();
     useElectionStore.getState().removeLocalBuff(buffId);
-    expect(useElectionStore.getState().localBuffs.length).toBe(0);
+    expect(useElectionStore.getState().localBuffs.some((b) => b.id === buffId)).toBe(false);
 
     const ok = useElectionStore.getState().importScenarioJson(exported);
     expect(ok).toBe(true);
-    expect(useElectionStore.getState().localBuffs.length).toBe(1);
-    expect(useElectionStore.getState().localBuffs[0].label).toBe('Eskişehir test buff');
+    expect(useElectionStore.getState().localBuffs.find((b) => b.id === buffId)?.label).toBe(
+      'Eskişehir test buff'
+    );
 
     // Clean up
     useElectionStore.getState().resetAllToBaseline();

@@ -4,10 +4,10 @@ import {
   Landmark,
   Plus,
   Shield,
-  Sparkles,
   Trash2,
   Users,
   X,
+  Zap,
 } from 'lucide-react';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
@@ -194,8 +194,8 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
               activeTab === 'buffs' ? 'studio-btn-primary' : ''
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{lang === 'tr' ? 'Yerel Güç / Buff' : 'Local Buffs'}</span>
+            <Zap className="w-3.5 h-3.5" />
+            <span>{lang === 'tr' ? 'Yerel Güç' : 'Local Strength'}</span>
           </button>
         </div>
 

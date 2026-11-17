@@ -21,6 +21,7 @@ import { BaselineId, LocalBaselineId, LocalProvinceMode, SwingMode } from '../ty
 import { formatInt, formatPct } from '../utils/format';
 import { LocationSearchCombobox } from './LocationSearchCombobox';
 import { PollQuickEntryModal } from './PollQuickEntryModal';
+import { TurnoutMobilizationDrawer } from './TurnoutMobilizationDrawer';
 import { UnitBuffDrawer } from './UnitBuffDrawer';
 
 export const InputEditorPanel: React.FC = () => {
@@ -50,6 +51,10 @@ export const InputEditorPanel: React.FC = () => {
     localIlceOverrides,
     localAllianceRules,
     localProjection,
+    partyTurnoutMultipliers,
+    provinceTurnoutMultipliers,
+    localPartyTurnoutMultipliers,
+    localProvinceTurnoutMultipliers,
     setBaselineId,
     setSwingMode,
     setActiveScope,
@@ -92,6 +97,14 @@ export const InputEditorPanel: React.FC = () => {
     updateLocalIlceTurnoutAndVoters,
     unlockLocalIlce,
     toggleLocalAllianceRule,
+    setPartyTurnoutMultiplier,
+    resetPartyTurnoutMultipliers,
+    setProvinceTurnoutMultiplier,
+    resetProvinceTurnoutMultipliers,
+    setLocalPartyTurnoutMultiplier,
+    resetLocalPartyTurnoutMultipliers,
+    setLocalProvinceTurnoutMultiplier,
+    resetLocalProvinceTurnoutMultipliers,
   } = useElectionStore();
 
   const [showVoterDetails, setShowVoterDetails] = useState(false);
@@ -975,6 +988,61 @@ export const InputEditorPanel: React.FC = () => {
           </div>
         )}
       </div>
+
+      {(() => {
+        const scopedIlId =
+          activeScope.type === 'province'
+            ? activeScope.ilId
+            : activeScope.type === 'district'
+            ? projection.districtResults[activeScope.districtId]?.ilId
+            : activeScope.type === 'ilce'
+            ? (isLocal
+                ? localProjection.ilceResults[activeScope.ilceId]?.ilId
+                : projection.ilceResults[activeScope.ilceId]?.ilId)
+            : undefined;
+        const scopedProvName = scopedIlId
+          ? projection.provinceResults[scopedIlId]?.name ?? scopedIlId
+          : null;
+        const natMults = isLocal ? localPartyTurnoutMultipliers : partyTurnoutMultipliers;
+        const activeMults = scopedIlId
+          ? (isLocal
+              ? localProvinceTurnoutMultipliers[scopedIlId]
+              : provinceTurnoutMultipliers[scopedIlId]) ?? {}
+          : natMults;
+
+        return (
+          <TurnoutMobilizationDrawer
+            lang={lang}
+            scopeLabel={scopedProvName}
+            items={parties.map((p) => ({
+              id: p.id,
+              shortName: p.shortName,
+              label: p.fullName,
+              color: p.color,
+            }))}
+            multipliers={activeMults}
+            fallbackMultipliers={scopedIlId ? natMults : undefined}
+            onChange={(id, factor) => {
+              if (scopedIlId) {
+                if (isLocal) setLocalProvinceTurnoutMultiplier(scopedIlId, id, factor);
+                else setProvinceTurnoutMultiplier(scopedIlId, id, factor);
+              } else {
+                if (isLocal) setLocalPartyTurnoutMultiplier(id, factor);
+                else setPartyTurnoutMultiplier(id, factor);
+              }
+            }}
+            onReset={() => {
+              if (scopedIlId) {
+                if (isLocal) resetLocalProvinceTurnoutMultipliers(scopedIlId);
+                else resetProvinceTurnoutMultipliers(scopedIlId);
+              } else {
+                if (isLocal) resetLocalPartyTurnoutMultipliers();
+                else resetPartyTurnoutMultipliers();
+              }
+            }}
+          />
+        );
+      })()}
 
       <PollQuickEntryModal
         isOpen={pollModalOpen}

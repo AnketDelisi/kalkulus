@@ -66,8 +66,19 @@ export const LocationSearchCombobox: React.FC<LocationSearchComboboxProps> = ({
         setOpen(false);
       }
     };
+    const onOpenJump = () => {
+      setOpen(true);
+      requestAnimationFrame(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      });
+    };
     document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
+    window.addEventListener('kalkulus:open-jump-search', onOpenJump);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      window.removeEventListener('kalkulus:open-jump-search', onOpenJump);
+    };
   }, []);
 
   const provNameById = useMemo(() => {
@@ -172,11 +183,24 @@ export const LocationSearchCombobox: React.FC<LocationSearchComboboxProps> = ({
 
   const handleSelect = (item: SearchLocationItem) => {
     setActiveScope(item.scope);
-    if (item.switchMapToAbroad && mapLayer !== 'abroad_world') {
+    if (item.switchMapToAbroad) {
       setZoomedProvinceId(null);
-      setMapLayer('abroad_world');
-    } else if (!item.switchMapToAbroad && mapLayer === 'abroad_world') {
-      setMapLayer(!isLocal && !isPresidential ? '87_district' : '81_il');
+      if (mapLayer !== 'abroad_world') setMapLayer('abroad_world');
+    } else {
+      if (mapLayer === 'abroad_world') {
+        setMapLayer(!isLocal && !isPresidential ? '87_district' : '81_il');
+      }
+      if (item.scope.type === 'province') {
+        setZoomedProvinceId(item.scope.ilId);
+      } else if (item.scope.type === 'district') {
+        const dId = item.scope.districtId;
+        const ilId = dataset.districts.find((d) => d.id === dId)?.ilId ?? null;
+        setZoomedProvinceId(ilId);
+      } else if (item.scope.type === 'ilce') {
+        const iId = item.scope.ilceId;
+        const ilId = dataset.ilceler.find((i) => i.id === iId)?.ilId ?? null;
+        setZoomedProvinceId(ilId);
+      }
     }
     setQuery('');
     setOpen(false);
@@ -255,8 +279,13 @@ export const LocationSearchCombobox: React.FC<LocationSearchComboboxProps> = ({
           }}
           placeholder={activePlaceholder}
           aria-label={lang === 'tr' ? 'Konum ara' : 'Search location'}
-          className="w-full studio-input border-[#090A0F] pl-8 pr-8 py-2 sm:py-1.5 text-body font-medium text-[#090A0F] placeholder:text-slate-600 min-h-[40px] sm:min-h-[34px]"
+          className="w-full studio-input border-[#090A0F] pl-8 pr-16 py-2 sm:py-1.5 text-body font-medium text-[#090A0F] placeholder:text-slate-600 min-h-[40px] sm:min-h-[34px]"
         />
+        {!query && activeScope.type === 'national' && (
+          <kbd className="hidden sm:inline-block absolute right-2 px-1.5 py-0.5 text-[10px] font-mono font-bold text-slate-500 bg-slate-100 border border-slate-300 pointer-events-none">
+            Ctrl+K
+          </kbd>
+        )}
         {(query || activeScope.type !== 'national') && (
           <button
             type="button"

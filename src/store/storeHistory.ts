@@ -63,6 +63,12 @@ export interface ScenarioHistorySnapshot {
   localAllianceRules: LocalAllianceRule[];
   localIncumbency: LocalIncumbencyConfig;
   localDefections: LocalDefectionConfig;
+  partyTurnoutMultipliers: Record<string, number>;
+  provinceTurnoutMultipliers: Record<string, Record<string, number>>;
+  localPartyTurnoutMultipliers: Record<string, number>;
+  localProvinceTurnoutMultipliers: Record<string, Record<string, number>>;
+  presCandidateTurnoutMultipliers: Record<string, number>;
+  presProvinceTurnoutMultipliers: Record<string, Record<string, number>>;
 }
 
 const MAX_HISTORY_STEPS = 40;
@@ -111,6 +117,12 @@ export function captureScenarioSnapshot(s: ScenarioHistorySnapshot): ScenarioHis
     localAllianceRules: s.localAllianceRules,
     localIncumbency: s.localIncumbency,
     localDefections: s.localDefections,
+    partyTurnoutMultipliers: s.partyTurnoutMultipliers,
+    provinceTurnoutMultipliers: s.provinceTurnoutMultipliers,
+    localPartyTurnoutMultipliers: s.localPartyTurnoutMultipliers,
+    localProvinceTurnoutMultipliers: s.localProvinceTurnoutMultipliers,
+    presCandidateTurnoutMultipliers: s.presCandidateTurnoutMultipliers,
+    presProvinceTurnoutMultipliers: s.presProvinceTurnoutMultipliers,
   });
 }
 

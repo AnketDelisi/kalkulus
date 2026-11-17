@@ -58,7 +58,50 @@ export interface ProjectionEngineInput {
   provinceOverrides: Record<string, ProvinceOverride>;
   abroadCountryOverrides?: Record<string, ProvinceOverride>;
   localBuffs?: LocalBuffRule[];
+  partyTurnoutMultipliers?: Record<string, number>;
+  provinceTurnoutMultipliers?: Record<string, Record<string, number>>;
   jointListRules: JointListRule[];
+}
+
+/**
+ * Applies per-party (or per-candidate) differential turnout multipliers (0.5..1.5, default 1.0)
+ * to an ilce's projected vote shares and effective turnout.
+ */
+export function applyTurnoutMultipliers(
+  shares: Record<string, number>,
+  turnout: number,
+  multipliers: Record<string, number> | undefined,
+  ids: string[]
+): { shares: Record<string, number>; turnout: number } {
+  if (!multipliers) return { shares, turnout };
+  let hasNonDefault = false;
+  for (const id of ids) {
+    const m = multipliers[id];
+    if (m !== undefined && Math.abs(m - 1.0) > 0.001) {
+      hasNonDefault = true;
+      break;
+    }
+  }
+  if (!hasNonDefault) return { shares, turnout };
+
+  const scaled: Record<string, number> = {};
+  let totalScaled = 0;
+  for (const id of ids) {
+    const s = Math.max(0, shares[id] ?? 0);
+    const factor = Math.max(0.5, Math.min(1.5, multipliers[id] ?? 1.0));
+    const val = s * factor;
+    scaled[id] = val;
+    totalScaled += val;
+  }
+
+  if (totalScaled <= 0) return { shares, turnout };
+
+  const nextShares: Record<string, number> = {};
+  for (const id of ids) {
+    nextShares[id] = (scaled[id] / totalScaled) * 100;
+  }
+  const nextTurnout = Math.min(100, Math.max(0, turnout * (totalScaled / 100)));
+  return { shares: nextShares, turnout: nextTurnout };
 }
 
 /**
@@ -281,6 +324,8 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
     provinceOverrides,
     abroadCountryOverrides = {},
     localBuffs = [],
+    partyTurnoutMultipliers,
+    provinceTurnoutMultipliers,
     jointListRules,
   } = input;
   const partyIds = parties.map((p) => p.id);
@@ -445,6 +490,21 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
       if (matchingBuffs.length > 0) {
         effectiveShares = applyLocalBuffsToShares(effectiveShares, matchingBuffs, partyIds);
       }
+    }
+
+    const provMults = provinceTurnoutMultipliers?.[ilce.ilId];
+    if (partyTurnoutMultipliers || provMults) {
+      const mergedMults = provMults
+        ? { ...(partyTurnoutMultipliers || {}), ...provMults }
+        : partyTurnoutMultipliers;
+      const adjusted = applyTurnoutMultipliers(
+        effectiveShares,
+        effectiveTurnout,
+        mergedMults,
+        partyIds
+      );
+      effectiveShares = adjusted.shares;
+      effectiveTurnout = adjusted.turnout;
     }
 
     const totalVotesCast = Math.round(effectiveVoters * (effectiveTurnout / 100));

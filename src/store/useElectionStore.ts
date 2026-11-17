@@ -125,6 +125,12 @@ interface ElectionStoreState {
   localIncumbency: LocalIncumbencyConfig;
   localDefections: LocalDefectionConfig;
   localProjection: ComputedLocalProjection;
+  partyTurnoutMultipliers: Record<string, number>;
+  provinceTurnoutMultipliers: Record<string, Record<string, number>>;
+  localPartyTurnoutMultipliers: Record<string, number>;
+  localProvinceTurnoutMultipliers: Record<string, Record<string, number>>;
+  presCandidateTurnoutMultipliers: Record<string, number>;
+  presProvinceTurnoutMultipliers: Record<string, Record<string, number>>;
 
   // Map & UI selection state
   mapLayer: MapLayerMode;
@@ -166,6 +172,18 @@ interface ElectionStoreState {
   sendActiveScopeRemainderToOther: () => void;
   setNationalTurnout: (turnout: number) => void;
   setNationalRegisteredVoters: (totalVoters: number) => void;
+  setPartyTurnoutMultiplier: (partyId: string, factor: number) => void;
+  resetPartyTurnoutMultipliers: () => void;
+  setProvinceTurnoutMultiplier: (ilId: string, partyId: string, factor: number) => void;
+  resetProvinceTurnoutMultipliers: (ilId: string) => void;
+  setLocalPartyTurnoutMultiplier: (partyId: string, factor: number) => void;
+  resetLocalPartyTurnoutMultipliers: () => void;
+  setLocalProvinceTurnoutMultiplier: (ilId: string, partyId: string, factor: number) => void;
+  resetLocalProvinceTurnoutMultipliers: (ilId: string) => void;
+  setPresCandidateTurnoutMultiplier: (candidateId: string, factor: number) => void;
+  resetPresCandidateTurnoutMultipliers: () => void;
+  setPresProvinceTurnoutMultiplier: (ilId: string, candidateId: string, factor: number) => void;
+  resetPresProvinceTurnoutMultipliers: (ilId: string) => void;
 
   // Abroad editing actions
   updateAbroadConfig: (partial: Partial<AbroadVoteConfig>) => void;
@@ -310,6 +328,8 @@ function recompute(state: {
   provinceOverrides: Record<string, ProvinceOverride>;
   abroadCountryOverrides: Record<string, ProvinceOverride>;
   localBuffs: LocalBuffRule[];
+  partyTurnoutMultipliers?: Record<string, number>;
+  provinceTurnoutMultipliers?: Record<string, Record<string, number>>;
   jointListRules: JointListRule[];
 }): ComputedElectionProjection {
   const baseline = getActiveBaseline(state.baselineId, state.customBaseline);
@@ -329,6 +349,8 @@ function recompute(state: {
     provinceOverrides: state.provinceOverrides,
     abroadCountryOverrides: state.abroadCountryOverrides,
     localBuffs: state.localBuffs,
+    partyTurnoutMultipliers: state.partyTurnoutMultipliers,
+    provinceTurnoutMultipliers: state.provinceTurnoutMultipliers,
     jointListRules: state.jointListRules,
   });
 }
@@ -366,6 +388,8 @@ function recomputePresidential(state: {
   presIlceOverrides: Record<string, IlceOverride>;
   presAbroadCountryOverrides: Record<string, ProvinceOverride>;
   localBuffs?: LocalBuffRule[];
+  presCandidateTurnoutMultipliers?: Record<string, number>;
+  presProvinceTurnoutMultipliers?: Record<string, Record<string, number>>;
   presTransferMatrix: Record<string, PresidentialTransferSplit>;
   presTransferFinalists: [string, string] | null;
   presR2Dynamics: PresidentialRound2Dynamics;
@@ -387,6 +411,8 @@ function recomputePresidential(state: {
     ilceOverrides: state.presIlceOverrides,
     abroadCountryOverrides: state.presAbroadCountryOverrides,
     localBuffs: state.localBuffs,
+    candidateTurnoutMultipliers: state.presCandidateTurnoutMultipliers,
+    provinceTurnoutMultipliers: state.presProvinceTurnoutMultipliers,
     transferMatrix,
     round2Dynamics: state.presR2Dynamics,
     referencePartyWeights: DEFAULT_TARGET_SHARES,
@@ -468,6 +494,8 @@ function recomputeLocal(state: {
   localIncumbency: LocalIncumbencyConfig;
   localDefections: LocalDefectionConfig;
   localBuffs: LocalBuffRule[];
+  localPartyTurnoutMultipliers?: Record<string, number>;
+  localProvinceTurnoutMultipliers?: Record<string, Record<string, number>>;
 }): ComputedLocalProjection {
   const baseline = getCachedLocalBaseline(state.localBaselineId);
   return computeLocalProjection({
@@ -484,6 +512,8 @@ function recomputeLocal(state: {
     localIncumbency: state.localIncumbency,
     localDefections: state.localDefections,
     localBuffs: state.localBuffs,
+    partyTurnoutMultipliers: state.localPartyTurnoutMultipliers,
+    provinceTurnoutMultipliers: state.localProvinceTurnoutMultipliers,
   });
 }
 
@@ -645,6 +675,12 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
   localIncumbency: initialLocalIncumbency,
   localDefections: initialLocalDefections,
   localProjection: initialLocalProjection,
+  partyTurnoutMultipliers: {},
+  provinceTurnoutMultipliers: {},
+  localPartyTurnoutMultipliers: {},
+  localProvinceTurnoutMultipliers: {},
+  presCandidateTurnoutMultipliers: {},
+  presProvinceTurnoutMultipliers: {},
 
   mapLayer: '87_district',
   mapColorMode: 'leader',
@@ -883,6 +919,108 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
     commit((state) => {
       const next = { ...state, nationalTargetShares: { ...shares } };
       return { nationalTargetShares: { ...shares }, projection: recompute(next) };
+    }),
+
+  setPartyTurnoutMultiplier: (partyId, factor) =>
+    commit((state) => {
+      const clamped = Math.max(0.5, Math.min(1.5, Number(factor) || 1.0));
+      const partyTurnoutMultipliers = { ...state.partyTurnoutMultipliers, [partyId]: clamped };
+      const next = { ...state, partyTurnoutMultipliers };
+      return { partyTurnoutMultipliers, projection: recompute(next) };
+    }, `parl-turnout:${partyId}`),
+
+  resetPartyTurnoutMultipliers: () =>
+    commit((state) => {
+      const next = { ...state, partyTurnoutMultipliers: {} };
+      return { partyTurnoutMultipliers: {}, projection: recompute(next) };
+    }),
+
+  setProvinceTurnoutMultiplier: (ilId, partyId, factor) =>
+    commit((state) => {
+      const clamped = Math.max(0.5, Math.min(1.5, Number(factor) || 1.0));
+      const prevProv = state.provinceTurnoutMultipliers[ilId] || {};
+      const provinceTurnoutMultipliers = {
+        ...state.provinceTurnoutMultipliers,
+        [ilId]: { ...prevProv, [partyId]: clamped },
+      };
+      const next = { ...state, provinceTurnoutMultipliers };
+      return { provinceTurnoutMultipliers, projection: recompute(next) };
+    }, `parl-prov-turnout:${ilId}:${partyId}`),
+
+  resetProvinceTurnoutMultipliers: (ilId) =>
+    commit((state) => {
+      const provinceTurnoutMultipliers = { ...state.provinceTurnoutMultipliers };
+      delete provinceTurnoutMultipliers[ilId];
+      const next = { ...state, provinceTurnoutMultipliers };
+      return { provinceTurnoutMultipliers, projection: recompute(next) };
+    }),
+
+  setLocalPartyTurnoutMultiplier: (partyId, factor) =>
+    commit((state) => {
+      const clamped = Math.max(0.5, Math.min(1.5, Number(factor) || 1.0));
+      const localPartyTurnoutMultipliers = { ...state.localPartyTurnoutMultipliers, [partyId]: clamped };
+      const next = { ...state, localPartyTurnoutMultipliers };
+      return { localPartyTurnoutMultipliers, localProjection: recomputeLocal(next) };
+    }, `loc-turnout:${partyId}`),
+
+  resetLocalPartyTurnoutMultipliers: () =>
+    commit((state) => {
+      const next = { ...state, localPartyTurnoutMultipliers: {} };
+      return { localPartyTurnoutMultipliers: {}, localProjection: recomputeLocal(next) };
+    }),
+
+  setLocalProvinceTurnoutMultiplier: (ilId, partyId, factor) =>
+    commit((state) => {
+      const clamped = Math.max(0.5, Math.min(1.5, Number(factor) || 1.0));
+      const prevProv = state.localProvinceTurnoutMultipliers[ilId] || {};
+      const localProvinceTurnoutMultipliers = {
+        ...state.localProvinceTurnoutMultipliers,
+        [ilId]: { ...prevProv, [partyId]: clamped },
+      };
+      const next = { ...state, localProvinceTurnoutMultipliers };
+      return { localProvinceTurnoutMultipliers, localProjection: recomputeLocal(next) };
+    }, `loc-prov-turnout:${ilId}:${partyId}`),
+
+  resetLocalProvinceTurnoutMultipliers: (ilId) =>
+    commit((state) => {
+      const localProvinceTurnoutMultipliers = { ...state.localProvinceTurnoutMultipliers };
+      delete localProvinceTurnoutMultipliers[ilId];
+      const next = { ...state, localProvinceTurnoutMultipliers };
+      return { localProvinceTurnoutMultipliers, localProjection: recomputeLocal(next) };
+    }),
+
+  setPresCandidateTurnoutMultiplier: (candidateId, factor) =>
+    commit((state) => {
+      const clamped = Math.max(0.5, Math.min(1.5, Number(factor) || 1.0));
+      const presCandidateTurnoutMultipliers = { ...state.presCandidateTurnoutMultipliers, [candidateId]: clamped };
+      const next = { ...state, presCandidateTurnoutMultipliers };
+      return { presCandidateTurnoutMultipliers, presidentialProjection: recomputePresidential(next) };
+    }, `pres-turnout:${candidateId}`),
+
+  resetPresCandidateTurnoutMultipliers: () =>
+    commit((state) => {
+      const next = { ...state, presCandidateTurnoutMultipliers: {} };
+      return { presCandidateTurnoutMultipliers: {}, presidentialProjection: recomputePresidential(next) };
+    }),
+
+  setPresProvinceTurnoutMultiplier: (ilId, candidateId, factor) =>
+    commit((state) => {
+      const clamped = Math.max(0.5, Math.min(1.5, Number(factor) || 1.0));
+      const prevProv = state.presProvinceTurnoutMultipliers[ilId] || {};
+      const presProvinceTurnoutMultipliers = {
+        ...state.presProvinceTurnoutMultipliers,
+        [ilId]: { ...prevProv, [candidateId]: clamped },
+      };
+      const next = { ...state, presProvinceTurnoutMultipliers };
+      return { presProvinceTurnoutMultipliers, presidentialProjection: recomputePresidential(next) };
+    }, `pres-prov-turnout:${ilId}:${candidateId}`),
+
+  resetPresProvinceTurnoutMultipliers: (ilId) =>
+    commit((state) => {
+      const presProvinceTurnoutMultipliers = { ...state.presProvinceTurnoutMultipliers };
+      delete presProvinceTurnoutMultipliers[ilId];
+      const next = { ...state, presProvinceTurnoutMultipliers };
+      return { presProvinceTurnoutMultipliers, presidentialProjection: recomputePresidential(next) };
     }),
 
   normalizeActiveScopeShares: () =>
@@ -1568,6 +1706,8 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
         abroadCountryOverrides: s.abroadCountryOverrides,
         jointListRules: s.jointListRules,
         localBuffs: s.localBuffs,
+        partyTurnoutMultipliers: s.partyTurnoutMultipliers,
+        provinceTurnoutMultipliers: s.provinceTurnoutMultipliers,
         presidential: {
           baselineId: s.presBaselineId,
           swingMode: s.presSwingMode,
@@ -1582,6 +1722,8 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
           transferMatrix: s.presTransferMatrix,
           round2Dynamics: s.presR2Dynamics,
           roundView: s.presRoundView,
+          candidateTurnoutMultipliers: s.presCandidateTurnoutMultipliers,
+          provinceTurnoutMultipliers: s.presProvinceTurnoutMultipliers,
         },
         local: {
           baselineId: s.localBaselineId,
@@ -1595,6 +1737,8 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
           allianceRules: s.localAllianceRules,
           incumbency: s.localIncumbency,
           defections: s.localDefections,
+          partyTurnoutMultipliers: s.localPartyTurnoutMultipliers,
+          provinceTurnoutMultipliers: s.localProvinceTurnoutMultipliers,
         },
       },
       null,
@@ -1629,6 +1773,12 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
           abroadCountryOverrides: parsed.abroadCountryOverrides || {},
           jointListRules: parsed.jointListRules || [],
           localBuffs: parsed.localBuffs || [],
+          partyTurnoutMultipliers: parsed.partyTurnoutMultipliers || {},
+          provinceTurnoutMultipliers: parsed.provinceTurnoutMultipliers || {},
+          localPartyTurnoutMultipliers: loc.partyTurnoutMultipliers || {},
+          localProvinceTurnoutMultipliers: loc.provinceTurnoutMultipliers || {},
+          presCandidateTurnoutMultipliers: pres.candidateTurnoutMultipliers || {},
+          presProvinceTurnoutMultipliers: pres.provinceTurnoutMultipliers || {},
           presBaselineId: pres.baselineId || state.presBaselineId,
           presSwingMode: pres.swingMode || state.presSwingMode,
           presCandidates: pres.candidates || state.presCandidates,

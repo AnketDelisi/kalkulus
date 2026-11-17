@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { geoMercator, geoNaturalEarth1, geoPath } from 'd3-geo';
 import {
+  ChevronLeft,
   ChevronRight,
   CircleDot,
   Download,
@@ -12,6 +13,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from 'lucide-react';
+import { stepPlateCode } from '../utils/plateNavigation';
 import { ABROAD_COUNTRY_BY_ID } from '../data/abroadCountries';
 import {
   GeoCollection,
@@ -1280,13 +1282,43 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
           )}
 
           {zoomedProvinceId && (
-            <button
-              onClick={() => setZoomedProvinceId(null)}
-              className="ml-2 studio-btn px-2.5 py-1 text-micro"
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span>{lang === 'tr' ? 'Tüm Türkiye haritası' : 'All Turkey map'}</span>
-            </button>
+            <div className="ml-1 inline-flex items-center gap-1">
+              <div className="inline-flex border border-[#090A0F] bg-white">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const prev = stepPlateCode(zoomedProvinceId, -1);
+                    setZoomedProvinceId(prev);
+                    setActiveScope({ type: 'province', ilId: prev });
+                  }}
+                  className="px-1.5 py-1 hover:bg-[#090A0F] hover:text-white transition-colors flex items-center gap-0.5 text-micro font-mono font-bold"
+                  title={lang === 'tr' ? 'Önceki plaka (←)' : 'Previous plate (←)'}
+                >
+                  <ChevronLeft className="w-3 h-3" />
+                  <span>{stepPlateCode(zoomedProvinceId, -1)}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = stepPlateCode(zoomedProvinceId, 1);
+                    setZoomedProvinceId(next);
+                    setActiveScope({ type: 'province', ilId: next });
+                  }}
+                  className="px-1.5 py-1 border-l border-[#090A0F] hover:bg-[#090A0F] hover:text-white transition-colors flex items-center gap-0.5 text-micro font-mono font-bold"
+                  title={lang === 'tr' ? 'Sonraki plaka (→)' : 'Next plate (→)'}
+                >
+                  <span>{stepPlateCode(zoomedProvinceId, 1)}</span>
+                  <ChevronRight className="w-3 h-3" />
+                </button>
+              </div>
+              <button
+                onClick={() => setZoomedProvinceId(null)}
+                className="studio-btn px-2.5 py-1 text-micro"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>{lang === 'tr' ? 'Tüm Türkiye haritası' : 'All Turkey map'}</span>
+              </button>
+            </div>
           )}
         </div>
 
@@ -2070,14 +2102,18 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                   ))}
           </div>
         )}
-        <span className="text-micro text-slate-500 hidden sm:inline">
+        <span className="text-micro text-slate-500 hidden sm:inline font-mono">
           {mapLayer === 'abroad_world'
             ? lang === 'tr'
-              ? 'Tıkla: ülke seç ve düzenle'
-              : 'Click: select & edit country'
+              ? 'Tıkla: ülke seç ve düzenle · Esc: Ulusal'
+              : 'Click: select & edit country · Esc: National'
+            : zoomedProvinceId
+            ? lang === 'tr'
+              ? '← → Plaka · Esc Ulusal · Ctrl+K Ara · Ctrl+Z/Y'
+              : '← → Plate · Esc National · Ctrl+K Jump · Ctrl+Z/Y'
             : lang === 'tr'
-            ? 'Tıkla: seç ve düzenle · Çift tıkla: ilçe haritası'
-            : 'Click: select & edit · Double-click: district map'}
+            ? 'Tıkla: seç · Çift tıkla: ilçe · Ctrl+K Ara · Esc Ulusal'
+            : 'Click: select · Double-click: zoom · Ctrl+K Jump · Esc National'}
         </span>
       </div>
     </div>

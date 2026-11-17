@@ -16,7 +16,7 @@ import {
 } from '../types/election';
 import { allocateVotesLargestRemainder } from './abroad';
 import { applyLocalBuffsToShares, resolveMatchingBuffs } from './buffs';
-import { IlceOverride, ProvinceOverride, swingShareVector } from './swing';
+import { IlceOverride, ProvinceOverride, applyTurnoutMultipliers, swingShareVector } from './swing';
 
 export interface PresidentialEngineInput {
   baseline: BaselineDataset;
@@ -31,6 +31,8 @@ export interface PresidentialEngineInput {
   ilceOverrides: Record<string, IlceOverride>;
   abroadCountryOverrides?: Record<string, ProvinceOverride>;
   localBuffs?: LocalBuffRule[];
+  candidateTurnoutMultipliers?: Record<string, number>;
+  provinceTurnoutMultipliers?: Record<string, Record<string, number>>;
   transferMatrix: Record<string, PresidentialTransferSplit>;
   /** Round 2 finalist mobilization, geographic transfer tilt, and R2 abroad turnout */
   round2Dynamics?: PresidentialRound2Dynamics;
@@ -410,6 +412,21 @@ export function computePresidentialProjection(
           candidates.map((c) => c.id)
         );
       }
+    }
+
+    const provMults = input.provinceTurnoutMultipliers?.[ilce.ilId];
+    if (input.candidateTurnoutMultipliers || provMults) {
+      const mergedMults = provMults
+        ? { ...(input.candidateTurnoutMultipliers || {}), ...provMults }
+        : input.candidateTurnoutMultipliers;
+      const adjusted = applyTurnoutMultipliers(
+        shares,
+        turnout,
+        mergedMults,
+        candidates.map((c) => c.id)
+      );
+      shares = adjusted.shares;
+      turnout = adjusted.turnout;
     }
 
     const cast = Math.round(voters * (turnout / 100));

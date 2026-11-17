@@ -5,6 +5,7 @@ import { MapPanel } from './components/MapPanel';
 import { NationalResultsTable, ParliamentHemicycle } from './components/ParliamentHemicycle';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useElectionStore } from './store/useElectionStore';
+import { stepPlateCode } from './utils/plateNavigation';
 
 const AllianceAndRulesModal = lazy(() =>
   import('./components/AllianceAndRulesModal').then((m) => ({ default: m.AllianceAndRulesModal }))
@@ -108,10 +109,31 @@ export const App: React.FC = () => {
 
       if (isEditing) return;
 
+      if (e.key === '/') {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('kalkulus:open-jump-search'));
+        return;
+      }
+
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        const st = useElectionStore.getState();
+        if (st.zoomedProvinceId) {
+          e.preventDefault();
+          const delta: 1 | -1 = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : -1;
+          const nextIlId = stepPlateCode(st.zoomedProvinceId, delta);
+          st.setZoomedProvinceId(nextIlId);
+          st.setActiveScope({ type: 'province', ilId: nextIlId });
+        }
+        return;
+      }
+
       const mod = e.ctrlKey || e.metaKey;
       if (!mod) return;
       const key = e.key.toLowerCase();
-      if (key === 'z' && !e.shiftKey) {
+      if (key === 'k') {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('kalkulus:open-jump-search'));
+      } else if (key === 'z' && !e.shiftKey) {
         e.preventDefault();
         useElectionStore.getState().undo();
       } else if (key === 'y' || (key === 'z' && e.shiftKey)) {

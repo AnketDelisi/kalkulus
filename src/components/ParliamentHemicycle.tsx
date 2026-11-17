@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { OFFICIAL_2023_NATIONAL_SEATS } from '../data/official2023Seats';
+import React, { useEffect, useMemo, useState } from 'react';
+import { OFFICIAL_2023_NATIONAL_SEATS, OFFICIAL_2023_PROVINCE_SEATS } from '../data/official2023Seats';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
 import { getContrastTextColor } from '../utils/color';
@@ -255,16 +255,192 @@ export const ParliamentHemicycle: React.FC = () => {
 };
 
 export const NationalResultsTable: React.FC = () => {
-  const { lang, parties, projection, baselineProjection } = useElectionStore();
+  const { lang, parties, activeScope, projection, baselineProjection } = useElectionStore();
+  const [forceNational, setForceNational] = useState(false);
   const t = translations[lang];
-  const totalSeats = projection.totalSeatsAllocated || 600;
+
+  useEffect(() => {
+    setForceNational(false);
+  }, [activeScope]);
+
+  const effectiveType = forceNational ? 'national' : activeScope.type;
+  const partyById = useMemo(() => {
+    const m: Record<string, (typeof parties)[0]> = {};
+    for (const p of parties) m[p.id] = p;
+    return m;
+  }, [parties]);
+
+  const scopeView = useMemo(() => {
+    if (effectiveType === 'province' && activeScope.type === 'province') {
+      const pRes = projection.provinceResults[activeScope.ilId];
+      const basePRes = baselineProjection.provinceResults[activeScope.ilId];
+      if (pRes) {
+        const totalMps = pRes.mpCount || 1;
+        const flipCallouts = pRes.districtIds
+          .map((dId) => projection.districtResults[dId])
+          .filter((d) => d && d.votesToFlipLastSeat > 0 && d.lastSeatWinnerPartyId && d.closestChallengerPartyId)
+          .map((d) => ({
+            districtName: d.name,
+            winnerShort: partyById[d.lastSeatWinnerPartyId]?.shortName ?? d.lastSeatWinnerPartyId,
+            challengerShort: partyById[d.closestChallengerPartyId]?.shortName ?? d.closestChallengerPartyId,
+            votesToFlip: d.votesToFlipLastSeat,
+          }));
+        return {
+          isScoped: true,
+          title: `${pRes.plateCode} · ${pRes.name} (${pRes.mpCount} MV)`,
+          shares: pRes.partyShares,
+          votes: pRes.partyVotes,
+          seats: pRes.partySeats,
+          baseSeats: OFFICIAL_2023_PROVINCE_SEATS[pRes.id] ?? basePRes?.partySeats ?? {},
+          totalSeats: totalMps,
+          hasSeats: true,
+          turnout: pRes.turnout,
+          validVotes: pRes.totalValidVotes,
+          flipCallouts,
+        };
+      }
+    }
+
+    if (effectiveType === 'district' && activeScope.type === 'district') {
+      const dRes = projection.districtResults[activeScope.districtId];
+      const baseDRes = baselineProjection.districtResults[activeScope.districtId];
+      if (dRes) {
+        const flipCallouts =
+          dRes.votesToFlipLastSeat > 0 && dRes.lastSeatWinnerPartyId && dRes.closestChallengerPartyId
+            ? [
+                {
+                  districtName: dRes.name,
+                  winnerShort: partyById[dRes.lastSeatWinnerPartyId]?.shortName ?? dRes.lastSeatWinnerPartyId,
+                  challengerShort: partyById[dRes.closestChallengerPartyId]?.shortName ?? dRes.closestChallengerPartyId,
+                  votesToFlip: dRes.votesToFlipLastSeat,
+                },
+              ]
+            : [];
+        return {
+          isScoped: true,
+          title: `${dRes.name} (${dRes.mpCount} MV)`,
+          shares: dRes.partyShares,
+          votes: dRes.totalPartyVotes,
+          seats: dRes.partySeats,
+          baseSeats: baseDRes?.partySeats ?? {},
+          totalSeats: dRes.mpCount || 1,
+          hasSeats: true,
+          turnout: dRes.turnout,
+          validVotes: dRes.totalValidVotes,
+          flipCallouts,
+        };
+      }
+    }
+
+    if (effectiveType === 'ilce' && activeScope.type === 'ilce') {
+      const iRes = projection.ilceResults[activeScope.ilceId];
+      if (iRes) {
+        return {
+          isScoped: true,
+          title: `${iRes.name}`,
+          shares: iRes.partyShares,
+          votes: iRes.partyVotes,
+          seats: {} as Record<string, number>,
+          baseSeats: {} as Record<string, number>,
+          totalSeats: 1,
+          hasSeats: false,
+          turnout: iRes.turnout,
+          validVotes: iRes.validVotes,
+          flipCallouts: [],
+        };
+      }
+    }
+
+    if (effectiveType === 'abroad') {
+      return {
+        isScoped: true,
+        title: lang === 'tr' ? 'Yurt Dışı & Gümrükler' : 'Abroad & Customs',
+        shares: projection.abroadPartyShares,
+        votes: projection.abroadPartyVotes,
+        seats: {} as Record<string, number>,
+        baseSeats: {} as Record<string, number>,
+        totalSeats: 1,
+        hasSeats: false,
+        turnout: null as number | null,
+        validVotes: projection.abroadValidVotes,
+        flipCallouts: [],
+      };
+    }
+
+    if (effectiveType === 'abroadCountry' && activeScope.type === 'abroadCountry') {
+      const cRes = projection.abroadCountryResults[activeScope.countryId];
+      if (cRes) {
+        return {
+          isScoped: true,
+          title: lang === 'tr' ? cRes.fullNameTr : cRes.nameEn,
+          shares: cRes.partyShares,
+          votes: cRes.partyVotes,
+          seats: {} as Record<string, number>,
+          baseSeats: {} as Record<string, number>,
+          totalSeats: 1,
+          hasSeats: false,
+          turnout: cRes.turnout,
+          validVotes: cRes.validVotes,
+          flipCallouts: [],
+        };
+      }
+    }
+
+    return {
+      isScoped: false,
+      title: lang === 'tr' ? 'Ulusal oy dağılımı ve milletvekili tablosu' : 'National vote share and seat table',
+      shares: projection.nationalPartyShares,
+      votes: projection.nationalPartyVotes,
+      seats: projection.partyTotalSeats,
+      baseSeats: OFFICIAL_2023_NATIONAL_SEATS,
+      totalSeats: projection.totalSeatsAllocated || 600,
+      hasSeats: true,
+      turnout: projection.totalTurnout,
+      validVotes: projection.totalValidVotes,
+      flipCallouts: [],
+    };
+  }, [effectiveType, activeScope, projection, baselineProjection, lang, partyById]);
 
   return (
     <div className="studio-panel p-5 flex flex-col gap-4">
-      <div className="border-b-[1.5px] border-[#090A0F] pb-3">
-        <h2 className="text-heading font-bold text-[#090A0F]">
-          {lang === 'tr' ? 'Ulusal oy dağılımı ve milletvekili tablosu' : 'National vote share and seat table'}
-        </h2>
+      <div className="border-b-[1.5px] border-[#090A0F] pb-3 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="text-heading font-bold text-[#090A0F]">{scopeView.title}</h2>
+          <p className="text-micro font-mono text-slate-500 tabular-nums">
+            {lang === 'tr' ? 'Geçerli oy:' : 'Valid votes:'}{' '}
+            <strong className="text-[#090A0F]">{formatInt(scopeView.validVotes, lang)}</strong>
+            {scopeView.turnout !== null && (
+              <>
+                {' · '}
+                {lang === 'tr' ? 'Katılım:' : 'Turnout:'}{' '}
+                <strong className="text-[#090A0F]">{formatPct(scopeView.turnout, lang, 1)}</strong>
+              </>
+            )}
+          </p>
+        </div>
+
+        {activeScope.type !== 'national' && (
+          <div className="inline-flex border border-[#090A0F] text-micro font-bold bg-white">
+            <button
+              type="button"
+              onClick={() => setForceNational(false)}
+              className={`px-2.5 py-1 transition-colors ${
+                !forceNational ? 'bg-[#090A0F] text-white' : 'text-[#090A0F] hover:bg-slate-100'
+              }`}
+            >
+              {lang === 'tr' ? 'Seçili Birim' : 'Selected Unit'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setForceNational(true)}
+              className={`px-2.5 py-1 border-l border-[#090A0F] transition-colors ${
+                forceNational ? 'bg-[#090A0F] text-white' : 'text-[#090A0F] hover:bg-slate-100'
+              }`}
+            >
+              {lang === 'tr' ? 'Ulusal' : 'National'}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="overflow-x-auto">
@@ -274,17 +450,21 @@ export const NationalResultsTable: React.FC = () => {
               <th className="py-2.5 px-2 text-left">{t.partyCol}</th>
               <th className="py-2.5 px-2 text-right">{t.voteShareCol}</th>
               <th className="py-2.5 px-2 text-right">{t.votesCol}</th>
-              <th className="py-2.5 px-2 text-right">{t.seatsCol}</th>
-              <th className="py-2.5 px-2 text-right">{lang === 'tr' ? 'Meclis %' : 'Seat %'}</th>
-              <th className="py-2.5 px-2 text-right">±2023</th>
+              {scopeView.hasSeats && (
+                <>
+                  <th className="py-2.5 px-2 text-right">{t.seatsCol}</th>
+                  <th className="py-2.5 px-2 text-right">{lang === 'tr' ? 'Meclis %' : 'Seat %'}</th>
+                  <th className="py-2.5 px-2 text-right">±2023</th>
+                </>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-[#090A0F]/15">
             {parties.map((p) => {
-              const share = projection.nationalPartyShares[p.id] || 0;
-              const votes = projection.nationalPartyVotes[p.id] || 0;
-              const seats = projection.partyTotalSeats[p.id] || 0;
-              const baseSeats = OFFICIAL_2023_NATIONAL_SEATS[p.id] ?? baselineProjection.partyTotalSeats[p.id] ?? 0;
+              const share = scopeView.shares[p.id] || 0;
+              const votes = scopeView.votes[p.id] || 0;
+              const seats = scopeView.seats[p.id] || 0;
+              const baseSeats = scopeView.baseSeats[p.id] ?? baselineProjection.partyTotalSeats[p.id] ?? 0;
               const seatDiff = seats - baseSeats;
 
               return (
@@ -324,27 +504,48 @@ export const NationalResultsTable: React.FC = () => {
                   <td className="py-2.5 px-2 text-right text-slate-600">
                     {formatInt(votes, lang)}
                   </td>
-                  <td className="py-2.5 px-2 text-right font-bold text-[#090A0F] text-title">
-                    {seats}
-                  </td>
-                  <td className="py-2.5 px-2 text-right text-slate-500">
-                    {formatPct((seats / totalSeats) * 100, lang, 1)}
-                  </td>
-                  <td className="py-2.5 px-2 text-right font-bold">
-                    {seatDiff > 0 ? (
-                      <span className="text-emerald-700">+{seatDiff}</span>
-                    ) : seatDiff < 0 ? (
-                      <span className="text-rose-700">{seatDiff}</span>
-                    ) : (
-                      <span className="text-slate-400">0</span>
-                    )}
-                  </td>
+                  {scopeView.hasSeats && (
+                    <>
+                      <td className="py-2.5 px-2 text-right font-bold text-[#090A0F] text-title">
+                        {seats}
+                      </td>
+                      <td className="py-2.5 px-2 text-right text-slate-500">
+                        {formatPct((seats / scopeView.totalSeats) * 100, lang, 1)}
+                      </td>
+                      <td className="py-2.5 px-2 text-right font-bold">
+                        {seatDiff > 0 ? (
+                          <span className="text-emerald-700">+{seatDiff}</span>
+                        ) : seatDiff < 0 ? (
+                          <span className="text-rose-700">{seatDiff}</span>
+                        ) : (
+                          <span className="text-slate-400">0</span>
+                        )}
+                      </td>
+                    </>
+                  )}
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
+
+      {scopeView.flipCallouts.length > 0 && (
+        <div className="border-t border-slate-200 pt-2.5 flex flex-wrap gap-2">
+          {scopeView.flipCallouts.map((fc) => (
+            <div
+              key={fc.districtName}
+              className="text-micro font-mono bg-amber-50 border border-amber-300 px-2.5 py-1 text-[#090A0F]"
+            >
+              <span className="font-bold">{fc.districtName}:</span>{' '}
+              {lang === 'tr' ? 'Son sandalye' : 'Last seat'}{' '}
+              <strong>{fc.winnerShort}</strong> → <strong>{fc.challengerShort}</strong>:{' '}
+              <span className="font-bold text-amber-800">+{formatInt(fc.votesToFlip, lang)}</span>{' '}
+              {lang === 'tr' ? 'oy' : 'votes'}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

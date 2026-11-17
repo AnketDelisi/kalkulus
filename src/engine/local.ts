@@ -38,6 +38,9 @@ export interface LocalEngineInput {
   localDefections?: LocalDefectionConfig;
   /** Custom per-province or per-ilçe additive strength buffs (+pp / -pp) */
   localBuffs?: LocalBuffRule[];
+  /** Differential voter mobilization multiplier per party (0.5..1.5, default 1.0) */
+  partyTurnoutMultipliers?: Record<string, number>;
+  provinceTurnoutMultipliers?: Record<string, Record<string, number>>;
 }
 
 function applyProvincePointShift(
@@ -128,6 +131,8 @@ export function computeLocalProjection(input: LocalEngineInput): ComputedLocalPr
     localBuffs: (input.localBuffs || [])
       .filter((b) => b.mode === 'local')
       .map((b) => ({ ...b, mode: 'parliamentary' as const })),
+    partyTurnoutMultipliers: input.partyTurnoutMultipliers,
+    provinceTurnoutMultipliers: input.provinceTurnoutMultipliers,
     jointListRules: [],
   });
 

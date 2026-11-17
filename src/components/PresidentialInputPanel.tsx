@@ -21,6 +21,7 @@ import { BaselineId, SwingMode } from '../types/election';
 import { formatInt, formatPct } from '../utils/format';
 import { LocationSearchCombobox } from './LocationSearchCombobox';
 import { PollQuickEntryModal } from './PollQuickEntryModal';
+import { TurnoutMobilizationDrawer } from './TurnoutMobilizationDrawer';
 import { UnitBuffDrawer } from './UnitBuffDrawer';
 
 export const PresidentialInputPanel: React.FC = () => {
@@ -38,6 +39,8 @@ export const PresidentialInputPanel: React.FC = () => {
     presIlceOverrides,
     presAbroadCountryOverrides,
     presidentialProjection,
+    presCandidateTurnoutMultipliers,
+    presProvinceTurnoutMultipliers,
     activeScope,
     setActiveScope,
     setMapLayer,
@@ -62,6 +65,10 @@ export const PresidentialInputPanel: React.FC = () => {
     unlockPresIlce,
     updatePresAbroadCountryShare,
     unlockPresAbroadCountry,
+    setPresCandidateTurnoutMultiplier,
+    resetPresCandidateTurnoutMultipliers,
+    setPresProvinceTurnoutMultiplier,
+    resetPresProvinceTurnoutMultipliers,
   } = useElectionStore();
 
   const [showVoterDetails, setShowVoterDetails] = useState(false);
@@ -650,6 +657,46 @@ export const PresidentialInputPanel: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {(() => {
+        const scopedIlId =
+          activeScope.type === 'province'
+            ? activeScope.ilId
+            : activeScope.type === 'ilce'
+            ? presidentialProjection.round1.ilceResults[activeScope.ilceId]?.ilId
+            : undefined;
+        const scopedProvName = scopedIlId
+          ? presidentialProjection.round1.provinceResults[scopedIlId]?.name ?? scopedIlId
+          : null;
+        const activeMults = scopedIlId
+          ? presProvinceTurnoutMultipliers[scopedIlId] ?? {}
+          : presCandidateTurnoutMultipliers;
+
+        return (
+          <TurnoutMobilizationDrawer
+            lang={lang}
+            titleTr="Aday bazlı katılım (1. Tur Mobilizasyon)"
+            titleEn="Candidate base turnout (R1 Mobilization)"
+            scopeLabel={scopedProvName}
+            items={presCandidates.map((c) => ({
+              id: c.id,
+              shortName: c.shortName,
+              label: c.name,
+              color: c.color,
+            }))}
+            multipliers={activeMults}
+            fallbackMultipliers={scopedIlId ? presCandidateTurnoutMultipliers : undefined}
+            onChange={(id, factor) => {
+              if (scopedIlId) setPresProvinceTurnoutMultiplier(scopedIlId, id, factor);
+              else setPresCandidateTurnoutMultiplier(id, factor);
+            }}
+            onReset={() => {
+              if (scopedIlId) resetPresProvinceTurnoutMultipliers(scopedIlId);
+              else resetPresCandidateTurnoutMultipliers();
+            }}
+          />
+        );
+      })()}
 
       <PollQuickEntryModal
         isOpen={pollModalOpen}

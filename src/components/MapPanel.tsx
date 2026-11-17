@@ -26,6 +26,12 @@ import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
 import { MapColorMode, MapLayerMode } from '../types/election';
 import {
+  getBattlegroundMarginColor,
+  getDivergingSwingColor,
+  getPartyHeatmapColor,
+  interpolateHex,
+} from '../utils/color';
+import {
   SEAT_OFFSETS_81,
   SEAT_OFFSETS_87,
   computeSeatClusterLayout,
@@ -55,6 +61,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     alliances,
     mapLayer,
     mapColorMode,
+    mapFocusEntityId,
     zoomedProvinceId,
     activeScope,
     provinceOverrides,
@@ -75,6 +82,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     localProjection,
     setMapLayer,
     setMapColorMode,
+    setMapFocusEntityId,
     setZoomedProvinceId,
     setActiveScope,
     setPresRoundView,
@@ -206,27 +214,55 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
       ? presidentialProjection.round2
       : presidentialProjection.round1;
 
+  const focusEntityList = useMemo(
+    () =>
+      electionMode === 'presidential'
+        ? presCandidates
+            .filter((c) => !c.isOther)
+            .map((c) => ({ id: c.id, shortName: c.shortName, color: c.color }))
+        : parties
+            .filter((p) => !p.isOther)
+            .map((p) => ({ id: p.id, shortName: p.shortName, color: p.color })),
+    [electionMode, presCandidates, parties]
+  );
+
+  const focusColorById = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const e of focusEntityList) map[e.id] = e.color;
+    return map;
+  }, [focusEntityList]);
+
+  const effectiveFocusId = useMemo(() => {
+    if (mapFocusEntityId && focusColorById[mapFocusEntityId]) return mapFocusEntityId;
+    return focusEntityList[0]?.id ?? '';
+  }, [mapFocusEntityId, focusColorById, focusEntityList]);
+
   const getCustomEntityFill = (
     colorHex: string,
     marginPct: number,
     turnout: number,
-    isFlipped?: boolean
+    isFlipped?: boolean,
+    extra?: { shares?: Record<string, number>; runnerUpColor?: string }
   ): string => {
     if (mapColorMode === 'flips') {
       return isFlipped ? blendHexWithWhite(colorHex, 0.96) : '#e2e8f0';
     }
+    if (mapColorMode === 'runner_up') {
+      return extra?.runnerUpColor ? blendHexWithWhite(extra.runnerUpColor, 0.88) : '#CBD5E1';
+    }
     if (mapColorMode === 'margin') {
-      const intensity = Math.min(0.98, Math.max(0.24, marginPct / 28));
-      return blendHexWithWhite(colorHex, intensity);
+      return getBattlegroundMarginColor(marginPct);
+    }
+    if (mapColorMode === 'party_share' && effectiveFocusId && extra?.shares) {
+      return getPartyHeatmapColor(
+        focusColorById[effectiveFocusId] || '#090A0F',
+        extra.shares[effectiveFocusId] ?? 0
+      );
     }
     if (mapColorMode === 'turnout') {
-      if (turnout >= 90) return '#090a0f';
-      if (turnout >= 87) return '#334155';
-      if (turnout >= 84) return '#64748b';
-      if (turnout >= 80) return '#94a3b8';
-      return '#cbd5e1';
+      return interpolateHex('#CBD5E1', '#090A0F', Math.max(0, Math.min(1, (turnout - 72) / 18)));
     }
-    const intensity = Math.min(0.95, Math.max(0.55, 0.52 + marginPct / 45));
+    const intensity = Math.min(0.95, Math.max(0.58, 0.55 + marginPct / 42));
     return blendHexWithWhite(colorHex, intensity);
   };
 
@@ -301,8 +337,22 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     const baseHex = leader?.color || '#64748b';
 
     if (mapColorMode === 'leader') {
-      const intensity = Math.min(0.95, Math.max(0.55, 0.52 + marginPct / 45));
+      const intensity = Math.min(0.95, Math.max(0.58, 0.55 + marginPct / 42));
       return blendHexWithWhite(baseHex, intensity);
+    }
+    if (mapColorMode === 'runner_up') {
+      let runnerUpId = '';
+      let bestShare = -1;
+      for (const p of parties) {
+        if (p.id === leadingPartyId || p.isOther) continue;
+        const val = partyShares[p.id] ?? 0;
+        if (val > bestShare) {
+          bestShare = val;
+          runnerUpId = p.id;
+        }
+      }
+      const rHex = partyMap[runnerUpId]?.color || '#CBD5E1';
+      return blendHexWithWhite(rHex, 0.88);
     }
     if (mapColorMode === 'alliance') {
       const aHex =
@@ -312,17 +362,22 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
       return blendHexWithWhite(aHex, 0.88);
     }
     if (mapColorMode === 'margin') {
-      const intensity = Math.min(0.98, Math.max(0.24, marginPct / 28));
-      return blendHexWithWhite(baseHex, intensity);
+      return getBattlegroundMarginColor(marginPct);
+    }
+    if (mapColorMode === 'party_share' && effectiveFocusId) {
+      return getPartyHeatmapColor(
+        focusColorById[effectiveFocusId] || '#090A0F',
+        partyShares[effectiveFocusId] ?? 0
+      );
     }
     if (mapColorMode === 'turnout') {
-      if (turnout >= 90) return '#090a0f';
-      if (turnout >= 87) return '#334155';
-      if (turnout >= 84) return '#64748b';
-      if (turnout >= 80) return '#94a3b8';
-      return '#cbd5e1';
+      return interpolateHex('#CBD5E1', '#090A0F', Math.max(0, Math.min(1, (turnout - 72) / 18)));
     }
-    // Swing mode
+    // Swing mode: specific party diverging or max positive swing
+    if (mapFocusEntityId && partyMap[mapFocusEntityId]) {
+      const delta = (partyShares[mapFocusEntityId] || 0) - (basePartyShares[mapFocusEntityId] || 0);
+      return getDivergingSwingColor(delta);
+    }
     let maxSwing = -999;
     let bestSwingPartyId = leadingPartyId;
     for (const p of parties) {
@@ -333,7 +388,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
         bestSwingPartyId = p.id;
       }
     }
-    if (Math.abs(maxSwing) < 0.15) return '#e2e8f0';
+    if (Math.abs(maxSwing) < 0.15) return '#F1F5F9';
     const swHex = partyMap[bestSwingPartyId]?.color || '#64748b';
     const swAlpha = Math.min(0.96, Math.max(0.4, Math.abs(maxSwing) / 10));
     return blendHexWithWhite(swHex, swAlpha);
@@ -389,7 +444,10 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
       const isLocked = Boolean(presIlceOverrides[ilceId]?.isLocked);
       return {
         name: u.name,
-        fill: getCustomEntityFill(leaderColor, u.marginPct, u.turnout),
+        fill: getCustomEntityFill(leaderColor, u.marginPct, u.turnout, undefined, {
+          shares: u.candidateShares,
+          runnerUpColor: focusColorById[u.runnerUpCandidateId],
+        }),
         isLocked,
         telemetry: {
           id: ilceId,
@@ -448,7 +506,11 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
           winP?.color || '#64748b',
           l.marginPct,
           l.turnout,
-          l.flippedFrom2024
+          l.flippedFrom2024,
+          {
+            shares: l.partyShares,
+            runnerUpColor: partyMap[l.runnerUpPartyId]?.color,
+          }
         ),
         isLocked,
         telemetry: {
@@ -664,7 +726,10 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
       const topEntries = barEntries.slice(0, 6);
       const isLocked = Boolean(presProvinceOverrides[ilId]?.isLocked);
       return {
-        fill: getCustomEntityFill(leaderColor, u.marginPct, u.turnout),
+        fill: getCustomEntityFill(leaderColor, u.marginPct, u.turnout, undefined, {
+          shares: u.candidateShares,
+          runnerUpColor: focusColorById[u.runnerUpCandidateId],
+        }),
         isLocked,
         telemetry: {
           id: ilId,
@@ -734,7 +799,11 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
           winP?.color || '#64748b',
           p.marginPct,
           p.turnout,
-          p.flippedFrom2024
+          p.flippedFrom2024,
+          {
+            shares: p.partyShares,
+            runnerUpColor: partyMap[p.runnerUpPartyId]?.color,
+          }
         ),
         isLocked,
         telemetry: {
@@ -881,7 +950,10 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
       const topEntries = barEntries.slice(0, 6);
       const isLocked = Boolean(presAbroadCountryOverrides[countryId]?.isLocked);
       return {
-        fill: getCustomEntityFill(leaderColor, u.marginPct, u.turnout),
+        fill: getCustomEntityFill(leaderColor, u.marginPct, u.turnout, undefined, {
+          shares: u.candidateShares,
+          runnerUpColor: focusColorById[u.runnerUpCandidateId],
+        }),
         isLocked,
         telemetry: {
           id: countryId,
@@ -1301,6 +1373,15 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                   : 'Leading candidate'
                 : t.colorLeader}
             </option>
+            <option value="runner_up">
+              {electionMode === 'presidential'
+                ? lang === 'tr'
+                  ? 'İkinci aday'
+                  : 'Runner-up candidate'
+                : lang === 'tr'
+                ? 'İkinci parti'
+                : 'Runner-up party'}
+            </option>
             {electionMode === 'parliamentary' && <option value="alliance">{t.colorAlliance}</option>}
             {electionMode === 'local' && (
               <option value="flips">
@@ -1313,10 +1394,39 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                   : 'Flipped from 2024'}
               </option>
             )}
-            <option value="margin">{t.colorMargin}</option>
+            <option value="margin">{lang === 'tr' ? 'Başa baş / Fark' : 'Battleground margin'}</option>
+            <option value="party_share">
+              {electionMode === 'presidential'
+                ? lang === 'tr'
+                  ? 'Aday yoğunluğu'
+                  : 'Candidate heatmap'
+                : lang === 'tr'
+                ? 'Parti yoğunluğu'
+                : 'Party heatmap'}
+            </option>
+            {electionMode === 'parliamentary' && (
+              <option value="swing">{lang === 'tr' ? 'Salınım (±pp)' : 'Swing (±pp)'}</option>
+            )}
             <option value="turnout">{t.colorTurnout}</option>
-            {electionMode === 'parliamentary' && <option value="swing">{t.colorSwing}</option>}
           </select>
+
+          {(mapColorMode === 'party_share' || (mapColorMode === 'swing' && electionMode === 'parliamentary')) && (
+            <select
+              value={mapColorMode === 'party_share' ? effectiveFocusId : mapFocusEntityId || ''}
+              onChange={(e) => setMapFocusEntityId(e.target.value || null)}
+              className="studio-input border-[#090A0F] px-2 py-1 text-micro font-bold text-[#090A0F] cursor-pointer"
+              title={lang === 'tr' ? 'Haritada odaklanılacak parti/aday' : 'Focus party/candidate'}
+            >
+              {mapColorMode === 'swing' && (
+                <option value="">{lang === 'tr' ? 'En büyük artış' : 'Top positive swing'}</option>
+              )}
+              {focusEntityList.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.shortName}
+                </option>
+              ))}
+            </select>
+          )}
 
           {electionMode === 'parliamentary' &&
             !zoomedProvinceId &&
@@ -1868,31 +1978,98 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
 
       {/* Sharp Monochrome Signal Legend Bar */}
       <div className="px-3 sm:px-4 py-2.5 bg-white border-t-[1.5px] border-[#090A0F] flex flex-wrap items-center justify-between gap-2 text-body">
-        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-          {electionMode === 'presidential'
-            ? presCandidates
-                .filter((c) => !c.isOther)
-                .map((c) => (
-                  <div key={c.id} className="flex items-center gap-1.5">
-                    <span
-                      className="w-3 h-3 border border-[#090A0F]"
-                      style={{ backgroundColor: c.color }}
-                    />
-                    <span className="font-bold text-[#090A0F] text-micro">{c.shortName}</span>
-                  </div>
-                ))
-            : parties
-                .filter((p) => !p.isOther)
-                .map((p) => (
-                  <div key={p.id} className="flex items-center gap-1.5">
-                    <span
-                      className="w-3 h-3 border border-[#090A0F]"
-                      style={{ backgroundColor: p.color }}
-                    />
-                    <span className="font-bold text-[#090A0F] text-micro">{p.shortName}</span>
-                  </div>
-                ))}
-        </div>
+        {mapColorMode === 'margin' ? (
+          <div className="flex flex-wrap items-center gap-3 text-micro font-mono">
+            <span className="font-bold text-[#090A0F] uppercase">
+              {lang === 'tr' ? 'Fark Ölçeği:' : 'Margin Scale:'}
+            </span>
+            {[
+              ['#DC2626', '<%2 Başa baş'],
+              ['#F59E0B', '%2–5 Kritik'],
+              ['#FDE047', '%5–10 Eğilimli'],
+              ['#64748B', '%10–20 Güçlü'],
+              ['#1E293B', '>%20 Kale'],
+            ].map(([c, lbl]) => (
+              <span key={lbl} className="inline-flex items-center gap-1.5">
+                <span className="w-3 h-3 border border-[#090A0F]" style={{ backgroundColor: c }} />
+                <span className="font-semibold text-[#090A0F]">{lbl}</span>
+              </span>
+            ))}
+          </div>
+        ) : mapColorMode === 'party_share' && effectiveFocusId ? (
+          <div className="flex flex-wrap items-center gap-2.5 text-micro font-mono">
+            <span className="font-bold text-[#090A0F]">
+              {focusEntityList.find((e) => e.id === effectiveFocusId)?.shortName || effectiveFocusId}:
+            </span>
+            <span className="text-slate-500">%0</span>
+            <div
+              className="w-32 h-3 border border-[#090A0F]"
+              style={{
+                background: `linear-gradient(90deg, #F1F5F9 0%, ${
+                  focusColorById[effectiveFocusId] || '#090A0F'
+                } 100%)`,
+              }}
+            />
+            <span className="text-slate-800 font-bold">%45+</span>
+          </div>
+        ) : mapColorMode === 'swing' && mapFocusEntityId ? (
+          <div className="flex flex-wrap items-center gap-2.5 text-micro font-mono">
+            <span className="font-bold text-[#090A0F]">
+              {focusEntityList.find((e) => e.id === mapFocusEntityId)?.shortName || mapFocusEntityId}:
+            </span>
+            <span className="text-rose-700 font-bold">-10pp</span>
+            <div
+              className="w-36 h-3 border border-[#090A0F]"
+              style={{
+                background: 'linear-gradient(90deg, #DC2626 0%, #F1F5F9 50%, #059669 100%)',
+              }}
+            />
+            <span className="text-emerald-700 font-bold">+10pp</span>
+          </div>
+        ) : mapColorMode === 'turnout' ? (
+          <div className="flex flex-wrap items-center gap-2.5 text-micro font-mono">
+            <span className="font-bold text-[#090A0F]">
+              {lang === 'tr' ? 'Katılım:' : 'Turnout:'}
+            </span>
+            <span className="text-slate-500">%72</span>
+            <div
+              className="w-32 h-3 border border-[#090A0F]"
+              style={{ background: 'linear-gradient(90deg, #CBD5E1 0%, #090A0F 100%)' }}
+            />
+            <span className="text-[#090A0F] font-bold">%90+</span>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            {mapColorMode === 'runner_up' && (
+              <span className="text-micro font-bold uppercase tracking-wider text-slate-500 mr-1">
+                {lang === 'tr' ? '2. Parti/Aday:' : 'Runner-up:'}
+              </span>
+            )}
+            {electionMode === 'presidential'
+              ? presCandidates
+                  .filter((c) => !c.isOther)
+                  .map((c) => (
+                    <div key={c.id} className="flex items-center gap-1.5">
+                      <span
+                        className="w-3 h-3 border border-[#090A0F]"
+                        style={{ backgroundColor: c.color }}
+                      />
+                      <span className="font-bold text-[#090A0F] text-micro">{c.shortName}</span>
+                    </div>
+                  ))
+              : parties
+                  .filter((p) => !p.isOther)
+                  .map((p) => (
+                    <div key={p.id} className="flex items-center gap-1.5">
+                      <span
+                        className="w-3 h-3 border border-[#090A0F]"
+                        style={{ backgroundColor: p.color }}
+                      />
+                      <span className="font-bold text-[#090A0F] text-micro">{p.shortName}</span>
+                    </div>
+                  ))}
+          </div>
+        )}
         <span className="text-micro text-slate-500 hidden sm:inline">
           {mapLayer === 'abroad_world'
             ? lang === 'tr'

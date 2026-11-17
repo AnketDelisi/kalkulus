@@ -1,4 +1,8 @@
-export type InfographicTemplate = 'wiki_sheet' | 'social_card' | 'province_spotlight';
+export type InfographicTemplate =
+  | 'wiki_sheet'
+  | 'social_card'
+  | 'province_spotlight'
+  | 'top_cards';
 export type InfographicTheme = 'wiki_light' | 'kalkulus_dark';
 export type InfographicAspect = '16:10' | '16:9' | '4:5' | '1:1';
 export type InfographicGrouping = 'party' | 'alliance';
@@ -38,6 +42,8 @@ export interface InfographicRow {
   fullName: string;
   color: string;
   logoUrl?: string;
+  allianceId?: string | null;
+  allianceName?: string;
   votes: number;
   share: number;
   primaryStat?: number; // MPs (parl), Provinces won (pres), Total provinces won (local)

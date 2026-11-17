@@ -182,6 +182,7 @@ export const PresidentialProvinceRacesTable: React.FC<PresidentialProvinceRacesT
                           setZoomedProvinceId(p.id);
                           setActiveScope({ type: 'province', ilId: p.id });
                           onSelectAndGoToMap?.();
+                          window.dispatchEvent(new CustomEvent('kalkulus:focus-map'));
                         }}
                         className="p-1 border border-slate-300 hover:border-[#090A0F]"
                         title={lang === 'tr' ? 'Haritada aç' : 'Open on map'}
@@ -260,6 +261,7 @@ export const PresidentialProvinceRacesTable: React.FC<PresidentialProvinceRacesT
                       if (i.ilId) setZoomedProvinceId(i.ilId);
                       setActiveScope({ type: 'ilce', ilceId: i.id });
                       onSelectAndGoToMap?.();
+                      window.dispatchEvent(new CustomEvent('kalkulus:focus-map'));
                     }}
                   >
                     <td className="py-2 px-4 font-medium">{i.name}</td>

@@ -95,6 +95,7 @@ export const InputEditorPanel: React.FC = () => {
   } = useElectionStore();
 
   const [showVoterDetails, setShowVoterDetails] = useState(false);
+  const [showMinorParties, setShowMinorParties] = useState(false);
   const [pollModalOpen, setPollModalOpen] = useState(false);
 
   const isLocal = electionMode === 'local';
@@ -741,8 +742,8 @@ export const InputEditorPanel: React.FC = () => {
       </div>
 
       {/* Sharp Single-Row Party Signal Sliders */}
-      <div className="divide-y divide-slate-200 border-t border-b border-slate-200">
-        {parties.map((party) => {
+      {(() => {
+        const renderPartyRow = (party: (typeof parties)[number]) => {
           const val = Number((scopeData.shares[party.id] ?? 0).toFixed(2));
           const baseVal = Number((scopeData.baseShares[party.id] ?? 0).toFixed(2));
           const delta = val - baseVal;
@@ -842,8 +843,75 @@ export const InputEditorPanel: React.FC = () => {
               )}
             </div>
           );
-        })}
-      </div>
+        };
+
+        const majorParties = parties.filter(
+          (p) => !p.isOther && (scopeData.shares[p.id] ?? 0) >= 1.0
+        );
+        const minorParties = parties.filter(
+          (p) => !p.isOther && (scopeData.shares[p.id] ?? 0) < 1.0
+        );
+        const otherParties = parties.filter((p) => p.isOther);
+        const minorSum = minorParties.reduce(
+          (acc, p) => acc + (scopeData.shares[p.id] ?? 0),
+          0
+        );
+
+        return (
+          <div className="divide-y divide-slate-200 border-t border-b border-slate-200">
+            {majorParties.map(renderPartyRow)}
+
+            {minorParties.length > 0 && (
+              <div className="bg-slate-50/70">
+                <button
+                  type="button"
+                  onClick={() => setShowMinorParties((prev) => !prev)}
+                  className="w-full py-2 px-1.5 flex items-center justify-between gap-2 text-left hover:bg-slate-100 transition-colors"
+                >
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    {showMinorParties ? (
+                      <ChevronUp className="w-3.5 h-3.5 text-[#090A0F] shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-3.5 h-3.5 text-[#090A0F] shrink-0" />
+                    )}
+                    <span className="text-micro font-bold uppercase tracking-wider text-[#090A0F]">
+                      {lang === 'tr'
+                        ? `Küçük Partiler (<%1) · ${minorParties.length}`
+                        : `Minor Parties (<1%) · ${minorParties.length}`}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                    {!showMinorParties &&
+                      minorParties.map((p) => (
+                        <span
+                          key={p.id}
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-mono font-bold bg-white border border-slate-300 text-[#090A0F]"
+                        >
+                          <span
+                            className="w-1.5 h-1.5 rounded-full shrink-0"
+                            style={{ backgroundColor: p.color }}
+                          />
+                          {p.shortName} {(scopeData.shares[p.id] ?? 0).toFixed(1)}
+                        </span>
+                      ))}
+                    <span className="text-micro font-mono font-bold text-slate-600">
+                      %{minorSum.toFixed(2)}
+                    </span>
+                  </div>
+                </button>
+
+                {showMinorParties && (
+                  <div className="divide-y divide-slate-200 border-t border-slate-200 bg-white">
+                    {minorParties.map(renderPartyRow)}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {otherParties.map(renderPartyRow)}
+          </div>
+        );
+      })()}
 
       {/* Expandable Turnout & Registered Voters Section */}
       <div className="pt-1">

@@ -12,6 +12,9 @@ export const OFFICIAL_2023_NATIONAL_SEATS: Record<string, number> = {
   "SAADET": 0,
   "A": 0,
   "YENI": 0,
+  "HUDAPAR": 0,
+  "DEVA": 0,
+  "DP": 0,
   "OTHER": 0
 };
 

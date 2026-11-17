@@ -11,14 +11,14 @@ export const DEFAULT_PRESIDENTIAL_CANDIDATES: PresidentialCandidateConfig[] = [
     name: 'Ekrem İmamoğlu',
     shortName: 'İMAMOĞLU',
     color: '#ED1C24',
-    backingPartyIds: ['YENI', 'DEM', 'TIP'],
+    backingPartyIds: ['YENI', 'DEM', 'TIP', 'DEVA', 'DP'],
   },
   {
     id: 'erdogan',
     name: 'Recep Tayyip Erdoğan',
     shortName: 'ERDOĞAN',
     color: '#F59300',
-    backingPartyIds: ['AKP', 'MHP', 'BBP'],
+    backingPartyIds: ['AKP', 'MHP', 'BBP', 'HUDAPAR'],
   },
   {
     id: 'dervisoglu',
@@ -31,7 +31,7 @@ export const DEFAULT_PRESIDENTIAL_CANDIDATES: PresidentialCandidateConfig[] = [
     id: 'erbakan',
     name: 'Fatih Erbakan',
     shortName: 'ERBAKAN',
-    color: '#2E8B57',
+    color: '#10B981',
     backingPartyIds: ['YRP', 'SAADET'],
   },
   {
@@ -45,7 +45,7 @@ export const DEFAULT_PRESIDENTIAL_CANDIDATES: PresidentialCandidateConfig[] = [
     id: 'kilicdaroglu',
     name: 'Kemal Kılıçdaroğlu',
     shortName: 'KILIÇDAROĞLU',
-    color: '#F08080',
+    color: '#F25F5C',
     backingPartyIds: ['CHP'],
   },
   {

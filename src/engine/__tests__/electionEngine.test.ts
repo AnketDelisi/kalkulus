@@ -241,12 +241,13 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     });
 
     expect(res.totalSeatsAllocated).toBe(600);
-    expect(res.partyTotalSeats['AKP']).toBe(307);
-    expect(res.partyTotalSeats['CHP']).toBe(252);
+    expect(res.partyTotalSeats['AKP']).toBe(303);
+    expect(res.partyTotalSeats['CHP']).toBe(250);
     expect(res.partyTotalSeats['YRP'] || 0).toBe(0); // YRP is at 6.99% under 7% threshold without alliance
     expect(res.partyTotalSeats['MHP']).toBe(38);
     expect(res.partyTotalSeats['IYI'] || 0).toBe(0); // IYI is at 4.61% below 7% threshold without alliance
     expect(res.partyTotalSeats['BBP']).toBe(3); // In Cumhur alliance
+    expect(res.partyTotalSeats['HUDAPAR']).toBe(6); // In Cumhur alliance (2024 real ilçe data)
     expect(res.partyTotalSeats['DEM'] || 0).toBe(0); // DEM is at 5.81% below 7% threshold
 
     // When threshold is lowered to 5%, DEM passes and wins seats
@@ -266,7 +267,7 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
       provinceOverrides: {},
       jointListRules: [],
     });
-    expect(resLowerBaraj.partyTotalSeats['DEM']).toBe(46);
+    expect(resLowerBaraj.partyTotalSeats['DEM']).toBe(45);
     expect(resLowerBaraj.partyTotalSeats['YRP']).toBe(34);
     expect(resLowerBaraj.totalSeatsAllocated).toBe(600);
   });
@@ -559,7 +560,7 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
       jointListRules: [],
     });
 
-    for (const pid of ['A', 'YENI', 'SAADET']) {
+    for (const pid of ['A', 'YENI', 'SAADET', 'HUDAPAR', 'DEVA', 'DP']) {
       expect(baseProj.nationalPartyVotes[pid]).toBe(0);
       expect(baseProj.partyTotalSeats[pid]).toBe(0);
     }
@@ -567,13 +568,16 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     for (const swingMode of ['proportional', 'uniform'] as const) {
       const targetShares = {
         ...baseline2023.nationalBaseShares,
-        AKP: Math.max(0, baseline2023.nationalBaseShares['AKP'] - 3),
-        CHP: Math.max(0, baseline2023.nationalBaseShares['CHP'] - 5),
+        AKP: Math.max(0, baseline2023.nationalBaseShares['AKP'] - 4),
+        CHP: Math.max(0, baseline2023.nationalBaseShares['CHP'] - 6),
         IYI: Math.max(0, baseline2023.nationalBaseShares['IYI'] - 4),
         YRP: Math.max(0, baseline2023.nationalBaseShares['YRP'] - 1),
         YENI: 5,
         A: 6,
         SAADET: 2,
+        HUDAPAR: 0.8,
+        DEVA: 0.7,
+        DP: 0.5,
       };
 
       const proj = runMultiLayerProjection({
@@ -614,6 +618,9 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
       expect(proj.abroadPartyVotes['YENI']).toBeGreaterThan(0);
       expect(proj.abroadPartyVotes['A']).toBeGreaterThan(0);
       expect(proj.abroadPartyVotes['SAADET']).toBeGreaterThan(0);
+      expect(proj.abroadPartyVotes['HUDAPAR']).toBeGreaterThan(0);
+      expect(proj.abroadPartyVotes['DEVA']).toBeGreaterThan(0);
+      expect(proj.abroadPartyVotes['DP']).toBeGreaterThan(0);
       expect(proj.totalSeatsAllocated).toBe(600);
     }
   });
@@ -737,5 +744,26 @@ describe('Kalkülüs Electoral Calculation Engine', () => {
     expect(sultanbeyli.partyShares.CHP).toBeLessThan(15);
     expect(sultanbeyli.partyShares.AKP).toBeGreaterThan(40);
     expect(kadikoy.partyShares.AKP).toBeLessThan(20);
+  });
+
+  it('caps extreme minor-party 2024 local outliers in blended_90_10 while preserving 2024_local', () => {
+    const store = useElectionStore.getState();
+    store.resetAllToBaseline();
+    const state = useElectionStore.getState();
+
+    // In blended_90_10 (default parliamentary), Kumluca DP (0.3% nat) and Saruhanli SAADET (1.02% nat)
+    // should be realistically bounded instead of exploding to 30-40%
+    const kumlucaGen = state.projection.ilceResults['07-kumluca'];
+    const saruhanliGen = state.projection.ilceResults['45-saruhanli'];
+    expect(kumlucaGen.partyShares.DP).toBeLessThan(3);
+    expect(saruhanliGen.partyShares.SAADET).toBeLessThan(8);
+
+    // HUDAPAR is exempt from dampening so its genuine regional strongholds remain uncapped
+    const batmanMerkez = state.projection.ilceResults['72-merkez'];
+    expect(batmanMerkez.partyShares.HUDAPAR).toBeGreaterThan(5);
+
+    // In 2024_local, raw 2024 council strongholds (e.g. Saruhanli SAADET 31.3%) remain preserved
+    const saruhanliLoc = state.localProjection.ilceResults['45-saruhanli'];
+    expect(saruhanliLoc.partyShares.SAADET).toBeGreaterThan(20);
   });
 });

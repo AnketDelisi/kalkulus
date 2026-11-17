@@ -292,10 +292,11 @@ export const InfographicStudio: React.FC = () => {
           <label className="block text-micro font-bold uppercase tracking-wider text-slate-600 mb-1.5">
             {lang === 'tr' ? 'Şablon Düzeni' : 'Template Layout'}
           </label>
-          <div className="grid grid-cols-3 border-[1.5px] border-[#090A0F] text-micro font-bold">
+          <div className="grid grid-cols-2 border-[1.5px] border-[#090A0F] text-micro font-bold">
             {(
               [
                 ['wiki_sheet', lang === 'tr' ? 'Tam Sayfa' : 'Full Sheet'],
+                ['top_cards', lang === 'tr' ? 'Üst Kartlar' : 'Top Cards'],
                 ['social_card', lang === 'tr' ? 'Sosyal Kart' : 'Social Card'],
                 ['province_spotlight', lang === 'tr' ? 'İl Sonucu' : 'Province'],
               ] as [InfographicTemplate, string][]
@@ -304,8 +305,8 @@ export const InfographicStudio: React.FC = () => {
                 key={tId}
                 onClick={() => handleSelectTemplate(tId)}
                 className={`py-2 px-1.5 text-center transition-colors ${
-                  idx > 0 ? 'border-l border-[#090A0F]' : ''
-                } ${
+                  idx % 2 === 1 ? 'border-l border-[#090A0F]' : ''
+                } ${idx >= 2 ? 'border-t border-[#090A0F]' : ''} ${
                   config.template === tId
                     ? 'bg-[#090A0F] text-white'
                     : 'bg-white text-[#090A0F] hover:bg-slate-100'

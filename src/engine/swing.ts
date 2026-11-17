@@ -124,7 +124,8 @@ export function swingShareVector(
   parentBaseShares: Record<string, number>,
   parentTargetShares: Record<string, number>,
   swingMode: SwingMode,
-  parties: PartyConfig[]
+  parties: PartyConfig[],
+  maxMinorOutlierMultiplier?: number
 ): Record<string, number> {
   const raw: Record<string, number> = {};
 
@@ -150,9 +151,13 @@ export function swingShareVector(
     }
 
     if (swingMode === 'proportional') {
-      if (pBase > 0.1) {
+      if (pBase > 0.01) {
         // Proportional scaling where party has an existing baseline
-        raw[p.id] = Math.max(0, uBase * (pTarget / pBase));
+        let projected = uBase * (pTarget / pBase);
+        if (maxMinorOutlierMultiplier && p.id !== 'HUDAPAR' && pBase < 1.0 && pTarget > 0) {
+          projected = Math.min(projected, pTarget * maxMinorOutlierMultiplier);
+        }
+        raw[p.id] = Math.max(0, projected);
       } else {
         // Fallback to additive swing for brand-new / custom parties with 0% baseline
         raw[p.id] = Math.max(0, uBase + delta);
@@ -352,6 +357,8 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
   const domesticPartyVotes: Record<string, number> = {};
   for (const p of parties) domesticPartyVotes[p.id] = 0;
 
+  const minorOutlierCap = baseline.id === 'blended_90_10' ? 7.0 : undefined;
+
   for (const ilce of baseline.ilceler) {
     const ilceBaseShares = ilceBaseSharesById[ilce.id] || ilce.partyShares;
     const ilceOvr = ilceOverrides[ilce.id];
@@ -390,7 +397,8 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
         dBase ? dBase.shares : baseline.nationalBaseShares,
         targetDistShares,
         swingMode,
-        parties
+        parties,
+        minorOutlierCap
       );
     } else if (provOvr && provOvr.isLocked) {
       // Layer 2b Lock: Parent Province (İl) locked by user -> swing unlocked child ilçeler
@@ -411,7 +419,8 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
         pBase ? pBase.shares : baseline.nationalBaseShares,
         targetProvShares,
         swingMode,
-        parties
+        parties,
+        minorOutlierCap
       );
     } else {
       // Layer 1 (Unlocked): Swing from National Baseline to National Target
@@ -420,7 +429,8 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
         baseline.nationalBaseShares,
         normalizedNationalTarget,
         swingMode,
-        parties
+        parties,
+        minorOutlierCap
       );
     }
 

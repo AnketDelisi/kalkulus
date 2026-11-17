@@ -129,6 +129,7 @@ interface ElectionStoreState {
   // Map & UI selection state
   mapLayer: MapLayerMode;
   mapColorMode: MapColorMode;
+  mapFocusEntityId: string | null;
   zoomedProvinceId: string | null;
   activeScope: ActiveEditorScope;
 
@@ -154,6 +155,7 @@ interface ElectionStoreState {
   setThresholdPct: (pct: number) => void;
   setMapLayer: (layer: MapLayerMode) => void;
   setMapColorMode: (mode: MapColorMode) => void;
+  setMapFocusEntityId: (entityId: string | null) => void;
   setZoomedProvinceId: (ilId: string | null) => void;
   setActiveScope: (scope: ActiveEditorScope) => void;
 
@@ -202,6 +204,7 @@ interface ElectionStoreState {
     proxyWeights?: Record<string, number>
   ) => void;
   updatePartyConfig: (partyId: string, partial: Partial<PartyConfig>) => void;
+  resetPartyColors: () => void;
   addAlliance: (name: string, shortName: string, color: string) => void;
   addJointListRule: (rule: Omit<JointListRule, 'id'>) => void;
   updateJointListRule: (id: string, partial: Partial<JointListRule>) => void;
@@ -331,7 +334,7 @@ function recompute(state: {
 }
 
 const DEFAULT_TARGET_SHARES: Record<string, number> = {
-  AKP: 28.68,
+  AKP: 28.28,
   CHP: 2.96,
   MHP: 7.25,
   IYI: 4.96,
@@ -340,10 +343,13 @@ const DEFAULT_TARGET_SHARES: Record<string, number> = {
   ZP: 2.51,
   TIP: 1.62,
   A: 4.04,
-  YENI: 32.61,
+  YENI: 32.11,
   SAADET: 1.02,
   BBP: 1.03,
-  OTHER: 0.82,
+  HUDAPAR: 0.30,
+  DEVA: 0.40,
+  DP: 0.30,
+  OTHER: 0.72,
 };
 
 function recomputePresidential(state: {
@@ -642,6 +648,7 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
 
   mapLayer: '87_district',
   mapColorMode: 'leader',
+  mapFocusEntityId: null,
   zoomedProvinceId: null,
   activeScope: { type: 'national' },
 
@@ -860,6 +867,7 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
 
   setMapLayer: (mapLayer) => set({ mapLayer }),
   setMapColorMode: (mapColorMode) => set({ mapColorMode }),
+  setMapFocusEntityId: (mapFocusEntityId) => set({ mapFocusEntityId }),
   setZoomedProvinceId: (zoomedProvinceId) => set({ zoomedProvinceId }),
   setActiveScope: (activeScope) => set({ activeScope }),
 
@@ -1405,6 +1413,22 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
       const parties = state.parties.map((p) => (p.id === partyId ? { ...p, ...partial } : p));
       const next = { ...state, parties };
       return { parties, projection: recompute(next) };
+    }),
+
+  resetPartyColors: () =>
+    commit((state) => {
+      const defaultColorById: Record<string, string> = {};
+      for (const p of DEFAULT_PARTIES) defaultColorById[p.id] = p.color;
+      const parties = state.parties.map((p) =>
+        defaultColorById[p.id] ? { ...p, color: defaultColorById[p.id] } : p
+      );
+      const next = { ...state, parties };
+      return {
+        parties,
+        projection: recompute(next),
+        presidentialProjection: recomputePresidential(next),
+        localProjection: recomputeLocal(next),
+      };
     }),
 
   addAlliance: (name, shortName, color) =>

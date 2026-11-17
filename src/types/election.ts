@@ -6,7 +6,15 @@ export type PresidentialRoundView = 'round1' | 'round2';
 export type SwingMode = 'proportional' | 'uniform';
 export type DHondtMode = '2022_separate' | '2018_alliance';
 export type MapLayerMode = '81_il' | '87_district' | '973_ilce' | 'abroad_world';
-export type MapColorMode = 'leader' | 'alliance' | 'margin' | 'turnout' | 'swing' | 'flips';
+export type MapColorMode =
+  | 'leader'
+  | 'runner_up'
+  | 'alliance'
+  | 'margin'
+  | 'party_share'
+  | 'swing'
+  | 'turnout'
+  | 'flips';
 export type Language = 'tr' | 'en';
 
 export interface PartyConfig {

@@ -285,10 +285,10 @@ describe('Hemicycle Geometry, Seat Circles, Hover Clamping & Infographic Data', 
   it('matches presidential candidate colors to parties and ensures accessible pill text contrast', () => {
     const partyColorById = Object.fromEntries(DEFAULT_PARTIES.map((p) => [p.id, p.color]));
     expect(partyColorById.A).toBe('#3B4CCA');
-    expect(partyColorById.ZP).toBe('#6D4C3D');
-    expect(partyColorById.CHP).toBe('#F08080');
-    expect(partyColorById.BBP).toBe('#78716C');
-    expect(partyColorById.TIP).toBe('#9F1239');
+    expect(partyColorById.ZP).toBe('#5B6472');
+    expect(partyColorById.CHP).toBe('#F25F5C');
+    expect(partyColorById.BBP).toBe('#854D27');
+    expect(partyColorById.TIP).toBe('#BE123C');
     expect(partyColorById.AKP).toBe('#F59300');
     expect(partyColorById.IYI).toBe('#0EA5E9');
 

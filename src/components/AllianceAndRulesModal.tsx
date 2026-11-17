@@ -3,6 +3,7 @@ import {
   GitMerge,
   Landmark,
   Plus,
+  RotateCcw,
   Shield,
   Trash2,
   Users,
@@ -42,6 +43,7 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
     setThresholdPct,
     addCustomParty,
     updatePartyConfig,
+    resetPartyColors,
     addAlliance,
     addJointListRule,
     updateJointListRule,
@@ -205,9 +207,20 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Party Alliance Assignment & Colors */}
               <div className="bg-[#F4F5F7] border-[1.5px] border-[#090A0F] p-4 space-y-3">
-                <h3 className="text-title font-bold text-[#090A0F]">
-                  {lang === 'tr' ? 'Parti ittifak atamaları ve renkler' : 'Party alliances & colors'}
-                </h3>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-title font-bold text-[#090A0F]">
+                    {lang === 'tr' ? 'Parti ittifak atamaları ve renkler' : 'Party alliances & colors'}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={resetPartyColors}
+                    className="inline-flex items-center gap-1 px-2 py-1 text-micro font-semibold border border-[#090A0F] bg-white hover:bg-[#090A0F] hover:text-white transition-colors"
+                    title={lang === 'tr' ? 'Varsayılan parti renklerine sıfırla' : 'Reset to default party colors'}
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>{lang === 'tr' ? 'Varsayılan Renkler' : 'Reset Colors'}</span>
+                  </button>
+                </div>
                 <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                   {parties
                     .filter((p) => !p.isOther)

@@ -6,7 +6,7 @@ import {
   getKalkulusLogoDataUri,
 } from '../../data/partyLogoCache';
 import { Language } from '../../types/election';
-import { getContrastTextColor } from '../../utils/color';
+import { getContrastTextColor, getDynamicPartyBoxTheme } from '../../utils/color';
 import { formatInt, formatPct } from '../../utils/format';
 import { computeHemicycleSeats } from '../../utils/hemicycleGeometry';
 import {
@@ -133,7 +133,8 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
   const isDark = config.theme === 'kalkulus_dark';
   const isVertical = config.aspect === '4:5' || config.aspect === '1:1';
   const isSpotlight = config.template === 'province_spotlight';
-  const isDualMap = !isSpotlight && config.mapLayer === 'dual_il_ilce';
+  const isTopCards = config.template === 'top_cards';
+  const isDualMap = !isSpotlight && !isTopCards && config.mapLayer === 'dual_il_ilce';
 
   const palette = isDark
     ? {
@@ -187,14 +188,28 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
   const headerTop = 22;
   const headerBottom = 100;
   const footerTop = config.showWatermark ? height - 34 : height - 16;
-  const bodyTop = headerBottom + 14;
+  const bodyTop = isTopCards ? 22 : headerBottom + 14;
   const bodyBottom = footerTop - 10;
   const bodyH = bodyBottom - bodyTop;
+
+  const topCardsBox = {
+    x: padX,
+    y: bodyTop,
+    w: width - padX * 2,
+    h: isVertical ? 228 : 216,
+  };
 
   let mapBox = { x: padX, y: bodyTop, w: 820, h: bodyH };
   let rightColBox = { x: padX + 844, y: bodyTop, w: width - padX * 2 - 844, h: bodyH };
 
-  if (isVertical) {
+  if (isTopCards) {
+    mapBox = {
+      x: padX - 12,
+      y: bodyTop + topCardsBox.h + 8,
+      w: width - (padX - 12) * 2,
+      h: Math.max(240, bodyH - topCardsBox.h - 8),
+    };
+  } else if (isVertical) {
     const mapH = Math.round(bodyH * (isDualMap ? 0.39 : 0.41));
     if (config.showMap && (config.showVisualSummary || config.showTable)) {
       mapBox = { x: padX, y: bodyTop, w: width - padX * 2, h: mapH };
@@ -215,12 +230,19 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
     mapBox = { x: padX, y: bodyTop, w: width - padX * 2, h: bodyH };
   }
 
-  const mapInnerBox = {
-    x: mapBox.x + 12,
-    y: mapBox.y + 34,
-    w: mapBox.w - 24,
-    h: Math.max(140, mapBox.h - 44),
-  };
+  const mapInnerBox = isTopCards
+    ? {
+        x: mapBox.x + 4,
+        y: mapBox.y + 4,
+        w: mapBox.w - 8,
+        h: Math.max(160, mapBox.h - 8),
+      }
+    : {
+        x: mapBox.x + 12,
+        y: mapBox.y + 34,
+        w: mapBox.w - 24,
+        h: Math.max(140, mapBox.h - 44),
+      };
 
   // Sub-pane boxes for Dual İl + İlçe mode vs Single Map mode
   const dualTopBox = isVertical
@@ -525,7 +547,7 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
       <rect x={0} y={0} width={width} height={height} fill={palette.bg} />
 
       {/* Top Coalition / Result Ribbon */}
-      {(() => {
+      {!isTopCards && (() => {
         let curX = 0;
         return topStripRows.map((row) => {
           const segW = (row.share / 100) * width;
@@ -536,6 +558,7 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
       })()}
 
       {/* Clean Minimal Editorial Header */}
+      {!isTopCards && (
       <g>
         <text
           x={padX}
@@ -593,28 +616,242 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
           strokeWidth={1.5}
         />
       </g>
+      )}
+
+      {/* Top Party Boxes Band (Üst Kartlar Mode) */}
+      {isTopCards && (() => {
+        const cardRows = displayRows
+          .filter((r) => r.id !== 'OTHER' && (r.share >= config.minVoteCutoffPct || (r.primaryStat ?? 0) > 0))
+          .sort((a, b) => b.share - a.share)
+          .slice(0, 12);
+
+        const showAllianceHeaders = data.mode === 'parliamentary';
+
+        let orderedRows = cardRows;
+        if (showAllianceHeaders) {
+          const allianceOrder: string[] = [];
+          const byAlliance: Record<string, typeof cardRows> = {};
+          for (const r of cardRows) {
+            const key = r.allianceId || `__INDEP__${r.id}`;
+            if (!byAlliance[key]) {
+              byAlliance[key] = [];
+              allianceOrder.push(key);
+            }
+            byAlliance[key].push(r);
+          }
+          // Order groups by total vote share descending (independent parties ordered individually by share)
+          allianceOrder.sort((a, b) => {
+            const aShare = byAlliance[a].reduce((s, r) => s + r.share, 0);
+            const bShare = byAlliance[b].reduce((s, r) => s + r.share, 0);
+            return bShare - aShare;
+          });
+          orderedRows = allianceOrder.flatMap((k) =>
+            [...byAlliance[k]].sort((a, b) => b.share - a.share)
+          );
+        }
+
+        const turnoutW = isVertical ? 104 : 120;
+        const turnoutGap = 16;
+        const gap = orderedRows.length > 8 ? 9 : 13;
+        const availW = topCardsBox.w - turnoutW - turnoutGap - 16;
+        const n = Math.max(1, orderedRows.length);
+        const cardW = Math.min(86, Math.max(58, Math.floor((availW - gap * (n - 1)) / n)));
+        const boxH = Math.round(cardW * 1.28);
+        const totalBoxesW = n * cardW + (n - 1) * gap;
+        const startX = topCardsBox.x + Math.max(turnoutW + turnoutGap, (topCardsBox.w - totalBoxesW) / 2);
+        const headerOffset = showAllianceHeaders ? 24 : 2;
+        const boxY = topCardsBox.y + 4 + headerOffset;
+        const statY = boxY + boxH + 34;
+        const pctY = boxY + boxH + 58;
+
+        const allianceSpans: { label: string; startIdx: number; endIdx: number }[] = [];
+        if (showAllianceHeaders) {
+          let curKey: string | null = null;
+          let curLabel = '';
+          let sIdx = 0;
+          orderedRows.forEach((r, idx) => {
+            const key = r.allianceId || null;
+            const lbl = r.allianceName ? r.allianceName.toUpperCase() : '';
+            if (key !== curKey) {
+              if (curKey !== null) {
+                allianceSpans.push({ label: curLabel, startIdx: sIdx, endIdx: idx - 1 });
+              }
+              curKey = key;
+              curLabel = lbl;
+              sIdx = idx;
+            }
+          });
+          if (curKey !== null) {
+            allianceSpans.push({ label: curLabel, startIdx: sIdx, endIdx: orderedRows.length - 1 });
+          }
+        }
+
+        return (
+          <g>
+            {/* Turnout Block — baseline-aligned with Seat Count & Vote % right next to first party */}
+            <g>
+              <text
+                x={startX - turnoutGap}
+                y={statY}
+                textAnchor="end"
+                fill={palette.ink}
+                fontSize={cardW < 72 ? 20 : 25}
+                fontWeight={800}
+                letterSpacing={-0.3}
+              >
+                {lang === 'tr' ? 'Katılım' : 'Turnout'}
+              </text>
+              <text
+                x={startX - turnoutGap}
+                y={pctY}
+                textAnchor="end"
+                fill={palette.ink}
+                fontSize={cardW < 72 ? 14 : 17}
+                fontWeight={700}
+              >
+                {formatPct(displayTurnout, lang, 2)}
+              </text>
+            </g>
+
+            {/* Alliance Header Lines */}
+            {allianceSpans.map((sp, sIdx) => {
+              const x1 = startX + sp.startIdx * (cardW + gap);
+              const x2 = startX + sp.endIdx * (cardW + gap) + cardW;
+              const midX = (x1 + x2) / 2;
+              return (
+                <g key={`${sp.label}-${sIdx}`}>
+                  <text
+                    x={midX}
+                    y={topCardsBox.y + 14}
+                    textAnchor="middle"
+                    fill={palette.ink}
+                    fontSize={11}
+                    fontWeight={700}
+                    letterSpacing={0.5}
+                  >
+                    {truncateText(sp.label, Math.max(10, Math.floor((x2 - x1) / 6.5)))}
+                  </text>
+                  <line
+                    x1={x1}
+                    y1={topCardsBox.y + 21}
+                    x2={x2}
+                    y2={topCardsBox.y + 21}
+                    stroke={palette.border}
+                    strokeWidth={1.5}
+                  />
+                </g>
+              );
+            })}
+
+            {/* Square Dynamic Party Tiles */}
+            {orderedRows.map((row, idx) => {
+              const x = startX + idx * (cardW + gap);
+              const boxTheme = getDynamicPartyBoxTheme(row.id, row.color);
+              const logoUri = config.showPartyLogos
+                ? getColoredPartyLogoDataUri(row.logoUrl, boxTheme.fg)
+                : null;
+              const logoSize = Math.round(cardW * 0.8);
+              const statVal =
+                row.primaryStat !== undefined ? String(row.primaryStat) : formatPct(row.share, lang, 1);
+
+              return (
+                <g key={row.id}>
+                  <rect
+                    x={x}
+                    y={boxY}
+                    width={cardW}
+                    height={boxH}
+                    rx={0}
+                    fill={boxTheme.bg}
+                    stroke={boxTheme.border}
+                    strokeWidth={1.5}
+                  />
+                  {logoUri ? (
+                    <image
+                      href={logoUri}
+                      x={x + (cardW - logoSize) / 2}
+                      y={boxY + Math.round(boxH * 0.05)}
+                      width={logoSize}
+                      height={logoSize}
+                      preserveAspectRatio="xMidYMid meet"
+                    />
+                  ) : (
+                    <circle
+                      cx={x + cardW / 2}
+                      cy={boxY + Math.round(boxH * 0.36)}
+                      r={logoSize * 0.36}
+                      fill={boxTheme.fg}
+                      opacity={0.92}
+                    />
+                  )}
+                  <text
+                    x={x + cardW / 2}
+                    y={boxY + boxH - 9}
+                    textAnchor="middle"
+                    fill={boxTheme.fg}
+                    fontSize={cardW < 78 ? 16 : 21}
+                    fontWeight={800}
+                    letterSpacing={0.2}
+                  >
+                    {truncateText(row.shortName, 8)}
+                  </text>
+
+                  {/* Big Bold Primary Stat (Seats / Provinces Won) */}
+                  <text
+                    x={x + cardW / 2}
+                    y={statY}
+                    textAnchor="middle"
+                    fill={palette.ink}
+                    fontSize={cardW < 78 ? 24 : 31}
+                    fontWeight={800}
+                    letterSpacing={-0.5}
+                  >
+                    {statVal}
+                  </text>
+
+                  {/* Bold Vote Share % */}
+                  <text
+                    x={x + cardW / 2}
+                    y={pctY}
+                    textAnchor="middle"
+                    fill={palette.ink}
+                    fontSize={cardW < 78 ? 13 : 16}
+                    fontWeight={700}
+                  >
+                    {formatPct(row.share, lang, 2)}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        );
+      })()}
 
       {/* Choropleth Map Block */}
       {config.showMap && (
         <g>
-          <rect
-            x={mapBox.x}
-            y={mapBox.y}
-            width={mapBox.w}
-            height={mapBox.h}
-            fill={palette.mapBg}
-            stroke={palette.border}
-            strokeWidth={1.5}
-          />
-          <text
-            x={mapBox.x + 16}
-            y={mapBox.y + 24}
-            fontSize={13}
-            fontWeight={700}
-            fill={palette.ink}
-          >
-            {lang === 'tr' ? 'Harita' : 'Map'}
-          </text>
+          {!isTopCards && (
+            <>
+              <rect
+                x={mapBox.x}
+                y={mapBox.y}
+                width={mapBox.w}
+                height={mapBox.h}
+                fill={palette.mapBg}
+                stroke={palette.border}
+                strokeWidth={1.5}
+              />
+              <text
+                x={mapBox.x + 16}
+                y={mapBox.y + 24}
+                fontSize={13}
+                fontWeight={700}
+                fill={palette.ink}
+              >
+                {lang === 'tr' ? 'Harita' : 'Map'}
+              </text>
+            </>
+          )}
 
           {/* Dual Pane Minimal Corner Labels */}
           {isDualMap && (
@@ -783,7 +1020,7 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
       )}
 
       {/* Right Visual Summary Block */}
-      {config.showVisualSummary && (
+      {!isTopCards && config.showVisualSummary && (
         <g>
           <rect
             x={visualBox.x}
@@ -1049,7 +1286,7 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
       )}
 
       {/* Results Table Box (Turkey or Selected İl Full Breakdown) */}
-      {config.showTable && (
+      {!isTopCards && config.showTable && (
         <g>
           <rect
             x={tableBox.x}

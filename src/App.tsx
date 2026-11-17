@@ -70,6 +70,64 @@ export const App: React.FC = () => {
   const [scenarioModalOpen, setScenarioModalOpen] = useState(false);
 
   useEffect(() => {
+    const onFocusMap = () => {
+      setActiveTab('studio');
+      setMobileStudioView('map');
+      requestAnimationFrame(() => {
+        const el = document.getElementById('studio-map-panel');
+        el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    };
+    window.addEventListener('kalkulus:focus-map', onFocusMap);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase();
+      const isEditing =
+        tag === 'input' ||
+        tag === 'textarea' ||
+        tag === 'select' ||
+        Boolean(target?.isContentEditable);
+
+      if (e.key === 'Escape') {
+        if (rulesModalOpen) {
+          setRulesModalOpen(false);
+          return;
+        }
+        if (scenarioModalOpen) {
+          setScenarioModalOpen(false);
+          return;
+        }
+        if (!isEditing) {
+          const st = useElectionStore.getState();
+          st.setActiveScope({ type: 'national' });
+          st.setZoomedProvinceId(null);
+        }
+        return;
+      }
+
+      if (isEditing) return;
+
+      const mod = e.ctrlKey || e.metaKey;
+      if (!mod) return;
+      const key = e.key.toLowerCase();
+      if (key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        useElectionStore.getState().undo();
+      } else if (key === 'y' || (key === 'z' && e.shiftKey)) {
+        e.preventDefault();
+        useElectionStore.getState().redo();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('kalkulus:focus-map', onFocusMap);
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [rulesModalOpen, scenarioModalOpen]);
+
+  useEffect(() => {
     document.documentElement.lang = lang;
     const modeTitle =
       lang === 'tr'
@@ -193,7 +251,7 @@ export const App: React.FC = () => {
                         mobileStudioView === 'inputs' ? 'hidden lg:flex' : 'flex'
                       }`}
                     >
-                      <div className={mobileStudioView === 'map' ? 'block' : 'hidden lg:block'}>
+                      <div id="studio-map-panel" className={mobileStudioView === 'map' ? 'block' : 'hidden lg:block'}>
                         <MapPanel onEditUnitMobile={() => setMobileStudioView('inputs')} />
                       </div>
                       <div className={mobileStudioView === 'summary' ? 'block' : 'hidden lg:block'}>

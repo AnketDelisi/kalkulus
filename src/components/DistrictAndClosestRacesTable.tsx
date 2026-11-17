@@ -181,7 +181,9 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
                     key={d.id}
                     onClick={() => {
                       setActiveScope({ type: 'district', districtId: d.id });
+                      setZoomedProvinceId(d.ilId);
                       onSelectAndGoToMap?.();
+                      window.dispatchEvent(new CustomEvent('kalkulus:focus-map'));
                     }}
                     className="hover:bg-[#F4F5F7] cursor-pointer transition-colors"
                   >
@@ -266,7 +268,9 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
                     key={d.id}
                     onClick={() => {
                       setActiveScope({ type: 'district', districtId: d.id });
+                      setZoomedProvinceId(d.ilId);
                       onSelectAndGoToMap?.();
+                      window.dispatchEvent(new CustomEvent('kalkulus:focus-map'));
                     }}
                     className="hover:bg-[#F4F5F7] cursor-pointer"
                   >
@@ -351,6 +355,7 @@ export const DistrictAndClosestRacesTable: React.FC<DistrictAndClosestRacesTable
                       setActiveScope({ type: 'ilce', ilceId: i.id });
                       setZoomedProvinceId(i.ilId);
                       onSelectAndGoToMap?.();
+                      window.dispatchEvent(new CustomEvent('kalkulus:focus-map'));
                     }}
                     className="hover:bg-[#F4F5F7] cursor-pointer"
                   >

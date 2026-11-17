@@ -424,7 +424,7 @@ export function buildInfographicDataModel(input: BuildInfographicInput): Infogra
 
   // Parliamentary Mode
   const rows: InfographicRow[] = [];
-  if (config.grouping === 'alliance') {
+  if (config.grouping === 'alliance' && config.template !== 'top_cards') {
     const grouped: Record<string, InfographicRow> = {};
     let otherVotes = 0;
     let otherShare = 0;
@@ -506,12 +506,15 @@ export function buildInfographicDataModel(input: BuildInfographicInput): Infogra
         OFFICIAL_2023_NATIONAL_SEATS[p.id] ?? baselineProjection.partyTotalSeats[p.id] ?? 0;
 
       if (!p.isOther && (share >= config.minVoteCutoffPct || seats > 0)) {
+        const alliance = p.allianceId ? allianceById[p.allianceId] : undefined;
         rows.push({
           id: p.id,
           shortName: p.shortName,
           fullName: p.fullName,
           color: p.color,
           logoUrl: p.logoUrl,
+          allianceId: alliance?.id ?? null,
+          allianceName: alliance?.name,
           votes,
           share,
           primaryStat: seats,

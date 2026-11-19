@@ -92,20 +92,20 @@ describe('Continuous Baseline Data Integrity Suite', () => {
         expect(distMap.has(ilce.districtId), `${name} ilce ${ilce.id} references valid districtId ${ilce.districtId}`).toBe(true);
       }
 
-      // Check multi-district provinces strictly match latest prDistricts allocations from 600
-      // Ankara: 06-1 (13), 06-2 (11), 06-3 (13) = 37
+      const is2018Apportionment = name.includes('2018') || name.includes('2019');
+      // Ankara: 2018/2019 = 36 (13+11+12), 2023/2024 = 37 (13+11+13)
       const ankaraMps = ['06-1', '06-2', '06-3'].reduce((s, id) => s + (distMap.get(id)?.mpCount || 0), 0);
-      expect(ankaraMps).toBe(37);
+      expect(ankaraMps).toBe(is2018Apportionment ? 36 : 37);
 
-      // Bursa: 16-1 (11), 16-2 (10) = 21
+      // Bursa: 2018/2019 = 20 (10+10), 2023/2024 = 21 (11+10)
       const bursaMps = ['16-1', '16-2'].reduce((s, id) => s + (distMap.get(id)?.mpCount || 0), 0);
-      expect(bursaMps).toBe(21);
+      expect(bursaMps).toBe(is2018Apportionment ? 20 : 21);
 
-      // Istanbul: 34-1 (35), 34-2 (25), 34-3 (36) = 96
+      // Istanbul: 2018/2019 = 98 (35+28+35), 2023/2024 = 96 (35+25+36)
       const istanbulMps = ['34-1', '34-2', '34-3'].reduce((s, id) => s + (distMap.get(id)?.mpCount || 0), 0);
-      expect(istanbulMps).toBe(96);
+      expect(istanbulMps).toBe(is2018Apportionment ? 98 : 96);
 
-      // Izmir: 35-1 (14), 35-2 (14) = 28
+      // Izmir: 14 + 14 = 28
       const izmirMps = ['35-1', '35-2'].reduce((s, id) => s + (distMap.get(id)?.mpCount || 0), 0);
       expect(izmirMps).toBe(28);
     }

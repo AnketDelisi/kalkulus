@@ -1,15 +1,40 @@
 import { create } from 'zustand';
-import { ScenarioHistoryManager } from './storeHistory';
+import {
+  ScenarioHistoryManager,
+  ScenarioHistorySnapshot,
+  captureScenarioSnapshot,
+} from './storeHistory';
 import {
   getCachedBaseline,
   getCachedLocalBaseline,
   getCachedRaw2023,
+  getCachedRawBaseline,
   hasCachedLocalBaseline,
   initCoreBaselines,
   loadLocalBaseline,
+  loadRawBaseline,
 } from '../data/baselineCache';
+import {
+  ARCHIVE_ELECTIONS,
+  ARCHIVE_ELECTION_LIST,
+  ArchiveElectionConfig,
+  BUYUKSEHIR_2009_IDS,
+} from '../data/archiveRegistry';
+import {
+  alignParliamentaryComparison,
+  alignPresidentialComparison,
+  archiveFamily,
+  prepareArchiveRaw,
+} from '../utils/archiveCompare';
 import { DEFAULT_ALLIANCES, DEFAULT_PARTIES } from '../data/defaultParties';
-import { DEFAULT_LOCAL_ALLIANCE_RULES } from '../data/local2024Winners';
+import {
+  DEFAULT_LOCAL_ALLIANCE_RULES,
+  WINNERS_2024_ILCELER,
+  WINNERS_2024_PROVINCES,
+} from '../data/local2024Winners';
+import { WINNERS_2019_ILCELER, WINNERS_2019_PROVINCES } from '../data/local2019Winners';
+import { WINNERS_2014_ILCELER, WINNERS_2014_PROVINCES } from '../data/local2014Winners';
+import { WINNERS_2009_ILCELER, WINNERS_2009_PROVINCES } from '../data/local2009Winners';
 import { buildDefaultLocalDefectionConfig } from '../data/localDefections';
 import { buildDefaultLocalIncumbencyConfig } from '../data/localIncumbencyDefaults';
 import { buildDefaultLocalBuffs } from '../data/localBuffDefaults';
@@ -32,6 +57,9 @@ import {
 import {
   AbroadVoteConfig,
   AllianceConfig,
+  ArchiveCategory,
+  ArchiveComparisonRef,
+  ArchiveElectionId,
   BaselineDataset,
   BaselineId,
   ComputedElectionProjection,
@@ -136,6 +164,15 @@ interface ElectionStoreState {
   mapLayer: MapLayerMode;
   mapColorMode: MapColorMode;
   mapFocusEntityId: string | null;
+  activeArchiveId: ArchiveElectionId | null;
+  archiveWhatIfParl: boolean;
+  archiveLoading: boolean;
+  archiveComparisonId: ArchiveComparisonRef | null;
+  archiveSelfBaselineProjection: ComputedElectionProjection;
+  archiveComparisonProjection: ComputedElectionProjection | null;
+  archivePresSelfBaselineProjection: ComputedPresidentialProjection | null;
+  archivePresComparisonProjection: ComputedPresidentialProjection | null;
+  preArchiveSnapshot: ScenarioHistorySnapshot | null;
   zoomedProvinceId: string | null;
   activeScope: ActiveEditorScope;
 
@@ -162,6 +199,10 @@ interface ElectionStoreState {
   setMapLayer: (layer: MapLayerMode) => void;
   setMapColorMode: (mode: MapColorMode) => void;
   setMapFocusEntityId: (entityId: string | null) => void;
+  enterArchiveElection: (id: ArchiveElectionId, whatIfParl?: boolean) => Promise<void>;
+  setArchiveComparisonId: (compareId: ArchiveComparisonRef) => Promise<void>;
+  stepArchiveElection: (delta: 1 | -1, categoryFilter?: ArchiveCategory | 'all') => Promise<void>;
+  exitArchiveMode: () => void;
   setZoomedProvinceId: (ilId: string | null) => void;
   setActiveScope: (scope: ActiveEditorScope) => void;
 
@@ -480,8 +521,233 @@ function recomputePresidential(state: {
   return proj;
 }
 
+/**
+ * Hydrates an Archive raw baseline dataset into Mayoral mode by promoting
+ * ilce.mayorPartyShares, ilce.mayorOtherMaxCandidateRatio, and mayorNationalBaseShares.
+ */
+function buildArchiveMayoralDataset(raw: BaselineDataset): BaselineDataset {
+  return {
+    ...raw,
+    nationalBaseShares: raw.mayorNationalBaseShares
+      ? { ...raw.mayorNationalBaseShares }
+      : { ...raw.nationalBaseShares },
+    ilceler: raw.ilceler.map((ilce) => ({
+      ...ilce,
+      partyShares: ilce.mayorPartyShares ? { ...ilce.mayorPartyShares } : { ...ilce.partyShares },
+      otherMaxCandidateRatio:
+        ilce.mayorOtherMaxCandidateRatio !== undefined
+          ? ilce.mayorOtherMaxCandidateRatio
+          : ilce.otherMaxCandidateRatio,
+    })),
+  };
+}
+
+/**
+ * Strips mayoral overrides from a raw baseline so "What-If 600-MP D'Hondt" strictly uses council ballots.
+ */
+function buildArchiveCouncilDataset(raw: BaselineDataset): BaselineDataset {
+  return {
+    ...raw,
+    provinces: raw.provinces.map(({ mayorPartyShares: _drop, ...rest }) => rest),
+  };
+}
+
+/**
+ * Loads and computes the unedited official projection for an archive election
+ * to serve as the comparison baseline (`A vs B`) in Studio & Maps.
+ */
+async function computeOfficialArchiveProjection(
+  cmpId: ArchiveElectionId
+): Promise<
+  | { kind: 'presidential'; cfg: ArchiveElectionConfig; proj: ComputedPresidentialProjection }
+  | { kind: 'parliamentary'; cfg: ArchiveElectionConfig; proj: ComputedElectionProjection }
+> {
+  const cmpCfg = ARCHIVE_ELECTIONS[cmpId];
+  const cmpRawBase = await loadRawBaseline(cmpCfg.baselineKey);
+  const cmpRaw = prepareArchiveRaw(cmpCfg, cmpRawBase);
+
+  if (cmpCfg.defaultMode === 'presidential' && cmpCfg.presCandidates) {
+    const cands = cmpCfg.presCandidates.map((c) => ({
+      ...c,
+      backingPartyIds: [...c.backingPartyIds],
+    }));
+    const targetShares = deriveCandidateSharesFromParties(cands, cmpRaw.nationalBaseShares);
+    const ranked = [...cands].sort((a, b) => (targetShares[b.id] ?? 0) - (targetShares[a.id] ?? 0));
+    const f0 = ranked[0]?.id ?? cands[0]?.id ?? 'erdogan';
+    const f1 = ranked[1]?.id ?? cands[1]?.id ?? 'kilicdaroglu';
+    const proj = computePresidentialProjection({
+      baseline: cmpRaw,
+      parties: cmpCfg.parties,
+      candidates: cands,
+      swingMode: 'proportional',
+      candidateTargetShares: targetShares,
+      targetTurnout: cmpRaw.nationalBaseTurnout,
+      voterScaleFactor: 1.0,
+      abroadConfig: {
+        ...cmpRaw.abroad,
+        enabled: cmpCfg.abroadEnabled,
+        syncWithNationalSwing: false,
+        partyShares: { ...cmpRaw.abroad.partyShares },
+      },
+      provinceOverrides: {},
+      ilceOverrides: {},
+      transferMatrix: buildDefaultTransferMatrix(cands, f0, f1),
+      round2Dynamics: buildDefaultPresidentialR2Dynamics(cands, true),
+      referencePartyWeights: cmpRaw.nationalBaseShares,
+    });
+    return { kind: 'presidential', cfg: cmpCfg, proj };
+  }
+
+  const parlRaw = cmpCfg.supportsWhatIfParl ? buildArchiveCouncilDataset(cmpRaw) : cmpRaw;
+  const targetShares: Record<string, number> = {};
+  for (const p of cmpCfg.parties) {
+    targetShares[p.id] = parlRaw.nationalBaseShares[p.id] ?? 0;
+  }
+  const proj = runMultiLayerProjection({
+    baseline: parlRaw,
+    parties: cmpCfg.parties,
+    alliances: cmpCfg.alliances,
+    swingMode: 'proportional',
+    dhondtMode: cmpCfg.dhondtMode,
+    thresholdPct: cmpCfg.thresholdPct,
+    nationalTargetShares: targetShares,
+    nationalTargetTurnout: parlRaw.nationalBaseTurnout,
+    nationalVoterScaleFactor: 1.0,
+    abroadConfig: {
+      ...parlRaw.abroad,
+      enabled: cmpCfg.abroadEnabled,
+      partyShares: { ...parlRaw.abroad.partyShares },
+    },
+    ilceOverrides: {},
+    districtOverrides: {},
+    provinceOverrides: {},
+    jointListRules: [],
+    localBuffs: [],
+  });
+  return { kind: 'parliamentary', cfg: cmpCfg, proj };
+}
+
+/**
+ * Preserves and spatially remaps the user's current province/district/ilçe scope and map zoom
+ * when stepping or switching between archive elections across boundary eras.
+ */
+function remapArchiveScopeAndZoom(
+  prevScope: ActiveEditorScope,
+  prevZoom: string | null,
+  targetCfg: ArchiveElectionConfig,
+  targetRaw: BaselineDataset,
+  targetMode: ElectionMode
+): { activeScope: ActiveEditorScope; zoomedProvinceId: string | null } {
+  const provSet = new Set(targetRaw.provinces.map((p) => p.id));
+  const distSet = new Set(targetRaw.districts.map((d) => d.id));
+  const ilceMap = new Map(targetRaw.ilceler.map((i) => [i.id, i]));
+
+  const remapProv = (ilId: string | null): string | null => {
+    if (!ilId) return null;
+    const mapped = targetCfg.provinceMergeMap?.[ilId] ?? ilId;
+    return provSet.has(mapped) ? mapped : null;
+  };
+
+  const zoomedProvinceId = remapProv(prevZoom);
+
+  if (prevScope.type === 'province') {
+    const p = remapProv(prevScope.ilId);
+    return {
+      activeScope: p ? { type: 'province', ilId: p } : { type: 'national' },
+      zoomedProvinceId,
+    };
+  }
+  if (prevScope.type === 'district') {
+    if (targetMode === 'parliamentary') {
+      const remappedDist = targetCfg.districtMergeMap?.[prevScope.districtId] ?? prevScope.districtId;
+      const renamedDist = targetCfg.districtRenameMap?.[remappedDist]?.id ?? remappedDist;
+      if (distSet.has(renamedDist)) {
+        return { activeScope: { type: 'district', districtId: renamedDist }, zoomedProvinceId };
+      }
+      if (distSet.has(remappedDist)) {
+        return { activeScope: { type: 'district', districtId: remappedDist }, zoomedProvinceId };
+      }
+      if (targetCfg.customDistricts?.length) {
+        const prefix = prevScope.districtId.split('-')[0];
+        const centerIlce = targetRaw.ilceler.find((i) => i.id === `${prefix}-merkez`);
+        const matchedCustom =
+          (centerIlce && distSet.has(centerIlce.districtId) ? centerIlce.districtId : null) ||
+          targetCfg.customDistricts.find((spec) =>
+            spec.ilceIds.some((id) => id === `${prefix}-merkez` || id.startsWith(`${prefix}-`))
+          )?.id;
+        if (matchedCustom && distSet.has(matchedCustom)) {
+          const matchedIlId = targetRaw.districts.find((d) => d.id === matchedCustom)?.ilId ?? zoomedProvinceId;
+          return {
+            activeScope: { type: 'district', districtId: matchedCustom },
+            zoomedProvinceId: remapProv(matchedIlId),
+          };
+        }
+      }
+    }
+    const rawIlId = prevScope.districtId.split('-')[0];
+    const p = remapProv(rawIlId);
+    return {
+      activeScope: p ? { type: 'province', ilId: p } : { type: 'national' },
+      zoomedProvinceId,
+    };
+  }
+  if (prevScope.type === 'ilce') {
+    const mappedIlceId = targetCfg.ilceMergeMap?.[prevScope.ilceId] ?? prevScope.ilceId;
+    const targetIlce = ilceMap.get(mappedIlceId);
+    if (targetIlce) {
+      return {
+        activeScope: { type: 'ilce', ilceId: mappedIlceId },
+        zoomedProvinceId: remapProv(targetIlce.ilId) ?? zoomedProvinceId,
+      };
+    }
+    const rawIlId = mappedIlceId.split('-')[0];
+    const overrideIl = targetCfg.ilceProvinceOverrides?.[mappedIlceId];
+    const p = remapProv(overrideIl || rawIlId);
+    return {
+      activeScope: p ? { type: 'province', ilId: p } : { type: 'national' },
+      zoomedProvinceId: p ?? zoomedProvinceId,
+    };
+  }
+  if ((prevScope.type === 'abroad' || prevScope.type === 'abroadCountry') && !targetCfg.abroadEnabled) {
+    return { activeScope: { type: 'national' }, zoomedProvinceId };
+  }
+  return { activeScope: prevScope, zoomedProvinceId };
+}
+
+function getLocalWinnersForArchive(
+  id: ArchiveElectionId
+): {
+  year: 2009 | 2014 | 2019 | 2024;
+  provinces: Record<string, string>;
+  ilceler: Record<string, string>;
+} | null {
+  const base =
+    id === '2024_local'
+      ? { year: 2024 as const, provinces: WINNERS_2024_PROVINCES, ilceler: WINNERS_2024_ILCELER }
+      : id === '2019_local'
+      ? { year: 2019 as const, provinces: WINNERS_2019_PROVINCES, ilceler: WINNERS_2019_ILCELER }
+      : id === '2014_local'
+      ? { year: 2014 as const, provinces: WINNERS_2014_PROVINCES, ilceler: WINNERS_2014_ILCELER }
+      : id === '2009_local'
+      ? { year: 2009 as const, provinces: WINNERS_2009_PROVINCES, ilceler: WINNERS_2009_ILCELER }
+      : null;
+  if (!base) return null;
+  const mergeMap = ARCHIVE_ELECTIONS[id]?.ilceMergeMap;
+  if (!mergeMap) return base;
+  const ilcelerWithParents = { ...base.ilceler };
+  for (const [childId, parentId] of Object.entries(mergeMap)) {
+    if (!ilcelerWithParents[childId] && ilcelerWithParents[parentId]) {
+      ilcelerWithParents[childId] = ilcelerWithParents[parentId];
+    }
+  }
+  return { ...base, ilceler: ilcelerWithParents };
+}
+
 function recomputeLocal(state: {
   localBaselineId: LocalBaselineId;
+  activeArchiveId?: ArchiveElectionId | null;
+  archiveComparisonId?: ArchiveComparisonRef | null;
+  customBaseline?: BaselineDataset | null;
   parties: PartyConfig[];
   localSwingMode: SwingMode;
   localProvinceMode: LocalProvinceMode;
@@ -497,7 +763,23 @@ function recomputeLocal(state: {
   localPartyTurnoutMultipliers?: Record<string, number>;
   localProvinceTurnoutMultipliers?: Record<string, Record<string, number>>;
 }): ComputedLocalProjection {
-  const baseline = getCachedLocalBaseline(state.localBaselineId);
+  const activeCfg = state.activeArchiveId ? ARCHIVE_ELECTIONS[state.activeArchiveId] : null;
+  const isArchiveLocal = Boolean(activeCfg && activeCfg.defaultMode === 'local');
+  const compareLocalId =
+    state.activeArchiveId && isArchiveLocal
+      ? state.archiveComparisonId &&
+        state.archiveComparisonId !== 'self' &&
+        ARCHIVE_ELECTIONS[state.archiveComparisonId]?.defaultMode === 'local'
+        ? state.archiveComparisonId
+        : state.activeArchiveId
+      : null;
+  const refWinners = compareLocalId ? getLocalWinnersForArchive(compareLocalId) : null;
+  const baseline =
+    isArchiveLocal && state.customBaseline
+      ? state.customBaseline
+      : isArchiveLocal && activeCfg
+      ? getCachedRawBaseline(activeCfg.baselineKey) ?? getCachedLocalBaseline(state.localBaselineId)
+      : getCachedLocalBaseline(state.localBaselineId);
   return computeLocalProjection({
     baseline,
     parties: state.parties,
@@ -514,6 +796,10 @@ function recomputeLocal(state: {
     localBuffs: state.localBuffs,
     partyTurnoutMultipliers: state.localPartyTurnoutMultipliers,
     provinceTurnoutMultipliers: state.localProvinceTurnoutMultipliers,
+    buyuksehirIds: state.activeArchiveId === '2009_local' ? BUYUKSEHIR_2009_IDS : undefined,
+    referenceYear: refWinners?.year ?? 2024,
+    referenceProvinceWinners: refWinners?.provinces,
+    referenceIlceWinners: refWinners?.ilceler,
   });
 }
 
@@ -616,9 +902,24 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
   ) =>
     rawSet((state) => {
       historyManager.push(state, coalesceKey);
-      const patch = updater(state);
+      // Any What-If edit inside an archive election resets deltas to that election's own official result.
+      const needsSelfRevert = Boolean(
+        state.activeArchiveId && state.archiveComparisonId && state.archiveComparisonId !== 'self'
+      );
+      const effective = needsSelfRevert
+        ? { ...state, archiveComparisonId: 'self' as ArchiveComparisonRef }
+        : state;
+      const patch = updater(effective);
       return {
         ...patch,
+        ...(needsSelfRevert
+          ? {
+              archiveComparisonId: 'self' as ArchiveComparisonRef,
+              baselineProjection: state.archiveSelfBaselineProjection,
+              archiveComparisonProjection: null,
+              archivePresComparisonProjection: null,
+            }
+          : {}),
         canUndo: historyManager.canUndo,
         canRedo: historyManager.canRedo,
       };
@@ -685,6 +986,15 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
   mapLayer: '87_district',
   mapColorMode: 'leader',
   mapFocusEntityId: null,
+  activeArchiveId: null,
+  archiveWhatIfParl: false,
+  archiveLoading: false,
+  archiveComparisonId: null,
+  archiveSelfBaselineProjection: initialBaselineProjection,
+  archiveComparisonProjection: null,
+  archivePresSelfBaselineProjection: null,
+  archivePresComparisonProjection: null,
+  preArchiveSnapshot: null,
   zoomedProvinceId: null,
   activeScope: { type: 'national' },
 
@@ -780,7 +1090,10 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
 
   setLanguage: (lang) => set({ lang }),
 
-  setElectionMode: (mode) =>
+  setElectionMode: (mode) => {
+    if (get().activeArchiveId !== null) {
+      get().exitArchiveMode();
+    }
     set((state) => {
       let mapLayer = state.mapLayer;
       let mapColorMode = state.mapColorMode;
@@ -809,7 +1122,8 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
         mapColorMode,
         activeScope,
       };
-    }),
+    });
+  },
 
   setBaselineId: (id) =>
     set((state) => {
@@ -891,19 +1205,430 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
   setDHondtMode: (dhondtMode) =>
     set((state) => {
       const next = { ...state, dhondtMode };
-      return { dhondtMode, projection: recompute(next) };
+      const revert =
+        state.activeArchiveId && state.archiveComparisonId && state.archiveComparisonId !== 'self'
+          ? {
+              archiveComparisonId: 'self' as ArchiveComparisonRef,
+              baselineProjection: state.archiveSelfBaselineProjection,
+              archiveComparisonProjection: null,
+            }
+          : {};
+      return { dhondtMode, projection: recompute(next), ...revert };
     }),
 
   setThresholdPct: (thresholdPct) =>
     set((state) => {
       const clamped = Math.max(0, Math.min(25, thresholdPct));
       const next = { ...state, thresholdPct: clamped };
-      return { thresholdPct: clamped, projection: recompute(next) };
+      const revert =
+        state.activeArchiveId && state.archiveComparisonId && state.archiveComparisonId !== 'self'
+          ? {
+              archiveComparisonId: 'self' as ArchiveComparisonRef,
+              baselineProjection: state.archiveSelfBaselineProjection,
+              archiveComparisonProjection: null,
+            }
+          : {};
+      return { thresholdPct: clamped, projection: recompute(next), ...revert };
     }),
 
   setMapLayer: (mapLayer) => set({ mapLayer }),
   setMapColorMode: (mapColorMode) => set({ mapColorMode }),
   setMapFocusEntityId: (mapFocusEntityId) => set({ mapFocusEntityId }),
+
+  enterArchiveElection: async (id, whatIfParl = false) => {
+    set({ archiveLoading: true });
+    try {
+      const cfg = ARCHIVE_ELECTIONS[id];
+      const rawBase = await loadRawBaseline(cfg.baselineKey);
+      const raw = prepareArchiveRaw(cfg, rawBase);
+      const hasSpatialOverrides = raw !== rawBase;
+
+      const isArchiveLocalMayoral = cfg.defaultMode === 'local' && !whatIfParl;
+      const isArchivePresOrRef = cfg.defaultMode === 'presidential' && Boolean(cfg.presCandidates);
+      if (isArchiveLocalMayoral && !hasCachedLocalBaseline('2024_local')) {
+        await loadLocalBaseline('2024_local');
+      }
+
+      const targetRuntimeMode: ElectionMode = isArchiveLocalMayoral
+        ? 'local'
+        : isArchivePresOrRef
+        ? 'presidential'
+        : 'parliamentary';
+
+      // Auto-pair chronological predecessor of compatible runtime mode by default
+      let resolvedDefaultCompare: ArchiveComparisonRef = 'self';
+      let precomputedCompare: Awaited<ReturnType<typeof computeOfficialArchiveProjection>> | null = null;
+      if (cfg.defaultCompareId) {
+        const cmpCfg = ARCHIVE_ELECTIONS[cfg.defaultCompareId];
+        if (targetRuntimeMode === 'local' && archiveFamily(cmpCfg) === 'local') {
+          resolvedDefaultCompare = cfg.defaultCompareId;
+        } else if (
+          targetRuntimeMode === 'presidential' &&
+          archiveFamily(cmpCfg) === 'presidential'
+        ) {
+          resolvedDefaultCompare = cfg.defaultCompareId;
+          precomputedCompare = await computeOfficialArchiveProjection(cfg.defaultCompareId);
+        } else if (
+          targetRuntimeMode === 'parliamentary' &&
+          (archiveFamily(cmpCfg) === 'parliamentary' || cmpCfg.supportsWhatIfParl)
+        ) {
+          resolvedDefaultCompare = cfg.defaultCompareId;
+          precomputedCompare = await computeOfficialArchiveProjection(cfg.defaultCompareId);
+        }
+      }
+
+      set((state) => {
+        const preArchiveSnapshot =
+          state.activeArchiveId === null ? captureScenarioSnapshot(state) : state.preArchiveSnapshot;
+
+        const preserved =
+          state.activeArchiveId !== null
+            ? remapArchiveScopeAndZoom(
+                state.activeScope,
+                state.zoomedProvinceId,
+                cfg,
+                raw,
+                targetRuntimeMode
+              )
+            : { activeScope: { type: 'national' } as ActiveEditorScope, zoomedProvinceId: null };
+
+        const archiveParties = cfg.parties.map((p) => ({ ...p }));
+        const archiveAlliances = cfg.alliances.map((a) => ({ ...a }));
+
+        if (isArchiveLocalMayoral) {
+          const mayoralRaw = buildArchiveMayoralDataset(raw);
+          const localTargetShares: Record<string, number> = {};
+          for (const p of archiveParties) {
+            localTargetShares[p.id] = mayoralRaw.nationalBaseShares[p.id] ?? 0;
+          }
+          const sanitizedMapLayer =
+            state.mapLayer === '87_district' || state.mapLayer === 'abroad_world'
+              ? ('81_il' as const)
+              : state.mapLayer;
+          const sanitizedColorMode =
+            state.mapColorMode === 'alliance' ? ('leader' as const) : state.mapColorMode;
+
+          const next = {
+            ...state,
+            parties: archiveParties,
+            alliances: archiveAlliances,
+            activeArchiveId: id,
+            archiveWhatIfParl: false,
+            archiveLoading: false,
+            archiveComparisonId: resolvedDefaultCompare,
+            archiveComparisonProjection: null,
+            archivePresSelfBaselineProjection: null,
+            archivePresComparisonProjection: null,
+            preArchiveSnapshot,
+            customBaseline: mayoralRaw,
+            electionMode: 'local' as ElectionMode,
+            mapLayer: sanitizedMapLayer,
+            mapColorMode: sanitizedColorMode,
+            localBaselineId: '2024_local' as LocalBaselineId,
+            localSwingMode: 'proportional' as SwingMode,
+            localProvinceMode: 'merkez_ilce' as LocalProvinceMode,
+            localTargetShares,
+            localTargetTurnout: mayoralRaw.nationalBaseTurnout,
+            localVoterScaleFactor: 1.0,
+            localProvinceOverrides: {},
+            localIlceOverrides: {},
+            localAllianceRules: [],
+            localIncumbency: { intensityPct: 0, provinceBonuses: {} },
+            localDefections: {
+              ...state.localDefections,
+              referenceBaseline: '2024' as LocalReferenceBaseline,
+              includeKayyim: false,
+              entries: [],
+            },
+            localPartyTurnoutMultipliers: {},
+            localProvinceTurnoutMultipliers: {},
+            localBuffs: [],
+            activeScope: preserved.activeScope,
+            zoomedProvinceId: preserved.zoomedProvinceId,
+          };
+          return { ...next, localProjection: recomputeLocal(next) };
+        }
+
+        if (isArchivePresOrRef && cfg.presCandidates) {
+          const archivePresCands = cfg.presCandidates.map((c) => ({
+            ...c,
+            backingPartyIds: [...c.backingPartyIds],
+          }));
+          const presTargetShares = deriveCandidateSharesFromParties(
+            archivePresCands,
+            raw.nationalBaseShares
+          );
+          const rankedCands = [...archivePresCands].sort(
+            (a, b) => (presTargetShares[b.id] ?? 0) - (presTargetShares[a.id] ?? 0)
+          );
+          const f0 = rankedCands[0]?.id ?? archivePresCands[0]?.id ?? 'erdogan';
+          const f1 = rankedCands[1]?.id ?? archivePresCands[1]?.id ?? 'kilicdaroglu';
+          const sanitizedMapLayer =
+            state.mapLayer === '87_district'
+              ? ('81_il' as const)
+              : state.mapLayer === 'abroad_world' && !cfg.abroadEnabled
+              ? ('81_il' as const)
+              : state.mapLayer;
+          const sanitizedColorMode =
+            state.mapColorMode === 'alliance' ? ('leader' as const) : state.mapColorMode;
+
+          const next = {
+            ...state,
+            parties: archiveParties,
+            alliances: archiveAlliances,
+            activeArchiveId: id,
+            archiveWhatIfParl: false,
+            archiveLoading: false,
+            preArchiveSnapshot,
+            electionMode: 'presidential' as ElectionMode,
+            mapLayer: sanitizedMapLayer,
+            mapColorMode: sanitizedColorMode,
+            presBaselineId: 'custom' as BaselineId,
+            customBaseline: raw,
+            presSwingMode: 'proportional' as SwingMode,
+            presCandidates: archivePresCands,
+            presTargetShares,
+            presTargetTurnout: raw.nationalBaseTurnout,
+            presVoterScaleFactor: 1.0,
+            presAbroadConfig: {
+              ...raw.abroad,
+              enabled: cfg.abroadEnabled,
+              syncWithNationalSwing: false,
+              partyShares: { ...raw.abroad.partyShares },
+            },
+            presProvinceOverrides: {},
+            presIlceOverrides: {},
+            presAbroadCountryOverrides: {},
+            presCandidateTurnoutMultipliers: {},
+            presProvinceTurnoutMultipliers: {},
+            localBuffs: [],
+            presTransferFinalists: [f0, f1] as [string, string],
+            presTransferMatrix: buildDefaultTransferMatrix(archivePresCands, f0, f1),
+            presR2Dynamics: buildDefaultPresidentialR2Dynamics(archivePresCands, true),
+            presRoundView: 'round1' as PresidentialRoundView,
+            activeScope: preserved.activeScope,
+            zoomedProvinceId: preserved.zoomedProvinceId,
+          };
+          const selfPresProj = recomputePresidential(next);
+          const alignedCmpPres =
+            precomputedCompare && precomputedCompare.kind === 'presidential'
+              ? alignPresidentialComparison(precomputedCompare.proj, precomputedCompare.cfg, selfPresProj, cfg)
+              : null;
+          return {
+            ...next,
+            presidentialProjection: selfPresProj,
+            archivePresSelfBaselineProjection: selfPresProj,
+            archivePresComparisonProjection: alignedCmpPres,
+            archiveComparisonProjection: null,
+            archiveComparisonId: alignedCmpPres ? resolvedDefaultCompare : ('self' as ArchiveComparisonRef),
+          };
+        }
+
+        const parlRaw = cfg.supportsWhatIfParl ? buildArchiveCouncilDataset(raw) : raw;
+        const nationalTargetShares: Record<string, number> = {};
+        for (const p of archiveParties) {
+          nationalTargetShares[p.id] = parlRaw.nationalBaseShares[p.id] ?? 0;
+        }
+        const sanitizedMapLayer =
+          state.mapLayer === 'abroad_world' && !cfg.abroadEnabled
+            ? ('81_il' as const)
+            : state.mapLayer;
+        const sanitizedColorMode = state.mapColorMode;
+
+        const next = {
+          ...state,
+          parties: archiveParties,
+          alliances: archiveAlliances,
+          activeArchiveId: id,
+          archiveWhatIfParl: cfg.supportsWhatIfParl ? whatIfParl : false,
+          archiveLoading: false,
+          preArchiveSnapshot,
+          electionMode: 'parliamentary' as ElectionMode,
+          mapLayer: sanitizedMapLayer,
+          mapColorMode: sanitizedColorMode,
+          baselineId: (id === '2023_general' && !hasSpatialOverrides ? '2023_general' : 'custom') as BaselineId,
+          customBaseline: id === '2023_general' && !hasSpatialOverrides ? null : parlRaw,
+          swingMode: 'proportional' as SwingMode,
+          dhondtMode: cfg.dhondtMode,
+          thresholdPct: cfg.thresholdPct,
+          nationalTargetShares,
+          nationalTargetTurnout: parlRaw.nationalBaseTurnout,
+          nationalVoterScaleFactor: 1.0,
+          abroadConfig: {
+            ...parlRaw.abroad,
+            enabled: cfg.abroadEnabled,
+            partyShares: { ...parlRaw.abroad.partyShares },
+          },
+          provinceOverrides: {},
+          districtOverrides: {},
+          ilceOverrides: {},
+          abroadCountryOverrides: {},
+          partyTurnoutMultipliers: {},
+          provinceTurnoutMultipliers: {},
+          jointListRules: [],
+          localBuffs: [],
+          activeScope: preserved.activeScope,
+          zoomedProvinceId: preserved.zoomedProvinceId,
+        };
+        const selfProj = recompute(next);
+        const alignedCmpParl =
+          precomputedCompare && precomputedCompare.kind === 'parliamentary'
+            ? alignParliamentaryComparison(precomputedCompare.proj, precomputedCompare.cfg, selfProj, cfg)
+            : null;
+        return {
+          ...next,
+          projection: selfProj,
+          archiveSelfBaselineProjection: selfProj,
+          archiveComparisonProjection: alignedCmpParl,
+          archivePresSelfBaselineProjection: null,
+          archivePresComparisonProjection: null,
+          baselineProjection: alignedCmpParl ?? selfProj,
+          archiveComparisonId: alignedCmpParl ? resolvedDefaultCompare : ('self' as ArchiveComparisonRef),
+        };
+      });
+    } catch {
+      set({ archiveLoading: false });
+    }
+  },
+
+  setArchiveComparisonId: async (compareId) => {
+    const curState = get();
+    if (!curState.activeArchiveId) return;
+    if (compareId === 'self') {
+      set((state) => {
+        const next = {
+          ...state,
+          archiveComparisonId: 'self' as ArchiveComparisonRef,
+          archiveComparisonProjection: null,
+          archivePresComparisonProjection: null,
+          baselineProjection: state.archiveSelfBaselineProjection,
+        };
+        return state.electionMode === 'local'
+          ? { ...next, localProjection: recomputeLocal(next) }
+          : next;
+      });
+      return;
+    }
+
+    const activeCfg = ARCHIVE_ELECTIONS[curState.activeArchiveId];
+    if (curState.electionMode === 'local') {
+      if (
+        compareId !== curState.activeArchiveId &&
+        ARCHIVE_ELECTIONS[compareId]?.defaultMode === 'local'
+      ) {
+        set((state) => {
+          const next = { ...state, archiveComparisonId: compareId };
+          return { ...next, localProjection: recomputeLocal(next) };
+        });
+      }
+      return;
+    }
+
+    set({ archiveLoading: true });
+    try {
+      const computed = await computeOfficialArchiveProjection(compareId);
+      set((state) => {
+        if (state.activeArchiveId !== activeCfg.id) {
+          return { archiveLoading: false };
+        }
+        if (state.electionMode === 'presidential' && computed.kind === 'presidential') {
+          const selfPres = state.archivePresSelfBaselineProjection ?? state.presidentialProjection;
+          const aligned = alignPresidentialComparison(computed.proj, computed.cfg, selfPres, activeCfg);
+          return {
+            archiveLoading: false,
+            archiveComparisonId: compareId,
+            archivePresComparisonProjection: aligned,
+            archiveComparisonProjection: null,
+          };
+        }
+        if (state.electionMode === 'parliamentary' && computed.kind === 'parliamentary') {
+          const aligned = alignParliamentaryComparison(
+            computed.proj,
+            computed.cfg,
+            state.archiveSelfBaselineProjection,
+            activeCfg
+          );
+          return {
+            archiveLoading: false,
+            archiveComparisonId: compareId,
+            archiveComparisonProjection: aligned,
+            archivePresComparisonProjection: null,
+            baselineProjection: aligned,
+          };
+        }
+        return { archiveLoading: false };
+      });
+    } catch {
+      set({ archiveLoading: false });
+    }
+  },
+
+  stepArchiveElection: async (delta, categoryFilter = 'all') => {
+    const st = get();
+    if (!st.activeArchiveId) return;
+    const filtered =
+      categoryFilter === 'all'
+        ? ARCHIVE_ELECTION_LIST
+        : ARCHIVE_ELECTION_LIST.filter((e) => e.category === categoryFilter);
+    const pool = filtered.length > 0 ? filtered : ARCHIVE_ELECTION_LIST;
+    const curIdx = pool.findIndex((e) => e.id === st.activeArchiveId);
+    if (curIdx < 0) return;
+    // ARCHIVE_ELECTION_LIST is newest -> oldest: delta = -1 steps older (+1 index), +1 steps newer (-1 index).
+    const nextIdx = delta < 0 ? curIdx + 1 : curIdx - 1;
+    if (nextIdx < 0 || nextIdx >= pool.length) return;
+    await get().enterArchiveElection(pool[nextIdx].id, false);
+  },
+
+  exitArchiveMode: () =>
+    set((state) => {
+      const snap = state.preArchiveSnapshot;
+      if (!snap) {
+        return {
+          activeArchiveId: null,
+          archiveWhatIfParl: false,
+          archiveComparisonId: null,
+          archiveComparisonProjection: null,
+          archivePresSelfBaselineProjection: null,
+          archivePresComparisonProjection: null,
+        };
+      }
+      const nextMapLayer =
+        snap.electionMode !== 'parliamentary' && state.mapLayer === '87_district'
+          ? ('81_il' as const)
+          : snap.electionMode === 'local' && state.mapLayer === 'abroad_world'
+          ? ('81_il' as const)
+          : state.mapLayer;
+      const nextColorMode =
+        snap.electionMode !== 'parliamentary' && state.mapColorMode === 'alliance'
+          ? ('leader' as const)
+          : snap.electionMode !== 'local' && state.mapColorMode === 'flips'
+          ? ('leader' as const)
+          : state.mapColorMode;
+      const next = {
+        ...state,
+        ...snap,
+        mapLayer: nextMapLayer,
+        mapColorMode: nextColorMode,
+        customBaseline: null,
+        activeArchiveId: null,
+        archiveWhatIfParl: false,
+        archiveComparisonId: null,
+        archiveComparisonProjection: null,
+        archivePresSelfBaselineProjection: null,
+        archivePresComparisonProjection: null,
+        preArchiveSnapshot: null,
+        activeScope: { type: 'national' } as ActiveEditorScope,
+        zoomedProvinceId: null,
+      };
+      return {
+        ...next,
+        baselineProjection: state.official2023Projection,
+        archiveSelfBaselineProjection: state.official2023Projection,
+        projection: recompute(next),
+        presidentialProjection: recomputePresidential(next),
+        localProjection: recomputeLocal(next),
+      };
+    }),
   setZoomedProvinceId: (zoomedProvinceId) => set({ zoomedProvinceId }),
   setActiveScope: (activeScope) => set({ activeScope }),
 
@@ -1478,6 +2203,11 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
     }),
 
   resetAllToBaseline: () => {
+    const activeArchiveId = get().activeArchiveId;
+    if (activeArchiveId) {
+      void get().enterArchiveElection(activeArchiveId, get().archiveWhatIfParl);
+      return;
+    }
     const mode = get().electionMode;
     if (mode === 'presidential') {
       get().resetPresidential();
@@ -1855,7 +2585,12 @@ export const useElectionStore = create<ElectionStoreState>((rawSet, get) => {
       return { presSwingMode: mode, presidentialProjection: recomputePresidential(next) };
     }),
 
-  setPresRoundView: (view) => set({ presRoundView: view }),
+  setPresRoundView: (view) =>
+    set((state) => {
+      const isRef = Boolean(state.activeArchiveId && state.activeArchiveId.endsWith('_ref'));
+      const noRunoff = isRef || state.presidentialProjection.decidedInRound === 1;
+      return { presRoundView: view === 'round2' && noRunoff ? 'round1' : view };
+    }),
 
   updatePresCandidateShare: (candidateId, share) =>
     commit((state) => {

@@ -5,6 +5,7 @@ import { useElectionStore } from '../store/useElectionStore';
 export const LocalMayoralSummaryCard: React.FC = () => {
   const { lang, parties, localProjection, localProvinceMode, localDefections } =
     useElectionStore();
+  const refYear = localProjection.referenceYear ?? 2024;
 
   const orderedParties = parties
     .filter((p) => !p.isOther)
@@ -42,8 +43,8 @@ export const LocalMayoralSummaryCard: React.FC = () => {
                   ? `Baz: Mevcut Yönetim${localDefections.includeKayyim ? ' (+Kayyım)' : ''}`
                   : `Ref: Current Control${localDefections.includeKayyim ? ' (+Trustees)' : ''}`
                 : lang === 'tr'
-                ? 'Baz: 31 Mart 2024'
-                : 'Ref: March 2024'}
+                ? `Baz: 31 Mart ${refYear}`
+                : `Ref: March ${refYear}`}
             </span>
           </p>
         </div>

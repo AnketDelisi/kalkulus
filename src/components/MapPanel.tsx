@@ -15,9 +15,11 @@ import {
 } from 'lucide-react';
 import { stepPlateCode } from '../utils/plateNavigation';
 import { ABROAD_COUNTRY_BY_ID } from '../data/abroadCountries';
+import { ARCHIVE_ELECTIONS, getArchiveComparisonLabel } from '../data/archiveRegistry';
+import { presidentialCamp } from '../utils/archiveCompare';
+import { buildDynamicArchiveGeo } from '../utils/geoDissolve';
 import {
   GeoCollection,
-  GeoFeature,
   getCachedGeoLayer,
   loadDistricts87Geo,
   loadIlcelerGeo,
@@ -33,11 +35,7 @@ import {
   getPartyHeatmapColor,
   interpolateHex,
 } from '../utils/color';
-import {
-  SEAT_OFFSETS_81,
-  SEAT_OFFSETS_87,
-  computeSeatClusterLayout,
-} from '../utils/seatCirclesGeometry';
+import { computeMapSeatLayouts } from '../utils/seatCirclesGeometry';
 import { renderSvgElementToPngBlob } from '../utils/svgExport';
 import { HoverTelemetryData, MapHoverCard } from './MapHoverCard';
 
@@ -58,6 +56,10 @@ interface MapPanelProps {
 export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
   const {
     lang,
+    activeArchiveId,
+    archiveComparisonId,
+    archivePresSelfBaselineProjection,
+    archivePresComparisonProjection,
     electionMode,
     parties,
     alliances,
@@ -71,6 +73,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     ilceOverrides,
     abroadCountryOverrides,
     projection,
+    baselineProjection,
     official2023Projection,
     presCandidates,
     presRoundView,
@@ -138,8 +141,44 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
       mapLayer === 'abroad_world');
 
   const needDistricts87 = electionMode === 'parliamentary' && !isWorldView && mapLayer === '87_district';
-  const needIlceler = (!isWorldView && mapLayer === '973_ilce') || zoomedProvinceId !== null;
+  const needDynamicGeo = Boolean(
+    activeArchiveId &&
+      (ARCHIVE_ELECTIONS[activeArchiveId]?.districtOverrides ||
+        ARCHIVE_ELECTIONS[activeArchiveId]?.ilceMergeMap ||
+        ARCHIVE_ELECTIONS[activeArchiveId]?.districtMergeMap ||
+        ARCHIVE_ELECTIONS[activeArchiveId]?.districtRenameMap ||
+        ARCHIVE_ELECTIONS[activeArchiveId]?.provinceMergeMap ||
+        ARCHIVE_ELECTIONS[activeArchiveId]?.ilceProvinceOverrides ||
+        ARCHIVE_ELECTIONS[activeArchiveId]?.customDistricts?.length)
+  );
+  const needIlceler =
+    (!isWorldView && mapLayer === '973_ilce') ||
+    zoomedProvinceId !== null ||
+    (needDistricts87 && needDynamicGeo) ||
+    (!isWorldView &&
+      Boolean(
+        activeArchiveId &&
+          (ARCHIVE_ELECTIONS[activeArchiveId]?.provinceMergeMap ||
+            ARCHIVE_ELECTIONS[activeArchiveId]?.ilceProvinceOverrides)
+      ));
   const needWorld = isWorldView;
+
+  const {
+    provincesGeo: activeProvincesGeo,
+    districts87Geo: activeDistricts87Geo,
+    ilcelerGeo: activeIlcelerGeo,
+  } = useMemo(
+    () =>
+      buildDynamicArchiveGeo({
+        archiveId: activeArchiveId,
+        provincesGeo,
+        districts87Geo,
+        ilcelerGeo,
+      }),
+    [activeArchiveId, provincesGeo, districts87Geo, ilcelerGeo]
+  );
+
+  const provCount = Object.keys(projection.provinceResults).length || 81;
   const isMapReady = Boolean(
     (needWorld ? worldGeo : provincesGeo) &&
     (!needDistricts87 || districts87Geo) &&
@@ -211,10 +250,70 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     return m;
   }, [presCandidates]);
 
+  const isReferendumArchive = activeArchiveId
+    ? ARCHIVE_ELECTIONS[activeArchiveId]?.category === 'referendum'
+    : false;
+  const isPresR2Archive = activeArchiveId === '2023_pres_r2';
+  const hasRunoff = !isReferendumArchive && presidentialProjection.decidedInRound === 2;
+  const effectivePresRoundView = hasRunoff ? presRoundView : 'round1';
+  const presRoundPrefix = isReferendumArchive
+    ? ''
+    : isPresR2Archive || effectivePresRoundView === 'round2'
+    ? '2. Tur · '
+    : '1. Tur · ';
+
   const activePresRound =
-    presRoundView === 'round2'
+    effectivePresRoundView === 'round2'
       ? presidentialProjection.round2
       : presidentialProjection.round1;
+
+  const activeArchiveCfg = activeArchiveId ? ARCHIVE_ELECTIONS[activeArchiveId] : undefined;
+  const activeCompareCfg =
+    archiveComparisonId && archiveComparisonId !== 'self'
+      ? ARCHIVE_ELECTIONS[archiveComparisonId]
+      : undefined;
+  const compareLabel = getArchiveComparisonLabel(
+    archiveComparisonId,
+    lang,
+    activeArchiveCfg?.deltaLabelTr ?? 'Resmi'
+  );
+  const isCrossCompare = Boolean(
+    activeArchiveId && archiveComparisonId && archiveComparisonId !== 'self'
+  );
+
+  const compPartyMap = useMemo(() => {
+    const m: Record<string, (typeof parties)[0]> = { ...partyMap };
+    if (activeCompareCfg) {
+      for (const p of activeCompareCfg.parties) m[p.id] = p;
+    }
+    return m;
+  }, [partyMap, activeCompareCfg]);
+
+  const compCandMap = useMemo(() => {
+    const m: Record<string, (typeof presCandidates)[0]> = { ...candMap };
+    if (activeCompareCfg?.presCandidates) {
+      for (const c of activeCompareCfg.presCandidates) m[c.id] = c;
+    }
+    return m;
+  }, [candMap, activeCompareCfg]);
+
+  const candSetDiffers = useMemo(() => {
+    if (!activeCompareCfg?.presCandidates) return false;
+    const compIds = new Set(activeCompareCfg.presCandidates.map((c) => c.id));
+    return (
+      presCandidates.some((c) => !c.isOther && !compIds.has(c.id)) ||
+      activeCompareCfg.presCandidates.some((c) => !c.isOther && !candMap[c.id])
+    );
+  }, [activeCompareCfg, presCandidates, candMap]);
+
+  const activePresBaseRef = activeArchiveId
+    ? archivePresComparisonProjection ?? archivePresSelfBaselineProjection
+    : null;
+  const activePresBaseRound = activePresBaseRef
+    ? effectivePresRoundView === 'round2'
+      ? activePresBaseRef.round2
+      : activePresBaseRef.round1
+    : null;
 
   const focusEntityList = useMemo(
     () =>
@@ -244,7 +343,11 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     marginPct: number,
     turnout: number,
     isFlipped?: boolean,
-    extra?: { shares?: Record<string, number>; runnerUpColor?: string }
+    extra?: {
+      shares?: Record<string, number>;
+      baseShares?: Record<string, number>;
+      runnerUpColor?: string;
+    }
   ): string => {
     if (mapColorMode === 'flips') {
       return isFlipped ? blendHexWithWhite(colorHex, 0.96) : '#e2e8f0';
@@ -261,6 +364,26 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
         extra.shares[effectiveFocusId] ?? 0
       );
     }
+    if (mapColorMode === 'swing' && extra?.shares && extra?.baseShares) {
+      if (mapFocusEntityId && focusColorById[mapFocusEntityId]) {
+        const delta =
+          (extra.shares[mapFocusEntityId] || 0) - (extra.baseShares[mapFocusEntityId] || 0);
+        return getDivergingSwingColor(delta);
+      }
+      let maxSw = -999;
+      let bestId = '';
+      for (const e of focusEntityList) {
+        const sw = (extra.shares[e.id] || 0) - (extra.baseShares[e.id] || 0);
+        if (sw > maxSw) {
+          maxSw = sw;
+          bestId = e.id;
+        }
+      }
+      if (Math.abs(maxSw) < 0.15) return '#F1F5F9';
+      const swHex = focusColorById[bestId] || '#64748b';
+      const swAlpha = Math.min(0.96, Math.max(0.4, Math.abs(maxSw) / 10));
+      return blendHexWithWhite(swHex, swAlpha);
+    }
     if (mapColorMode === 'turnout') {
       return interpolateHex('#CBD5E1', '#090A0F', Math.max(0, Math.min(1, (turnout - 72) / 18)));
     }
@@ -268,13 +391,13 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     return blendHexWithWhite(colorHex, intensity);
   };
 
-  const { pathGenerator } = useMemo(() => {
+  const { mapProjection, pathGenerator } = useMemo(() => {
     const width = 980;
     const height = 470;
     const proj = geoMercator();
 
-    if (zoomedProvinceId && provincesGeo) {
-      const pFeat = provincesGeo.features.find((f) => f.properties.id === zoomedProvinceId);
+    if (zoomedProvinceId && activeProvincesGeo) {
+      const pFeat = activeProvincesGeo.features.find((f) => f.properties.id === zoomedProvinceId);
       if (pFeat) {
         proj.fitExtent(
           [
@@ -283,11 +406,11 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
           ],
           pFeat as any
         );
-        return { pathGenerator: geoPath().projection(proj) };
+        return { mapProjection: proj, pathGenerator: geoPath().projection(proj) };
       }
     }
 
-    const baseGeo = districts87Geo || provincesGeo;
+    const baseGeo = activeDistricts87Geo || activeProvincesGeo;
     if (baseGeo) {
       proj.fitExtent(
         [
@@ -300,17 +423,17 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
       proj.center([35.3, 39.0]).scale(2500).translate([width / 2, height / 2]);
     }
 
-    return { pathGenerator: geoPath().projection(proj) };
-  }, [provincesGeo, districts87Geo, zoomedProvinceId]);
+    return { mapProjection: proj, pathGenerator: geoPath().projection(proj) };
+  }, [activeProvincesGeo, activeDistricts87Geo, zoomedProvinceId]);
 
   const ilcePathMap = useMemo(() => {
-    if (!ilcelerGeo) return new Map<string, string>();
+    if (!activeIlcelerGeo) return new Map<string, string>();
     const map = new Map<string, string>();
-    for (const feat of ilcelerGeo.features) {
+    for (const feat of activeIlcelerGeo.features) {
       map.set(feat.properties.id, pathGenerator(feat as any) || '');
     }
     return map;
-  }, [ilcelerGeo, pathGenerator]);
+  }, [activeIlcelerGeo, pathGenerator]);
 
   const worldPathGenerator = useMemo(() => {
     const width = 980;
@@ -333,10 +456,16 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     partyShares: Record<string, number>,
     basePartyShares: Record<string, number>,
     marginPct: number,
-    turnout: number
+    turnout: number,
+    baseLeaderId?: string
   ): string => {
     const leader = partyMap[leadingPartyId];
     const baseHex = leader?.color || '#64748b';
+
+    if (mapColorMode === 'flips') {
+      const flipped = Boolean(baseLeaderId && baseLeaderId !== leadingPartyId);
+      return flipped ? blendHexWithWhite(baseHex, 0.96) : '#e2e8f0';
+    }
 
     if (mapColorMode === 'leader') {
       const intensity = Math.min(0.95, Math.max(0.58, 0.55 + marginPct / 42));
@@ -430,6 +559,13 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     if (electionMode === 'presidential') {
       const u = activePresRound.ilceResults[ilceId];
       if (!u) return null;
+      const baseU = activePresBaseRound?.ilceResults[ilceId];
+      const isFlipped = Boolean(
+        baseU &&
+          (candSetDiffers
+            ? presidentialCamp(u.leadingCandidateId) !== presidentialCamp(baseU.leadingCandidateId)
+            : u.leadingCandidateId !== baseU.leadingCandidateId)
+      );
       const leaderColor = candMap[u.leadingCandidateId]?.color || '#64748b';
       const provName = activePresRound.provinceResults[u.ilId || '']?.name || u.ilId || '';
       const sorted = presCandidates
@@ -441,13 +577,18 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
         color: c.color,
         share: u.candidateShares[c.id] || 0,
         votes: u.candidateVotes[c.id] || 0,
+        deltaShare:
+          baseU && baseU.candidateShares[c.id] !== undefined
+            ? (u.candidateShares[c.id] || 0) - (baseU.candidateShares[c.id] || 0)
+            : undefined,
       }));
       const topEntries = barEntries.slice(0, 6);
       const isLocked = Boolean(presIlceOverrides[ilceId]?.isLocked);
       return {
         name: u.name,
-        fill: getCustomEntityFill(leaderColor, u.marginPct, u.turnout, undefined, {
+        fill: getCustomEntityFill(leaderColor, u.marginPct, u.turnout, isFlipped, {
           shares: u.candidateShares,
+          baseShares: baseU?.candidateShares,
           runnerUpColor: focusColorById[u.runnerUpCandidateId],
         }),
         isLocked,
@@ -479,7 +620,20 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
           marginVotes: u.marginVotes,
           topEntries,
           barEntries,
-          presRound: presRoundView,
+          presRound: effectivePresRoundView,
+          ...(isCrossCompare && isFlipped && baseU
+            ? {
+                localFlipped: true,
+                localRefLabel: compareLabel,
+                localPrevWinnerShort:
+                  compCandMap[baseU.leadingCandidateId]?.shortName ||
+                  baseU.leadingCandidateId.toUpperCase(),
+                localPrevWinnerColor:
+                  compCandMap[baseU.leadingCandidateId]?.color || '#94a3b8',
+                localWinnerShort: candMap[u.leadingCandidateId]?.shortName || u.leadingCandidateId,
+                localWinnerColor: leaderColor,
+              }
+            : {}),
         },
       };
     }
@@ -554,7 +708,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
               ? lang === 'tr'
                 ? 'Mevcut'
                 : 'Current'
-              : '2024',
+              : String(localProjection.referenceYear ?? 2024),
           localPrevWinnerShort: oldP?.shortName || l.baseline2024WinnerPartyId,
           localPrevWinnerColor: oldP?.color || '#94a3b8',
           localWinnerShort: winP?.shortName || l.winnerPartyId,
@@ -566,7 +720,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     }
 
     const iRes = projection.ilceResults[ilceId];
-    const baseIRes = official2023Projection.ilceResults[ilceId];
+    const baseIRes = (activeArchiveId ? baselineProjection : official2023Projection).ilceResults[ilceId];
     if (!iRes) return null;
     const provName = projection.provinceResults[iRes.ilId]?.name || iRes.ilId;
     const sorted = [...parties]
@@ -585,6 +739,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     const topEntries = barEntries.slice(0, 6);
     const isLocked = Boolean(ilceOverrides[ilceId]?.isLocked);
     const runner = sorted[1];
+    const iFlipped = Boolean(baseIRes && baseIRes.leadingPartyId !== iRes.leadingPartyId);
     return {
       name: iRes.name,
       fill: getFillColor(
@@ -592,7 +747,8 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
         iRes.partyShares,
         baseIRes?.partyShares || {},
         iRes.marginPct,
-        iRes.turnout
+        iRes.turnout,
+        baseIRes?.leadingPartyId
       ),
       isLocked,
       telemetry: {
@@ -626,6 +782,17 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
         ),
         topEntries,
         barEntries,
+        ...(isCrossCompare && iFlipped && baseIRes
+          ? {
+              localFlipped: true,
+              localRefLabel: compareLabel,
+              localPrevWinnerShort:
+                compPartyMap[baseIRes.leadingPartyId]?.shortName || baseIRes.leadingPartyId,
+              localPrevWinnerColor: compPartyMap[baseIRes.leadingPartyId]?.color || '#94a3b8',
+              localWinnerShort: partyMap[iRes.leadingPartyId]?.shortName || iRes.leadingPartyId,
+              localWinnerColor: partyMap[iRes.leadingPartyId]?.color || '#64748b',
+            }
+          : {}),
       },
     };
   };
@@ -634,7 +801,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     dId: string
   ): { fill: string; isLocked: boolean; telemetry: HoverTelemetryData } | null => {
     const dRes = projection.districtResults[dId];
-    const baseDRes = official2023Projection.districtResults[dId];
+    const baseDRes = (activeArchiveId ? baselineProjection : official2023Projection).districtResults[dId];
     if (!dRes) return null;
     const isLocked = Boolean(districtOverrides[dId]?.isLocked);
     const sorted = [...parties]
@@ -656,13 +823,15 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
       ? partyMap[dRes.closestChallengerPartyId]
       : undefined;
     const runner = sorted[1];
+    const dFlipped = Boolean(baseDRes && baseDRes.leadingPartyId !== dRes.leadingPartyId);
     return {
       fill: getFillColor(
         dRes.leadingPartyId,
         dRes.partyShares,
         baseDRes?.partyShares || {},
         dRes.marginPct,
-        dRes.turnout
+        dRes.turnout,
+        baseDRes?.leadingPartyId
       ),
       isLocked,
       telemetry: {
@@ -704,6 +873,17 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
         closestChallengerShort: challenger?.shortName,
         closestChallengerColor: challenger?.color,
         votesToFlipLastSeat: challenger ? dRes.votesToFlipLastSeat : undefined,
+        ...(isCrossCompare && dFlipped && baseDRes
+          ? {
+              localFlipped: true,
+              localRefLabel: compareLabel,
+              localPrevWinnerShort:
+                compPartyMap[baseDRes.leadingPartyId]?.shortName || baseDRes.leadingPartyId,
+              localPrevWinnerColor: compPartyMap[baseDRes.leadingPartyId]?.color || '#94a3b8',
+              localWinnerShort: partyMap[dRes.leadingPartyId]?.shortName || dRes.leadingPartyId,
+              localWinnerColor: partyMap[dRes.leadingPartyId]?.color || '#64748b',
+            }
+          : {}),
       },
     };
   };
@@ -714,6 +894,13 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     if (electionMode === 'presidential') {
       const u = activePresRound.provinceResults[ilId];
       if (!u) return null;
+      const baseU = activePresBaseRound?.provinceResults[ilId];
+      const isFlipped = Boolean(
+        baseU &&
+          (candSetDiffers
+            ? presidentialCamp(u.leadingCandidateId) !== presidentialCamp(baseU.leadingCandidateId)
+            : u.leadingCandidateId !== baseU.leadingCandidateId)
+      );
       const leaderColor = candMap[u.leadingCandidateId]?.color || '#64748b';
       const sorted = presCandidates
         .filter((c) => !c.isOther && (u.candidateVotes[c.id] || 0) > 0)
@@ -724,12 +911,17 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
         color: c.color,
         share: u.candidateShares[c.id] || 0,
         votes: u.candidateVotes[c.id] || 0,
+        deltaShare:
+          baseU && baseU.candidateShares[c.id] !== undefined
+            ? (u.candidateShares[c.id] || 0) - (baseU.candidateShares[c.id] || 0)
+            : undefined,
       }));
       const topEntries = barEntries.slice(0, 6);
       const isLocked = Boolean(presProvinceOverrides[ilId]?.isLocked);
       return {
-        fill: getCustomEntityFill(leaderColor, u.marginPct, u.turnout, undefined, {
+        fill: getCustomEntityFill(leaderColor, u.marginPct, u.turnout, isFlipped, {
           shares: u.candidateShares,
+          baseShares: baseU?.candidateShares,
           runnerUpColor: focusColorById[u.runnerUpCandidateId],
         }),
         isLocked,
@@ -737,7 +929,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
           id: ilId,
           mode: 'presidential',
           title: `${u.id} · ${u.name}`,
-          subtitle: `${presRoundView === 'round2' ? '2. Tur' : '1. Tur'} · ${
+          subtitle: `${presRoundPrefix}${
             lang === 'tr' ? 'Çift tıkla: ilçeler' : 'Double-click: districts'
           }`,
           unitBadge: lang === 'tr' ? 'İl' : 'Province',
@@ -763,7 +955,20 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
           marginVotes: u.marginVotes,
           topEntries,
           barEntries,
-          presRound: presRoundView,
+          presRound: effectivePresRoundView,
+          ...(isCrossCompare && isFlipped && baseU
+            ? {
+                localFlipped: true,
+                localRefLabel: compareLabel,
+                localPrevWinnerShort:
+                  compCandMap[baseU.leadingCandidateId]?.shortName ||
+                  baseU.leadingCandidateId.toUpperCase(),
+                localPrevWinnerColor:
+                  compCandMap[baseU.leadingCandidateId]?.color || '#94a3b8',
+                localWinnerShort: candMap[u.leadingCandidateId]?.shortName || u.leadingCandidateId,
+                localWinnerColor: leaderColor,
+              }
+            : {}),
         },
       };
     }
@@ -841,7 +1046,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
               ? lang === 'tr'
                 ? 'Mevcut'
                 : 'Current'
-              : '2024',
+              : String(localProjection.referenceYear ?? 2024),
           localPrevWinnerShort: oldP?.shortName || p.winner2024PartyId,
           localPrevWinnerColor: oldP?.color || '#94a3b8',
           localWinnerShort: winP?.shortName || p.winnerPartyId,
@@ -853,7 +1058,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     }
 
     const pRes = projection.provinceResults[ilId];
-    const basePRes = official2023Projection.provinceResults[ilId];
+    const basePRes = (activeArchiveId ? baselineProjection : official2023Projection).provinceResults[ilId];
     if (!pRes) return null;
     const sorted = [...parties]
       .filter((p) => !p.isOther && (pRes.partyVotes[p.id] || 0) > 0)
@@ -878,13 +1083,15 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     const challenger = singleDistrict?.closestChallengerPartyId
       ? partyMap[singleDistrict.closestChallengerPartyId]
       : undefined;
+    const pFlipped = Boolean(basePRes && basePRes.leadingPartyId !== pRes.leadingPartyId);
     return {
       fill: getFillColor(
         pRes.leadingPartyId,
         pRes.partyShares,
         basePRes?.partyShares || {},
         pRes.marginPct,
-        pRes.turnout
+        pRes.turnout,
+        basePRes?.leadingPartyId
       ),
       isLocked,
       telemetry: {
@@ -925,6 +1132,17 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
         closestChallengerShort: challenger?.shortName,
         closestChallengerColor: challenger?.color,
         votesToFlipLastSeat: challenger ? singleDistrict?.votesToFlipLastSeat : undefined,
+        ...(isCrossCompare && pFlipped && basePRes
+          ? {
+              localFlipped: true,
+              localRefLabel: compareLabel,
+              localPrevWinnerShort:
+                compPartyMap[basePRes.leadingPartyId]?.shortName || basePRes.leadingPartyId,
+              localPrevWinnerColor: compPartyMap[basePRes.leadingPartyId]?.color || '#94a3b8',
+              localWinnerShort: partyMap[pRes.leadingPartyId]?.shortName || pRes.leadingPartyId,
+              localWinnerColor: partyMap[pRes.leadingPartyId]?.color || '#64748b',
+            }
+          : {}),
       },
     };
   };
@@ -961,7 +1179,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
           id: countryId,
           mode: 'presidential',
           title: lang === 'tr' ? baseC.nameTr : baseC.nameEn,
-          subtitle: `${presRoundView === 'round2' ? '2. Tur' : '1. Tur'} · ${baseC.region}`,
+          subtitle: `${presRoundPrefix}${baseC.region}`,
           unitBadge: lang === 'tr' ? 'Yurt Dışı' : 'Abroad',
           registeredVoters: u.registeredVoters,
           turnout: u.turnout,
@@ -985,7 +1203,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
           marginVotes: u.marginVotes,
           topEntries,
           barEntries,
-          presRound: presRoundView,
+          presRound: effectivePresRoundView,
         },
       };
     }
@@ -1073,53 +1291,96 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
     return m;
   }, [parties]);
 
-  const renderSeatCircleCluster = (
-    feat: GeoFeature,
-    partySeats: Record<string, number>,
-    partyVotes: Record<string, number>,
-    offsetMap: Record<string, [number, number]>,
-    isIstanbul: boolean
-  ) => {
-    const rawCentroid = pathGenerator.centroid(feat as any);
-    const layout = computeSeatClusterLayout(
-      feat.properties.id,
-      rawCentroid,
-      partySeats,
-      partyVotes,
-      partyColorMap,
-      offsetMap,
-      isIstanbul,
-      1
-    );
-    if (!layout) return null;
+  const districtSeatLayout = useMemo(() => {
+    if (
+      !showSeatCircles ||
+      electionMode !== 'parliamentary' ||
+      mapLayer !== '87_district' ||
+      zoomedProvinceId ||
+      isWorldView ||
+      !activeDistricts87Geo
+    ) {
+      return null;
+    }
+    const units = activeDistricts87Geo.features
+      .map((feat) => {
+        const dId = feat.properties.id;
+        const dRes = projection.districtResults[dId];
+        if (!dRes) return null;
+        return {
+          id: dId,
+          ilId: dRes.ilId,
+          feature: feat,
+          partySeats: dRes.partySeats,
+          partyVotes: dRes.totalPartyVotes,
+        };
+      })
+      .filter((u): u is NonNullable<typeof u> => u !== null);
 
-    return (
-      <g key={`seats-${feat.properties.id}`}>
-        {layout.leaderLine && (
-          <line
-            x1={layout.leaderLine.x1}
-            y1={layout.leaderLine.y1}
-            x2={layout.leaderLine.x2}
-            y2={layout.leaderLine.y2}
-            stroke="#090a0f"
-            strokeWidth={0.75}
-            strokeOpacity={0.65}
-          />
-        )}
-        {layout.dots.map((dot, idx) => (
-          <circle
-            key={`${feat.properties.id}-s-${idx}`}
-            cx={dot.x}
-            cy={dot.y}
-            r={dot.r}
-            fill={dot.color}
-            stroke="#090a0f"
-            strokeWidth={0.7}
-          />
-        ))}
-      </g>
-    );
-  };
+    return computeMapSeatLayouts({
+      units,
+      projection: (pt) => mapProjection(pt),
+      viewportBox: { x: 0, y: 0, w: 980, h: 470 },
+      partyColorMap,
+      isDistrictLayer: true,
+    });
+  }, [
+    showSeatCircles,
+    electionMode,
+    mapLayer,
+    zoomedProvinceId,
+    isWorldView,
+    activeDistricts87Geo,
+    projection.districtResults,
+    mapProjection,
+    partyColorMap,
+  ]);
+
+  const provinceSeatLayout = useMemo(() => {
+    if (
+      !showSeatCircles ||
+      electionMode !== 'parliamentary' ||
+      mapLayer === '87_district' ||
+      mapLayer === '973_ilce' ||
+      zoomedProvinceId ||
+      isWorldView ||
+      !activeProvincesGeo
+    ) {
+      return null;
+    }
+    const units = activeProvincesGeo.features
+      .map((feat) => {
+        const ilId = feat.properties.id;
+        const pRes = projection.provinceResults[ilId];
+        if (!pRes) return null;
+        return {
+          id: ilId,
+          ilId,
+          feature: feat,
+          partySeats: pRes.partySeats,
+          partyVotes: pRes.partyVotes,
+        };
+      })
+      .filter((u): u is NonNullable<typeof u> => u !== null);
+
+    return computeMapSeatLayouts({
+      units,
+      projection: (pt) => mapProjection(pt),
+      viewportBox: { x: 0, y: 0, w: 980, h: 470 },
+      partyColorMap,
+      isDistrictLayer: false,
+    });
+  }, [
+    showSeatCircles,
+    electionMode,
+    mapLayer,
+    zoomedProvinceId,
+    isWorldView,
+    activeProvincesGeo,
+    projection.provinceResults,
+    mapProjection,
+    partyColorMap,
+  ]);
 
   const handleHoverEnterOrMove = (
     telemetry: HoverTelemetryData,
@@ -1238,7 +1499,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                 className={`px-2 py-1 border transition-colors ${
                   (activeScope.type === 'province' ||
                     (activeScope.type === 'district' &&
-                      !['34', '06', '35', '16'].includes(selectedProvResult.id))) &&
+                      selectedProvResult.districtIds.length <= 1)) &&
                   !selectedIlceResult
                     ? 'bg-[#090A0F] text-white border-[#090A0F]'
                     : 'border-transparent text-slate-700 hover:border-[#090A0F]'
@@ -1253,7 +1514,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
           {electionMode === 'parliamentary' &&
             activeScope.type === 'district' &&
             selectedProvResult &&
-            ['34', '06', '35', '16'].includes(selectedProvResult.id) && (
+            selectedProvResult.districtIds.length > 1 && (
               <>
                 <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                 <span className="px-2 py-1 bg-[#090A0F] text-white">
@@ -1287,7 +1548,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                 <button
                   type="button"
                   onClick={() => {
-                    const prev = stepPlateCode(zoomedProvinceId, -1);
+                    const prev = stepPlateCode(zoomedProvinceId, -1, provCount);
                     setZoomedProvinceId(prev);
                     setActiveScope({ type: 'province', ilId: prev });
                   }}
@@ -1295,19 +1556,19 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                   title={lang === 'tr' ? 'Önceki plaka (←)' : 'Previous plate (←)'}
                 >
                   <ChevronLeft className="w-3 h-3" />
-                  <span>{stepPlateCode(zoomedProvinceId, -1)}</span>
+                  <span>{stepPlateCode(zoomedProvinceId, -1, provCount)}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => {
-                    const next = stepPlateCode(zoomedProvinceId, 1);
+                    const next = stepPlateCode(zoomedProvinceId, 1, provCount);
                     setZoomedProvinceId(next);
                     setActiveScope({ type: 'province', ilId: next });
                   }}
                   className="px-1.5 py-1 border-l border-[#090A0F] hover:bg-[#090A0F] hover:text-white transition-colors flex items-center gap-0.5 text-micro font-mono font-bold"
                   title={lang === 'tr' ? 'Sonraki plaka (→)' : 'Next plate (→)'}
                 >
-                  <span>{stepPlateCode(zoomedProvinceId, 1)}</span>
+                  <span>{stepPlateCode(zoomedProvinceId, 1, provCount)}</span>
                   <ChevronRight className="w-3 h-3" />
                 </button>
               </div>
@@ -1324,7 +1585,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
 
         {/* Right Toolbar: Layer Toggle + Round Switch + Color Mode */}
         <div className="flex flex-wrap items-center gap-2 text-body">
-          {electionMode === 'presidential' && (
+          {electionMode === 'presidential' && hasRunoff && (
             <div className="inline-flex border-[1.5px] border-[#090A0F] bg-white text-micro font-bold">
               {(['round1', 'round2'] as const).map((rv, idx) => (
                 <button
@@ -1360,37 +1621,47 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
               </button>
             </div>
           ) : (
-            <div className="inline-flex flex-wrap border-[1.5px] border-[#090A0F] bg-white text-micro font-medium">
-              {(
-                (electionMode === 'parliamentary'
+            (() => {
+              const distCount = Object.keys(projection.districtResults).length || 87;
+              const ilceCount =
+                (electionMode === 'local'
+                  ? Object.keys(localProjection.ilceResults).length
+                  : Object.keys(projection.ilceResults).length) || 973;
+              const layerOptions = (
+                electionMode === 'parliamentary'
                   ? [
-                      ['87_district', lang === 'tr' ? '87 bölge' : '87 dist'],
-                      ['81_il', lang === 'tr' ? '81 il' : '81 prov'],
-                      ['973_ilce', lang === 'tr' ? '973 ilçe' : '973 sub'],
+                      ['87_district', lang === 'tr' ? `${distCount} bölge` : `${distCount} dist`],
+                      ['81_il', lang === 'tr' ? `${provCount} il` : `${provCount} prov`],
+                      ['973_ilce', lang === 'tr' ? `${ilceCount} ilçe` : `${ilceCount} sub`],
                     ]
                   : [
-                      ['81_il', lang === 'tr' ? '81 il' : '81 prov'],
-                      ['973_ilce', lang === 'tr' ? '973 ilçe' : '973 sub'],
-                    ]) as [MapLayerMode, string][]
-              ).map(([lKey, label], idx) => (
-                <button
-                  key={lKey}
-                  onClick={() => {
-                    setMapLayer(lKey);
-                    if (lKey !== '973_ilce') setZoomedProvinceId(null);
-                  }}
-                  className={`px-2 sm:px-2.5 py-1.5 sm:py-1 transition-colors flex items-center gap-1 ${
-                    idx > 0 ? 'border-l border-[#090A0F]' : ''
-                  } ${
-                    mapLayer === lKey && !zoomedProvinceId
-                      ? 'bg-[#090A0F] text-white'
-                      : 'text-[#090A0F] hover:bg-slate-100'
-                  }`}
-                >
-                  <span>{label}</span>
-                </button>
-              ))}
-            </div>
+                      ['81_il', lang === 'tr' ? `${provCount} il` : `${provCount} prov`],
+                      ['973_ilce', lang === 'tr' ? `${ilceCount} ilçe` : `${ilceCount} sub`],
+                    ]
+              ) as [MapLayerMode, string][];
+              return (
+                <div className="inline-flex flex-wrap border-[1.5px] border-[#090A0F] bg-white text-micro font-medium">
+                  {layerOptions.map(([lKey, label], idx) => (
+                    <button
+                      key={lKey}
+                      onClick={() => {
+                        setMapLayer(lKey);
+                        if (lKey !== '973_ilce') setZoomedProvinceId(null);
+                      }}
+                      className={`px-2 sm:px-2.5 py-1.5 sm:py-1 transition-colors flex items-center gap-1 ${
+                        idx > 0 ? 'border-l border-[#090A0F]' : ''
+                      } ${
+                        mapLayer === lKey && !zoomedProvinceId
+                          ? 'bg-[#090A0F] text-white'
+                          : 'text-[#090A0F] hover:bg-slate-100'
+                      }`}
+                    >
+                      <span>{label}</span>
+                    </button>
+                  ))}
+                </div>
+              );
+            })()
           )}
 
           <select
@@ -1415,15 +1686,19 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                 : 'Runner-up party'}
             </option>
             {electionMode === 'parliamentary' && <option value="alliance">{t.colorAlliance}</option>}
-            {electionMode === 'local' && (
+            {(electionMode === 'local' || Boolean(activeArchiveId)) && (
               <option value="flips">
-                {localProjection.referenceBaseline === 'current'
-                  ? lang === 'tr'
-                    ? 'Mevcut yönetimden el değiştirenler'
-                    : 'Flipped from current control'
+                {electionMode === 'local'
+                  ? localProjection.referenceBaseline === 'current'
+                    ? lang === 'tr'
+                      ? 'Mevcut yönetimden el değiştirenler'
+                      : 'Flipped from current control'
+                    : lang === 'tr'
+                    ? `${localProjection.referenceYear ?? 2024}'ten el değiştirenler`
+                    : `Flipped from ${localProjection.referenceYear ?? 2024}`
                   : lang === 'tr'
-                  ? "2024'ten el değiştirenler"
-                  : 'Flipped from 2024'}
+                  ? `${compareLabel}'e göre el değiştirenler`
+                  : `Flipped vs ${compareLabel}`}
               </option>
             )}
             <option value="margin">{lang === 'tr' ? 'Başa baş / Fark' : 'Battleground margin'}</option>
@@ -1436,13 +1711,15 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                 ? 'Parti yoğunluğu'
                 : 'Party heatmap'}
             </option>
-            {electionMode === 'parliamentary' && (
+            {(electionMode === 'parliamentary' || Boolean(activePresBaseRound)) && (
               <option value="swing">{lang === 'tr' ? 'Salınım (±pp)' : 'Swing (±pp)'}</option>
             )}
             <option value="turnout">{t.colorTurnout}</option>
           </select>
 
-          {(mapColorMode === 'party_share' || (mapColorMode === 'swing' && electionMode === 'parliamentary')) && (
+          {(mapColorMode === 'party_share' ||
+            (mapColorMode === 'swing' &&
+              (electionMode === 'parliamentary' || Boolean(activePresBaseRound)))) && (
             <select
               value={mapColorMode === 'party_share' ? effectiveFocusId : mapFocusEntityId || ''}
               onChange={(e) => setMapFocusEntityId(e.target.value || null)}
@@ -1739,9 +2016,9 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                     );
                   })}
                 </g>
-              ) : zoomedProvinceId && ilcelerGeo ? (
+              ) : zoomedProvinceId && activeIlcelerGeo ? (
                 <g>
-                  {(provincesGeo?.features || [])
+                  {(activeProvincesGeo?.features || [])
                     .filter((f) => f.properties.id !== zoomedProvinceId)
                     .map((f) => (
                       <path
@@ -1755,7 +2032,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                       />
                     ))}
 
-                  {ilcelerGeo.features
+                  {activeIlcelerGeo.features
                     .filter((f) => f.properties.ilId === zoomedProvinceId)
                     .map((feat, idx) => {
                       const ilceId = feat.properties.id;
@@ -1788,10 +2065,10 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                       );
                     })}
                 </g>
-              ) : mapLayer === '973_ilce' && ilcelerGeo ? (
+              ) : mapLayer === '973_ilce' && activeIlcelerGeo ? (
                 /* CASE 2: Full Turkey 973 İlçe Polygons Map */
                 <g>
-                  {ilcelerGeo.features.map((feat, idx) => {
+                  {activeIlcelerGeo.features.map((feat, idx) => {
                     const ilceId = feat.properties.id;
                     const view = resolveIlceMapData(ilceId);
                     if (!view) return null;
@@ -1821,21 +2098,22 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                     );
                   })}
                   {/* Crisp Region Borders Overlay */}
-                  {((electionMode === 'parliamentary' && districts87Geo ? districts87Geo : provincesGeo)?.features || []).map((bFeat) => (
+                  {((electionMode === 'parliamentary' && activeDistricts87Geo ? activeDistricts87Geo : activeProvincesGeo)?.features || []).map((bFeat) => (
                     <path
                       key={`dborder-${bFeat.properties.id}`}
                       d={pathGenerator(bFeat as any) || ''}
                       fill="none"
                       stroke="#090a0f"
                       strokeWidth={0.75}
+                      strokeLinejoin="round"
                       pointerEvents="none"
                     />
                   ))}
                 </g>
-              ) : electionMode === 'parliamentary' && mapLayer === '87_district' && districts87Geo ? (
+              ) : electionMode === 'parliamentary' && mapLayer === '87_district' && activeDistricts87Geo ? (
                 /* CASE 3 (Default): Unified 87 Electoral Regions (Dissolved from İlçeler, Zero Clutter, No Labels) */
                 <g>
-                  {districts87Geo.features.map((feat) => {
+                  {activeDistricts87Geo.features.map((feat) => {
                     const dId = feat.properties.id;
                     const view = resolveDistrictMapData(dId);
                     if (!view) return null;
@@ -1851,6 +2129,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                         fillRule="evenodd"
                         stroke={isSelected ? '#090a0f' : view.isLocked ? '#f59e0b' : '#090a0f'}
                         strokeWidth={isSelected ? 2.2 : view.isLocked ? 1.8 : 0.65}
+                        strokeLinejoin="round"
                         className="cursor-pointer transition-opacity hover:opacity-85"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -1873,27 +2152,170 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                     );
                   })}
 
-                  {showSeatCircles && (
-                    <g className="pointer-events-none">
-                      {districts87Geo.features.map((feat) => {
-                        const dId = feat.properties.id;
-                        const dRes = projection.districtResults[dId];
-                        if (!dRes) return null;
-                        return renderSeatCircleCluster(
-                          feat,
-                          dRes.partySeats,
-                          dRes.totalPartyVotes,
-                          SEAT_OFFSETS_87,
-                          dRes.ilId === '34'
+                  {showSeatCircles && districtSeatLayout && (
+                    <g>
+                      <g className="pointer-events-none">
+                        {districtSeatLayout.clusters.map((cluster) => (
+                          <g key={`seats-${cluster.id}`}>
+                            {cluster.leaderLine && (
+                              <line
+                                x1={cluster.leaderLine.x1}
+                                y1={cluster.leaderLine.y1}
+                                x2={cluster.leaderLine.x2}
+                                y2={cluster.leaderLine.y2}
+                                stroke="#090a0f"
+                                strokeWidth={0.75}
+                                strokeOpacity={0.55}
+                              />
+                            )}
+                            {cluster.dots.map((dot, idx) => (
+                              <circle
+                                key={`${cluster.id}-s-${idx}`}
+                                cx={dot.x}
+                                cy={dot.y}
+                                r={dot.r}
+                                fill={dot.color}
+                                stroke="#090a0f"
+                                strokeWidth={0.65}
+                              />
+                            ))}
+                          </g>
+                        ))}
+                      </g>
+
+                      {districtSeatLayout.istanbulPanel && (() => {
+                        const p = districtSeatLayout.istanbulPanel!;
+                        return (
+                          <g>
+                            <line
+                              x1={p.stem.x1}
+                              y1={p.stem.y1}
+                              x2={p.stem.x2}
+                              y2={p.stem.y2}
+                              stroke="#090A0F"
+                              strokeWidth={0.9}
+                              strokeOpacity={0.65}
+                              className="pointer-events-none"
+                            />
+                            <rect
+                              x={p.x + 2}
+                              y={p.y + 2}
+                              width={p.w}
+                              height={p.h}
+                              fill="#090A0F"
+                              fillOpacity={0.08}
+                              className="pointer-events-none"
+                            />
+                            <rect
+                              x={p.x}
+                              y={p.y}
+                              width={p.w}
+                              height={p.h}
+                              fill="#FFFFFF"
+                              stroke="#090A0F"
+                              strokeWidth={1.3}
+                            />
+                            <rect
+                              x={p.x}
+                              y={p.y}
+                              width={p.w}
+                              height={p.headerH}
+                              fill="#090A0F"
+                              className="pointer-events-none"
+                            />
+                            <text
+                              x={p.x + 4.5}
+                              y={p.y + p.headerH - 3.2}
+                              fontSize={6.8}
+                              fontWeight={700}
+                              letterSpacing={0.35}
+                              fill="#FFFFFF"
+                              className="pointer-events-none"
+                            >
+                              {lang === 'tr'
+                                ? `İSTANBUL · ${p.districtCount} BÖLGE (${p.totalMps} MV)`
+                                : `ISTANBUL · ${p.districtCount} DIST. (${p.totalMps} MPs)`}
+                            </text>
+                            {p.cells.map((cell) => {
+                              const view = resolveDistrictMapData(cell.id);
+                              const isSelected =
+                                activeScope.type === 'district' && activeScope.districtId === cell.id;
+                              const isHovered = hovered?.id === cell.id;
+                              return (
+                                <g
+                                  key={`ist-cell-${cell.id}`}
+                                  className="cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (isDragging || !view) return;
+                                    selectMapEntity(
+                                      { type: 'district', districtId: cell.id },
+                                      view.telemetry,
+                                      '34'
+                                    );
+                                  }}
+                                  onDoubleClick={() => setZoomedProvinceId('34')}
+                                  onMouseMove={(e) => {
+                                    if (isDragging || !view) return;
+                                    handleHoverEnterOrMove(view.telemetry, e.clientX, e.clientY);
+                                  }}
+                                >
+                                  <rect
+                                    x={cell.x}
+                                    y={cell.y}
+                                    width={cell.w}
+                                    height={cell.h}
+                                    fill={
+                                      isSelected
+                                        ? '#E2E8F0'
+                                        : isHovered
+                                        ? '#F1F5F9'
+                                        : '#FFFFFF'
+                                    }
+                                    stroke={
+                                      isSelected
+                                        ? '#090A0F'
+                                        : view?.isLocked
+                                        ? '#f59e0b'
+                                        : '#E2E8F0'
+                                    }
+                                    strokeWidth={isSelected ? 1.1 : 0.6}
+                                  />
+                                  <text
+                                    x={cell.x + 2.5}
+                                    y={cell.y + cell.h * 0.5 + 2.4}
+                                    fontSize={6.5}
+                                    fontWeight={700}
+                                    fill="#090A0F"
+                                    className="pointer-events-none"
+                                  >
+                                    {cell.shortLabel}
+                                  </text>
+                                  {cell.dots.map((dot, dIdx) => (
+                                    <circle
+                                      key={`ist-dot-${cell.id}-${dIdx}`}
+                                      cx={dot.x}
+                                      cy={dot.y}
+                                      r={dot.r}
+                                      fill={dot.color}
+                                      stroke="#090A0F"
+                                      strokeWidth={0.45}
+                                      className="pointer-events-none"
+                                    />
+                                  ))}
+                                </g>
+                              );
+                            })}
+                          </g>
                         );
-                      })}
+                      })()}
                     </g>
                   )}
                 </g>
-              ) : provincesGeo ? (
-                /* CASE 4: 81 Provinces Vector Map (No Text Labels) */
+              ) : activeProvincesGeo ? (
+                /* CASE 4: Provinces Vector Map (No Text Labels) */
                 <g>
-                  {provincesGeo.features.map((feat) => {
+                  {activeProvincesGeo.features.map((feat) => {
                     const ilId = feat.properties.id;
                     const view = resolveProvinceMapData(ilId);
                     if (!view) return null;
@@ -1909,6 +2331,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                         fillRule="evenodd"
                         stroke={isSelected ? '#090a0f' : view.isLocked ? '#f59e0b' : '#090a0f'}
                         strokeWidth={isSelected ? 2.2 : view.isLocked ? 1.8 : 0.65}
+                        strokeLinejoin="round"
                         className="cursor-pointer transition-opacity hover:opacity-85"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -1924,20 +2347,34 @@ export const MapPanel: React.FC<MapPanelProps> = ({ onEditUnitMobile }) => {
                     );
                   })}
 
-                  {electionMode === 'parliamentary' && showSeatCircles && (
+                  {electionMode === 'parliamentary' && showSeatCircles && provinceSeatLayout && (
                     <g className="pointer-events-none">
-                      {provincesGeo.features.map((feat) => {
-                        const ilId = feat.properties.id;
-                        const pRes = projection.provinceResults[ilId];
-                        if (!pRes) return null;
-                        return renderSeatCircleCluster(
-                          feat,
-                          pRes.partySeats,
-                          pRes.partyVotes,
-                          SEAT_OFFSETS_81,
-                          ilId === '34'
-                        );
-                      })}
+                      {provinceSeatLayout.clusters.map((cluster) => (
+                        <g key={`seats-${cluster.id}`}>
+                          {cluster.leaderLine && (
+                            <line
+                              x1={cluster.leaderLine.x1}
+                              y1={cluster.leaderLine.y1}
+                              x2={cluster.leaderLine.x2}
+                              y2={cluster.leaderLine.y2}
+                              stroke="#090a0f"
+                              strokeWidth={0.75}
+                              strokeOpacity={0.55}
+                            />
+                          )}
+                          {cluster.dots.map((dot, idx) => (
+                            <circle
+                              key={`${cluster.id}-s-${idx}`}
+                              cx={dot.x}
+                              cy={dot.y}
+                              r={dot.r}
+                              fill={dot.color}
+                              stroke="#090a0f"
+                              strokeWidth={0.65}
+                            />
+                          ))}
+                        </g>
+                      ))}
                     </g>
                   )}
                 </g>

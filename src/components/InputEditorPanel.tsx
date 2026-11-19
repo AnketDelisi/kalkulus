@@ -14,10 +14,17 @@ import {
   Users,
 } from 'lucide-react';
 import { ABROAD_COUNTRY_BY_ID } from '../data/abroadCountries';
+import { ARCHIVE_ELECTIONS, ARCHIVE_ELECTION_LIST } from '../data/archiveRegistry';
 import { getCachedBaseline, getCachedLocalBaseline } from '../data/baselineCache';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
-import { BaselineId, LocalBaselineId, LocalProvinceMode, SwingMode } from '../types/election';
+import {
+  ArchiveElectionId,
+  BaselineId,
+  LocalBaselineId,
+  LocalProvinceMode,
+  SwingMode,
+} from '../types/election';
 import { formatInt, formatPct } from '../utils/format';
 import { LocationSearchCombobox } from './LocationSearchCombobox';
 import { PollQuickEntryModal } from './PollQuickEntryModal';
@@ -27,6 +34,8 @@ import { UnitBuffDrawer } from './UnitBuffDrawer';
 export const InputEditorPanel: React.FC = () => {
   const {
     lang,
+    activeArchiveId,
+    archiveWhatIfParl,
     electionMode,
     baselineId,
     swingMode,
@@ -41,7 +50,9 @@ export const InputEditorPanel: React.FC = () => {
     ilceOverrides,
     abroadCountryOverrides,
     projection,
+    baselineProjection,
     official2023Projection,
+    enterArchiveElection,
     localBaselineId,
     localSwingMode,
     localProvinceMode,
@@ -113,9 +124,13 @@ export const InputEditorPanel: React.FC = () => {
 
   const isLocal = electionMode === 'local';
   const t = translations[lang];
-  const activeDataset = isLocal
-    ? getCachedLocalBaseline(localBaselineId)
-    : getCachedBaseline(baselineId, customBaseline);
+  const activeDataset =
+    activeArchiveId && customBaseline
+      ? customBaseline
+      : isLocal
+      ? getCachedLocalBaseline(localBaselineId)
+      : getCachedBaseline(baselineId, customBaseline);
+  const parlBaseRef = activeArchiveId ? baselineProjection : official2023Projection;
 
   const scopeData = useMemo(() => {
     if (isLocal) {
@@ -192,11 +207,17 @@ export const InputEditorPanel: React.FC = () => {
 
     if (activeScope.type === 'national') {
       const shares = nationalTargetShares;
-      const baseShares = official2023Projection.nationalPartyShares;
+      const baseShares = parlBaseRef.nationalPartyShares;
       const sum = Object.values(shares).reduce((a, b) => a + (Number(b) || 0), 0);
+      const pCnt = Object.keys(projection.provinceResults).length || 81;
+      const dCnt = Object.keys(projection.districtResults).length || 87;
+      const iCnt = Object.keys(projection.ilceResults).length || 973;
       return {
         title: t.nationalScope,
-        subtitle: lang === 'tr' ? '81 il, 87 seçim çevresi, 973 ilçe' : '81 provinces, 87 districts, 973 ilçeler',
+        subtitle:
+          lang === 'tr'
+            ? `${pCnt} il, ${dCnt} seçim çevresi, ${iCnt} ilçe`
+            : `${pCnt} provinces, ${dCnt} districts, ${iCnt} ilçeler`,
         isLocked: false,
         canLock: false,
         registeredVoters: projection.domesticRegisteredVoters,
@@ -213,11 +234,15 @@ export const InputEditorPanel: React.FC = () => {
       const shares = abroadConfig.syncWithNationalSwing
         ? projection.abroadPartyShares
         : abroadConfig.partyShares;
-      const baseShares = official2023Projection.abroadPartyShares;
+      const baseShares = parlBaseRef.abroadPartyShares;
       const sum = Object.values(shares).reduce((a, b) => a + (Number(b) || 0), 0);
+      const dCnt = Object.keys(projection.districtResults).length || 87;
       return {
         title: t.abroadScope,
-        subtitle: lang === 'tr' ? '87 seçim çevresine oransal dağıtım' : 'Proportional distribution across 87 districts',
+        subtitle:
+          lang === 'tr'
+            ? `${dCnt} seçim çevresine oransal dağıtım`
+            : `Proportional distribution across ${dCnt} districts`,
         isLocked: !abroadConfig.syncWithNationalSwing,
         canLock: true,
         registeredVoters: abroadConfig.registeredVoters,
@@ -232,7 +257,7 @@ export const InputEditorPanel: React.FC = () => {
 
     if (activeScope.type === 'province') {
       const pRes = projection.provinceResults[activeScope.ilId];
-      const basePRes = official2023Projection.provinceResults[activeScope.ilId];
+      const basePRes = parlBaseRef.provinceResults[activeScope.ilId];
       const ovr = provinceOverrides[activeScope.ilId];
       const shares = ovr?.partyShares || pRes?.partyShares || {};
       const baseShares = basePRes?.partyShares || {};
@@ -254,7 +279,7 @@ export const InputEditorPanel: React.FC = () => {
 
     if (activeScope.type === 'district') {
       const dRes = projection.districtResults[activeScope.districtId];
-      const baseDRes = official2023Projection.districtResults[activeScope.districtId];
+      const baseDRes = parlBaseRef.districtResults[activeScope.districtId];
       const ovr = districtOverrides[activeScope.districtId];
       const shares = ovr?.partyShares || dRes?.domesticPartyShares || {};
       const baseShares = baseDRes?.domesticPartyShares || {};
@@ -302,7 +327,7 @@ export const InputEditorPanel: React.FC = () => {
 
     const ilceId = activeScope.type === 'ilce' ? activeScope.ilceId : '';
     const iRes = projection.ilceResults[ilceId];
-    const baseIRes = official2023Projection.ilceResults[ilceId];
+    const baseIRes = parlBaseRef.ilceResults[ilceId];
     const ovr = ilceOverrides[ilceId];
     const provName = projection.provinceResults[iRes?.ilId || '']?.name || '';
     const shares = ovr?.partyShares || iRes?.partyShares || {};
@@ -333,7 +358,7 @@ export const InputEditorPanel: React.FC = () => {
     abroadCountryOverrides,
     abroadCountryOverrides,
     projection,
-    official2023Projection,
+    parlBaseRef,
     localTargetShares,
     localTargetTurnout,
     localProvinceOverrides,
@@ -450,9 +475,33 @@ export const InputEditorPanel: React.FC = () => {
       <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col gap-1">
           <label className="eyebrow">
-            {lang === 'tr' ? 'Baz seçim' : 'Base election'}
+            {activeArchiveId
+              ? lang === 'tr'
+                ? 'Arşiv seçimi'
+                : 'Archive election'
+              : lang === 'tr'
+              ? 'Baz seçim'
+              : 'Base election'}
           </label>
-          {isLocal ? (
+          {activeArchiveId ? (
+            <select
+              value={activeArchiveId}
+              onChange={(e) => {
+                const nextId = e.target.value as ArchiveElectionId;
+                void enterArchiveElection(
+                  nextId,
+                  ARCHIVE_ELECTIONS[nextId]?.supportsWhatIfParl ? archiveWhatIfParl : false
+                );
+              }}
+              className="studio-input border-[#090A0F] px-2 py-1.5 text-body font-bold text-[#090A0F] cursor-pointer"
+            >
+              {ARCHIVE_ELECTION_LIST.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {lang === 'tr' ? opt.shortLabelTr : opt.shortLabelEn}
+                </option>
+              ))}
+            </select>
+          ) : isLocal ? (
             <select
               value={localBaselineId}
               onChange={(e) => setLocalBaselineId(e.target.value as LocalBaselineId)}
@@ -525,36 +574,40 @@ export const InputEditorPanel: React.FC = () => {
               ))}
             </div>
 
-            <button
-              onClick={syncLocalFromParliamentary}
-              className="inline-flex items-center gap-1 px-2 py-1 text-micro font-semibold border border-[#090A0F] bg-white hover:bg-[#090A0F] hover:text-white transition-colors"
-              title={
-                lang === 'tr'
-                  ? 'Genel Seçim parti oranlarını yerel seçime kopyala'
-                  : 'Copy party shares from Parliamentary scenario'
-              }
-            >
-              <ArrowDownToLine className="w-3 h-3" />
-              <span>{lang === 'tr' ? "Genel Seçim'den Aktar" : 'Sync'}</span>
-            </button>
+            {!activeArchiveId && (
+              <button
+                onClick={syncLocalFromParliamentary}
+                className="inline-flex items-center gap-1 px-2 py-1 text-micro font-semibold border border-[#090A0F] bg-white hover:bg-[#090A0F] hover:text-white transition-colors"
+                title={
+                  lang === 'tr'
+                    ? 'Genel Seçim parti oranlarını yerel seçime kopyala'
+                    : 'Copy party shares from Parliamentary scenario'
+                }
+              >
+                <ArrowDownToLine className="w-3 h-3" />
+                <span>{lang === 'tr' ? "Genel Seçim'den Aktar" : 'Sync'}</span>
+              </button>
+            )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5">
-            {localAllianceRules.map((rule) => (
-              <button
-                key={rule.id}
-                onClick={() => toggleLocalAllianceRule(rule.id)}
-                className={`px-2 py-0.5 text-micro font-medium border transition-colors ${
-                  rule.enabled
-                    ? 'bg-[#090A0F] text-white border-[#090A0F]'
-                    : 'bg-white text-slate-600 border-slate-300 hover:border-[#090A0F]'
-                }`}
-              >
-                {rule.enabled ? '✓ ' : '+ '}
-                {rule.name}
-              </button>
-            ))}
-          </div>
+          {!activeArchiveId && localAllianceRules.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              {localAllianceRules.map((rule) => (
+                <button
+                  key={rule.id}
+                  onClick={() => toggleLocalAllianceRule(rule.id)}
+                  className={`px-2 py-0.5 text-micro font-medium border transition-colors ${
+                    rule.enabled
+                      ? 'bg-[#090A0F] text-white border-[#090A0F]'
+                      : 'bg-white text-slate-600 border-slate-300 hover:border-[#090A0F]'
+                  }`}
+                >
+                  {rule.enabled ? '✓ ' : '+ '}
+                  {rule.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         /* Top Scope Selector Tabs (National vs Abroad) */
@@ -575,12 +628,13 @@ export const InputEditorPanel: React.FC = () => {
           </button>
 
           <button
+            disabled={Boolean(activeArchiveId && !ARCHIVE_ELECTIONS[activeArchiveId]?.abroadEnabled)}
             onClick={() => {
               setZoomedProvinceId(null);
               setActiveScope({ type: 'abroad' });
               setMapLayer('abroad_world');
             }}
-            className={`flex items-center justify-center gap-1.5 py-2 px-2 transition-colors ${
+            className={`flex items-center justify-center gap-1.5 py-2 px-2 transition-colors disabled:opacity-40 disabled:pointer-events-none ${
               activeScope.type === 'abroad' || activeScope.type === 'abroadCountry'
                 ? 'bg-[#090A0F] text-white'
                 : 'text-[#090A0F] hover:bg-slate-100'

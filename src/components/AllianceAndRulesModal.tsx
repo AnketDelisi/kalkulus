@@ -72,6 +72,7 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
 
   if (!isOpen) return null;
   const t = translations[lang];
+  const districtCount = Object.keys(projection.districtResults).length || 87;
 
   if (electionMode === 'local') {
     return <LocalDynamicsModal isOpen={isOpen} onClose={onClose} initialTab="tactical" />;
@@ -138,6 +139,9 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
             >
               <option value="2022_separate">{t.dhondt2022}</option>
               <option value="2018_alliance">{t.dhondt2018}</option>
+              <option value="1987_kontenjan">
+                {lang === 'tr' ? "1987–1991 Çevre Barajı + Kontenjan" : "1987–1991 District Threshold + Bonus"}
+              </option>
             </select>
           </div>
 
@@ -186,8 +190,8 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
             <Landmark className="w-3.5 h-3.5" />
             <span>
               {lang === 'tr'
-                ? `87 seçim çevresi MV (${projection.totalSeatsAllocated} MV)`
-                : `87 district MPs (${projection.totalSeatsAllocated} MPs)`}
+                ? `${districtCount} seçim çevresi MV (${projection.totalSeatsAllocated} MV)`
+                : `${districtCount} district MPs (${projection.totalSeatsAllocated} MPs)`}
             </span>
           </button>
           <button
@@ -461,7 +465,7 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                       className="w-full studio-input px-2.5 py-1.5"
                     >
                       <option value="SMALL">Küçük seçim çevrelerinde (MV sayısına göre)</option>
-                      <option value="ALL">Tüm 87 seçim çevresinde</option>
+                      <option value="ALL">Tüm {districtCount} seçim çevresinde</option>
                       <option value="CUSTOM">Belirli seçim çevrelerinde (kod ile)</option>
                     </select>
                   </div>
@@ -560,7 +564,7 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
                         ({lang === 'tr' ? 'Verim' : 'Efficiency'}: {formatPct(rule.transferEfficiency, lang, 0)},{' '}
                         {lang === 'tr' ? 'Kontenjan' : 'Reserved'}: {rule.reservedSeatsPerDistrict} MV/bölge,{' '}
                         {rule.districtIds.includes('ALL')
-                          ? '87 bölge'
+                          ? `${districtCount} bölge`
                           : rule.maxDistrictMpThreshold
                           ? `≤${rule.maxDistrictMpThreshold} MV bölgeler`
                           : rule.districtIds.join(', ')}
@@ -582,7 +586,7 @@ export const AllianceAndRulesModal: React.FC<AllianceAndRulesModalProps> = ({
           {activeTab === 'seats' && (
             <div className="space-y-3">
               <p className="text-slate-600 text-body">
-                87 seçim çevresinin çıkardığı milletvekili sayılarını YSK güncellemelerine veya özel
+                {districtCount} seçim çevresinin çıkardığı milletvekili sayılarını YSK güncellemelerine veya özel
                 senaryolara göre aşağıdan değiştirebilirsiniz.
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-96 overflow-y-auto pr-1">

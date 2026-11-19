@@ -226,6 +226,24 @@ export function computeAndDistributeAbroadVotes(
     ? normalizeSharesByParties(abroadConfig.partyShares, parties)
     : {};
 
+  // Weighted aggregate shares of the underlying `abroadCountries` dataset (e.g., 2023 country data),
+  // so non-2023 baselines (like 2018) swing accurately from 2023 country shapes to their historical abroad totals.
+  const countriesBaselineShares: Record<string, number> = {};
+  if (baseCountriesTotalValid > 0) {
+    for (const p of parties) {
+      let weighted = 0;
+      for (const c of abroadCountries) {
+        weighted += c.validVotes * ((c.partyShares[p.id] ?? 0) / 100);
+      }
+      countriesBaselineShares[p.id] = (weighted / baseCountriesTotalValid) * 100;
+    }
+  }
+  const normalizedCountriesBaseline = normalizeSharesByParties(countriesBaselineShares, parties);
+  const normalizedBaseAbroad = normalizeSharesByParties(baseAbroadShares, parties);
+  const isCountryAlignedWithBase =
+    Math.abs((normalizedBaseAbroad.AKP ?? 0) - (normalizedCountriesBaseline.AKP ?? 0)) < 0.2 &&
+    Math.abs((normalizedBaseAbroad.CHP ?? 0) - (normalizedCountriesBaseline.CHP ?? 0)) < 0.2;
+
   const hasAnyCountryLock = abroadCountries.some((c) => abroadCountryOverrides[c.id]?.isLocked);
 
   // Compute exact country valid votes first (Hare-Niemeyer exact conservation when no countries are locked)
@@ -266,16 +284,26 @@ export function computeAndDistributeAbroadVotes(
   let abroadValidVotes = 0;
   let countryRegisteredDelta = 0;
 
+  const effectiveSharesByCountry: Record<string, Record<string, number>> = {};
   for (const c of abroadCountries) {
     const ovr = abroadCountryOverrides[c.id];
     const isLocked = Boolean(ovr?.isLocked);
 
-    const effectiveShares =
+    const syncedFromCountries = isCountryAlignedWithBase
+      ? c.partyShares
+      : swingUnitShares(
+          c.partyShares,
+          normalizedCountriesBaseline,
+          normalizeSharesByParties(baseAbroadShares, parties),
+          'proportional',
+          parties
+        );
+    effectiveSharesByCountry[c.id] =
       isLocked && ovr?.partyShares
         ? normalizeSharesByParties(ovr.partyShares, parties)
         : abroadConfig.syncWithNationalSwing
         ? swingUnitShares(
-            c.partyShares,
+            syncedFromCountries,
             nationalBaseShares,
             nationalTargetShares,
             swingMode,
@@ -283,11 +311,52 @@ export function computeAndDistributeAbroadVotes(
           )
         : swingUnitShares(
             c.partyShares,
-            baseAbroadShares,
+            normalizedCountriesBaseline,
             normalizedManualAbroadTarget,
             swingMode,
             parties
           );
+  }
+
+  // When no country is manually locked and manual/historical abroad shares are used,
+  // calibrate country share vectors via 5-pass IPF so the weighted aggregate equals normalizedManualAbroadTarget.
+  if (!hasAnyCountryLock && !abroadConfig.syncWithNationalSwing) {
+    const totValid = abroadCountries.reduce((s, c) => s + (rawCountryValid[c.id] || 0), 0);
+    if (totValid > 0) {
+      for (let pass = 0; pass < 5; pass++) {
+        const weighted: Record<string, number> = {};
+        for (const p of parties) weighted[p.id] = 0;
+        for (const c of abroadCountries) {
+          const v = rawCountryValid[c.id] || 0;
+          const sh = effectiveSharesByCountry[c.id];
+          for (const p of parties) {
+            weighted[p.id] += v * ((sh[p.id] ?? 0) / 100);
+          }
+        }
+        for (const c of abroadCountries) {
+          const sh = effectiveSharesByCountry[c.id];
+          const next: Record<string, number> = {};
+          for (const p of parties) {
+            const tPct = normalizedManualAbroadTarget[p.id] ?? 0;
+            const aPct = (weighted[p.id] / totValid) * 100;
+            if (tPct <= 0.0001) {
+              next[p.id] = 0;
+            } else if (aPct > 0.001) {
+              next[p.id] = Math.max(0, (sh[p.id] ?? 0) * (tPct / aPct));
+            } else {
+              next[p.id] = tPct;
+            }
+          }
+          effectiveSharesByCountry[c.id] = normalizeSharesByParties(next, parties);
+        }
+      }
+    }
+  }
+
+  for (const c of abroadCountries) {
+    const ovr = abroadCountryOverrides[c.id];
+    const isLocked = Boolean(ovr?.isLocked);
+    const effectiveShares = effectiveSharesByCountry[c.id];
 
     const cValid = rawCountryValid[c.id] || 0;
     const cPartyVotes = allocateVotesLargestRemainder(cValid, effectiveShares, partyKeys);

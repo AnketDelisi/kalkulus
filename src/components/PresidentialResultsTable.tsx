@@ -1,10 +1,32 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { ARCHIVE_ELECTIONS, getArchiveComparisonLabel } from '../data/archiveRegistry';
 import { useElectionStore } from '../store/useElectionStore';
 import { formatInt, formatPct } from '../utils/format';
 
 export const PresidentialResultsTable: React.FC = () => {
-  const { lang, parties, presCandidates, presidentialProjection, activeScope } = useElectionStore();
+  const {
+    lang,
+    activeArchiveId,
+    archiveComparisonId,
+    archivePresSelfBaselineProjection,
+    archivePresComparisonProjection,
+    parties,
+    presCandidates,
+    presidentialProjection,
+    activeScope,
+  } = useElectionStore();
   const [forceNational, setForceNational] = useState(false);
+
+  const activeArchiveCfg = activeArchiveId ? ARCHIVE_ELECTIONS[activeArchiveId] : undefined;
+  const isReferendum = activeArchiveCfg?.category === 'referendum';
+  const compareLabel = getArchiveComparisonLabel(
+    archiveComparisonId,
+    lang,
+    activeArchiveCfg?.deltaLabelTr ?? 'Resmi'
+  );
+  const activePresBaseRef = activeArchiveId
+    ? archivePresComparisonProjection ?? archivePresSelfBaselineProjection
+    : null;
 
   useEffect(() => {
     setForceNational(false);
@@ -20,6 +42,8 @@ export const PresidentialResultsTable: React.FC = () => {
 
   const { decidedInRound, round1, round2, topTwoCandidateIds, winnerCandidateId } =
     presidentialProjection;
+  const hasRunoff = !isReferendum && decidedInRound === 2;
+  const singleRound = !hasRunoff;
 
   const r2Map: Record<string, (typeof round2.candidateSummaries)[0]> = {};
   for (const s of round2.candidateSummaries) r2Map[s.candidateId] = s;
@@ -113,13 +137,29 @@ export const PresidentialResultsTable: React.FC = () => {
           <h3 className="text-heading font-semibold text-[#090A0F] tracking-tight">
             {scopedUnit
               ? scopedUnit.title
+              : isReferendum
+              ? lang === 'tr'
+                ? 'Referandum Evet / Hayır sonuç tablosu'
+                : 'Referendum Yes / No results'
+              : singleRound
+              ? lang === 'tr'
+                ? 'Cumhurbaşkanlığı sonuç tablosu'
+                : 'Presidential results'
               : lang === 'tr'
               ? 'Cumhurbaşkanlığı 1. ve 2. Tur sonuç tablosu'
               : 'Presidential 1st & 2nd round results'}
           </h3>
           <p className="text-micro text-slate-500">
             {scopedUnit
-              ? lang === 'tr'
+              ? isReferendum
+                ? lang === 'tr'
+                  ? 'Seçili birim geçerli referandum oy dağılımı'
+                  : 'Selected unit valid referendum vote breakdown'
+                : singleRound
+                ? lang === 'tr'
+                  ? 'Seçili birim geçerli oy dağılımı'
+                  : 'Selected unit valid vote breakdown'
+                : lang === 'tr'
                 ? 'Seçili birim 1. ve 2. tur geçerli oy dağılımı'
                 : 'Selected unit 1st & 2nd round valid vote breakdown'
               : lang === 'tr'
@@ -130,7 +170,7 @@ export const PresidentialResultsTable: React.FC = () => {
 
         <div className="flex flex-wrap items-center gap-2">
           <div className="text-micro font-mono text-slate-600 tabular-nums">
-            {lang === 'tr' ? '1. Tur Geçerli:' : 'R1 Valid:'}{' '}
+            {lang === 'tr' ? (singleRound ? 'Geçerli:' : '1. Tur Geçerli:') : singleRound ? 'Valid:' : 'R1 Valid:'}{' '}
             <strong className="text-[#090A0F]">
               {formatInt(scopedUnit ? scopedUnit.r1Valid : round1.totalValidVotes, lang)}
             </strong>
@@ -174,23 +214,41 @@ export const PresidentialResultsTable: React.FC = () => {
         <table className="w-full text-body">
           <thead>
             <tr className="border-b border-slate-300 bg-slate-50 text-micro text-slate-600 uppercase tracking-wider">
-              <th className="py-2.5 px-4 text-left">{lang === 'tr' ? 'Aday' : 'Candidate'}</th>
+              <th className="py-2.5 px-4 text-left">
+                {isReferendum
+                  ? lang === 'tr'
+                    ? 'Tercih'
+                    : 'Choice'
+                  : lang === 'tr'
+                  ? 'Aday'
+                  : 'Candidate'}
+              </th>
               <th className="py-2.5 px-3 text-left">{lang === 'tr' ? 'Blok partileri' : 'Parties'}</th>
-              <th className="py-2.5 px-3 text-right">{lang === 'tr' ? '1. Tur %' : 'R1 %'}</th>
+              <th className="py-2.5 px-3 text-right">
+                {singleRound ? (lang === 'tr' ? 'Oy %' : 'Share %') : lang === 'tr' ? '1. Tur %' : 'R1 %'}
+              </th>
+              {activePresBaseRef && (
+                <th className="py-2.5 px-2 text-right font-mono">±{compareLabel}</th>
+              )}
               <th className="py-2.5 px-3 text-right hidden sm:table-cell">
-                {lang === 'tr' ? '1. Tur Oy' : 'R1 Votes'}
+                {singleRound ? (lang === 'tr' ? 'Geçerli Oy' : 'Votes') : lang === 'tr' ? '1. Tur Oy' : 'R1 Votes'}
               </th>
               {!scopedUnit && (
-                <th className="py-2.5 px-3 text-right">{lang === 'tr' ? '1. Tur İl' : 'R1 Prov'}</th>
-              )}
-              <th className="py-2.5 px-3 text-right">{lang === 'tr' ? '2. Tur %' : 'R2 %'}</th>
-              {scopedUnit ? (
-                <th className="py-2.5 px-3 text-right hidden sm:table-cell">
-                  {lang === 'tr' ? '2. Tur Oy' : 'R2 Votes'}
+                <th className="py-2.5 px-3 text-right">
+                  {singleRound ? (lang === 'tr' ? 'Kazanılan İl' : 'Prov') : lang === 'tr' ? '1. Tur İl' : 'R1 Prov'}
                 </th>
-              ) : (
-                <th className="py-2.5 px-3 text-right">{lang === 'tr' ? '2. Tur İl' : 'R2 Prov'}</th>
               )}
+              {hasRunoff && (
+                <th className="py-2.5 px-3 text-right">{lang === 'tr' ? '2. Tur %' : 'R2 %'}</th>
+              )}
+              {hasRunoff &&
+                (scopedUnit ? (
+                  <th className="py-2.5 px-3 text-right hidden sm:table-cell">
+                    {lang === 'tr' ? '2. Tur Oy' : 'R2 Votes'}
+                  </th>
+                ) : (
+                  <th className="py-2.5 px-3 text-right">{lang === 'tr' ? '2. Tur İl' : 'R2 Prov'}</th>
+                ))}
               <th className="py-2.5 px-4 text-right">{lang === 'tr' ? 'Durum' : 'Status'}</th>
             </tr>
           </thead>
@@ -213,6 +271,18 @@ export const PresidentialResultsTable: React.FC = () => {
                 ? r2Entry.share
                 : null;
               const r2Votes = scopedUnit && isFinalist ? scopedUnit.r2Votes[s.candidateId] ?? 0 : null;
+              const baseR1Round = activePresBaseRef?.round1;
+              const baseR1Share = baseR1Round
+                ? effectiveType === 'province' && activeScope.type === 'province'
+                  ? baseR1Round.provinceResults[activeScope.ilId]?.candidateShares[s.candidateId]
+                  : effectiveType === 'ilce' && activeScope.type === 'ilce'
+                  ? baseR1Round.ilceResults[activeScope.ilceId]?.candidateShares[s.candidateId]
+                  : !scopedUnit
+                  ? baseR1Round.candidateSummaries.find((x) => x.candidateId === s.candidateId)?.share
+                  : undefined
+                : undefined;
+              const deltaR1 =
+                baseR1Share !== undefined ? r1Share - baseR1Share : null;
 
               return (
                 <tr key={s.candidateId} className={isWinner ? 'bg-slate-50/80' : 'hover:bg-slate-50/50'}>
@@ -222,6 +292,24 @@ export const PresidentialResultsTable: React.FC = () => {
                         className="w-2.5 h-4 shrink-0 border border-[#090A0F]"
                         style={{ backgroundColor: cand.color }}
                       />
+                      {cand.logoUrl && (
+                        <span
+                          role="img"
+                          aria-label={cand.shortName}
+                          className="w-4 h-4 shrink-0"
+                          style={{
+                            backgroundColor: cand.color,
+                            WebkitMaskImage: `url(${import.meta.env.BASE_URL}${cand.logoUrl})`,
+                            maskImage: `url(${import.meta.env.BASE_URL}${cand.logoUrl})`,
+                            WebkitMaskSize: 'contain',
+                            maskSize: 'contain',
+                            WebkitMaskRepeat: 'no-repeat',
+                            maskRepeat: 'no-repeat',
+                            WebkitMaskPosition: 'center',
+                            maskPosition: 'center',
+                          }}
+                        />
+                      )}
                       <div>
                         <div className="font-semibold text-[#090A0F]">{cand.shortName}</div>
                         <div className="text-micro text-slate-500">{cand.name}</div>
@@ -249,6 +337,26 @@ export const PresidentialResultsTable: React.FC = () => {
                   <td className="py-2.5 px-3 text-right font-mono font-semibold tabular-nums text-[#090A0F]">
                     {formatPct(r1Share, lang, 2)}
                   </td>
+                  {activePresBaseRef && (
+                    <td className="py-2.5 px-2 text-right font-mono tabular-nums font-semibold">
+                      {deltaR1 !== null ? (
+                        <span
+                          className={
+                            deltaR1 > 0.05
+                              ? 'text-emerald-700'
+                              : deltaR1 < -0.05
+                              ? 'text-rose-700'
+                              : 'text-slate-400'
+                          }
+                        >
+                          {deltaR1 > 0 ? '+' : ''}
+                          {deltaR1.toFixed(2)}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400">—</span>
+                      )}
+                    </td>
+                  )}
                   <td className="py-2.5 px-3 text-right font-mono tabular-nums text-slate-600 hidden sm:table-cell">
                     {formatInt(r1Votes, lang)}
                   </td>
@@ -258,18 +366,21 @@ export const PresidentialResultsTable: React.FC = () => {
                     </td>
                   )}
 
-                  <td className="py-2.5 px-3 text-right font-mono font-bold tabular-nums">
-                    {r2Share !== null ? formatPct(r2Share, lang, 2) : '—'}
-                  </td>
-                  {scopedUnit ? (
-                    <td className="py-2.5 px-3 text-right font-mono tabular-nums text-slate-600 hidden sm:table-cell">
-                      {r2Votes !== null ? formatInt(r2Votes, lang) : '—'}
-                    </td>
-                  ) : (
-                    <td className="py-2.5 px-3 text-right font-mono tabular-nums">
-                      {r2Entry ? r2Entry.provincesWon : '—'}
+                  {hasRunoff && (
+                    <td className="py-2.5 px-3 text-right font-mono font-bold tabular-nums">
+                      {r2Share !== null ? formatPct(r2Share, lang, 2) : '—'}
                     </td>
                   )}
+                  {hasRunoff &&
+                    (scopedUnit ? (
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums text-slate-600 hidden sm:table-cell">
+                        {r2Votes !== null ? formatInt(r2Votes, lang) : '—'}
+                      </td>
+                    ) : (
+                      <td className="py-2.5 px-3 text-right font-mono tabular-nums">
+                        {r2Entry ? r2Entry.provincesWon : '—'}
+                      </td>
+                    ))}
 
                   <td className="py-2.5 px-4 text-right">
                     {isWinner ? (
@@ -286,13 +397,13 @@ export const PresidentialResultsTable: React.FC = () => {
                           ? '2. TUR KAZANDI'
                           : 'WON R2'}
                       </span>
-                    ) : isFinalist ? (
+                    ) : isFinalist && hasRunoff ? (
                       <span className="inline-block px-2 py-0.5 text-micro font-mono font-semibold bg-amber-100 text-[#090A0F] border border-[#090A0F]">
                         {lang === 'tr' ? '2. TUR FİNALİST' : 'FINALIST'}
                       </span>
                     ) : (
                       <span className="text-micro font-mono text-slate-400">
-                        {lang === 'tr' ? 'Elendi' : 'Eliminated'}
+                        {singleRound ? '—' : lang === 'tr' ? 'Elendi' : 'Eliminated'}
                       </span>
                     )}
                   </td>

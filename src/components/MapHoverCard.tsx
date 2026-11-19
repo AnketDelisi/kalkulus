@@ -182,6 +182,31 @@ export const MapHoverCard: React.FC<MapHoverCardProps> = ({
             {formatInt(data.validVotes, lang)} {lang === 'tr' ? 'oy' : 'votes'}
           </span>
         </div>
+        {data.localFlipped && data.localPrevWinnerShort && data.localWinnerShort && (
+          <div className="pt-1 flex items-center gap-1.5 text-[10px] font-mono">
+            <span className="px-1.5 py-0.5 bg-amber-400 text-[#090A0F] font-bold uppercase">
+              {lang === 'tr' ? 'El Değiştirdi' : 'Flipped'}
+            </span>
+            {data.localRefLabel && (
+              <span className="text-slate-400">({data.localRefLabel}):</span>
+            )}
+            <span className="inline-flex items-center gap-1 font-bold text-slate-200">
+              <span
+                className="w-2 h-2 inline-block"
+                style={{ backgroundColor: data.localPrevWinnerColor || '#94a3b8' }}
+              />
+              {data.localPrevWinnerShort}
+            </span>
+            <span className="text-slate-500">→</span>
+            <span className="inline-flex items-center gap-1 font-bold text-white">
+              <span
+                className="w-2 h-2 inline-block"
+                style={{ backgroundColor: data.localWinnerColor || '#ffffff' }}
+              />
+              {data.localWinnerShort}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Stacked Horizontal Proportion Bar (All Parties) */}

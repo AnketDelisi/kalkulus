@@ -4,55 +4,56 @@ import {
   PresidentialRound2Dynamics,
   PresidentialTransferSplit,
 } from '../types/election';
+import { CANDIDATE_COLORS } from './partyColors';
 
 export const DEFAULT_PRESIDENTIAL_CANDIDATES: PresidentialCandidateConfig[] = [
   {
     id: 'imamoglu',
     name: 'Ekrem İmamoğlu',
     shortName: 'İMAMOĞLU',
-    color: '#ED1C24',
+    color: CANDIDATE_COLORS.IMAMOGLU,
     backingPartyIds: ['YENI', 'DEM', 'TIP', 'DEVA', 'DP'],
   },
   {
     id: 'erdogan',
     name: 'Recep Tayyip Erdoğan',
     shortName: 'ERDOĞAN',
-    color: '#F59300',
+    color: CANDIDATE_COLORS.ERDOGAN,
     backingPartyIds: ['AKP', 'MHP', 'BBP', 'HUDAPAR'],
   },
   {
     id: 'dervisoglu',
     name: 'Müsavat Dervişoğlu',
     shortName: 'DERVİŞOĞLU',
-    color: '#0EA5E9',
+    color: CANDIDATE_COLORS.DERVISOGLU,
     backingPartyIds: ['IYI', 'ZP'],
   },
   {
     id: 'erbakan',
     name: 'Fatih Erbakan',
     shortName: 'ERBAKAN',
-    color: '#10B981',
+    color: CANDIDATE_COLORS.ERBAKAN,
     backingPartyIds: ['YRP', 'SAADET'],
   },
   {
     id: 'agiralioglu',
     name: 'Yavuz Ağıralioğlu',
     shortName: 'AĞIRALİOĞLU',
-    color: '#3B4CCA',
+    color: CANDIDATE_COLORS.AGIRALIOGLU,
     backingPartyIds: ['A'],
   },
   {
     id: 'kilicdaroglu',
     name: 'Kemal Kılıçdaroğlu',
     shortName: 'KILIÇDAROĞLU',
-    color: '#F25F5C',
+    color: CANDIDATE_COLORS.KILICDAROGLU_LIVE,
     backingPartyIds: ['CHP'],
   },
   {
     id: 'other',
     name: 'Bağımsız / Diğer',
     shortName: 'DİĞER',
-    color: '#64748b',
+    color: CANDIDATE_COLORS.OTHER,
     backingPartyIds: ['OTHER'],
     isOther: true,
   },

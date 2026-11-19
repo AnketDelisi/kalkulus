@@ -1,0 +1,2898 @@
+[
+  {
+    "id": "01-1",
+    "ilId": "01",
+    "circle": 1,
+    "name": "Adana 1. Bölge",
+    "mpCount": 6,
+    "reg": 348920,
+    "cast": 329715,
+    "validDom": 323770,
+    "gumruk": 649,
+    "totValid": 324419,
+    "votes": {
+      "ANAP": 107013,
+      "CHP": 76735,
+      "DP": 84838,
+      "DSP": 17276,
+      "SAADET": 16616,
+      "MHP": 19629,
+      "IDP": 2312,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "CHP": 1,
+      "DP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "01-2",
+    "ilId": "01",
+    "circle": 2,
+    "name": "Adana 2. Bölge",
+    "mpCount": 5,
+    "reg": 335671,
+    "cast": 304884,
+    "validDom": 298695,
+    "gumruk": 599,
+    "totValid": 299294,
+    "votes": {
+      "ANAP": 107424,
+      "CHP": 87114,
+      "DP": 39533,
+      "DSP": 40230,
+      "SAADET": 16811,
+      "MHP": 6329,
+      "IDP": 1853,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "01-3",
+    "ilId": "01",
+    "circle": 3,
+    "name": "Adana 3. Bölge",
+    "mpCount": 3,
+    "reg": 172381,
+    "cast": 161019,
+    "validDom": 157193,
+    "gumruk": 315,
+    "totValid": 157508,
+    "votes": {
+      "ANAP": 50339,
+      "CHP": 46587,
+      "DP": 25497,
+      "DSP": 20543,
+      "SAADET": 9628,
+      "MHP": 3839,
+      "IDP": 1075,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 1,
+      "DP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "02",
+    "ilId": "02",
+    "circle": null,
+    "name": "Adıyaman",
+    "mpCount": 4,
+    "reg": 174173,
+    "cast": 162526,
+    "validDom": 157108,
+    "gumruk": 315,
+    "totValid": 157423,
+    "votes": {
+      "ANAP": 51771,
+      "CHP": 38317,
+      "DP": 36362,
+      "DSP": 7202,
+      "SAADET": 17965,
+      "MHP": 3510,
+      "IDP": 1904,
+      "OTHER": 392
+    },
+    "officialSeats": {
+      "ANAP": 4
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "03",
+    "ilId": "03",
+    "circle": null,
+    "name": "Afyonkarahisar",
+    "mpCount": 6,
+    "reg": 326113,
+    "cast": 314998,
+    "validDom": 306051,
+    "gumruk": 613,
+    "totValid": 306664,
+    "votes": {
+      "ANAP": 114818,
+      "CHP": 49414,
+      "DP": 77516,
+      "DSP": 23768,
+      "SAADET": 20000,
+      "MHP": 12012,
+      "IDP": 9136,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "DP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "04",
+    "ilId": "04",
+    "circle": null,
+    "name": "Ağrı",
+    "mpCount": 4,
+    "reg": 147713,
+    "cast": 131596,
+    "validDom": 127413,
+    "gumruk": 255,
+    "totValid": 127668,
+    "votes": {
+      "ANAP": 46803,
+      "CHP": 19486,
+      "DP": 21968,
+      "DSP": 17369,
+      "SAADET": 17955,
+      "MHP": 1410,
+      "IDP": 2677,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 4
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "05",
+    "ilId": "05",
+    "circle": null,
+    "name": "Amasya",
+    "mpCount": 4,
+    "reg": 188337,
+    "cast": 179890,
+    "validDom": 175863,
+    "gumruk": 352,
+    "totValid": 176215,
+    "votes": {
+      "ANAP": 58507,
+      "CHP": 50045,
+      "DP": 37129,
+      "DSP": 12252,
+      "SAADET": 9282,
+      "MHP": 7356,
+      "IDP": 1644,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "CHP": 2
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "06-1",
+    "ilId": "06",
+    "circle": 1,
+    "name": "Ankara 1. Bölge",
+    "mpCount": 6,
+    "reg": 486332,
+    "cast": 427763,
+    "validDom": 418473,
+    "gumruk": 839,
+    "totValid": 419312,
+    "votes": {
+      "ANAP": 154609,
+      "CHP": 166897,
+      "DP": 50353,
+      "DSP": 21861,
+      "SAADET": 11703,
+      "MHP": 11537,
+      "IDP": 1955,
+      "OTHER": 397
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "CHP": 4
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "06-2",
+    "ilId": "06",
+    "circle": 2,
+    "name": "Ankara 2. Bölge",
+    "mpCount": 6,
+    "reg": 353300,
+    "cast": 329468,
+    "validDom": 320581,
+    "gumruk": 642,
+    "totValid": 321223,
+    "votes": {
+      "ANAP": 131641,
+      "CHP": 78178,
+      "DP": 48829,
+      "DSP": 20894,
+      "SAADET": 16567,
+      "MHP": 20482,
+      "IDP": 4470,
+      "OTHER": 162
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "06-3",
+    "ilId": "06",
+    "circle": 3,
+    "name": "Ankara 3. Bölge",
+    "mpCount": 6,
+    "reg": 425907,
+    "cast": 394305,
+    "validDom": 388560,
+    "gumruk": 779,
+    "totValid": 389339,
+    "votes": {
+      "ANAP": 161188,
+      "CHP": 87969,
+      "DP": 67978,
+      "DSP": 30318,
+      "SAADET": 18710,
+      "MHP": 19730,
+      "IDP": 3446,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "06-4",
+    "ilId": "06",
+    "circle": 4,
+    "name": "Ankara 4. Bölge",
+    "mpCount": 5,
+    "reg": 352888,
+    "cast": 327789,
+    "validDom": 322165,
+    "gumruk": 646,
+    "totValid": 322811,
+    "votes": {
+      "ANAP": 129266,
+      "CHP": 90123,
+      "DP": 48737,
+      "DSP": 16874,
+      "SAADET": 13664,
+      "MHP": 20568,
+      "IDP": 3579,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "06-5",
+    "ilId": "06",
+    "circle": 5,
+    "name": "Ankara 5. Bölge",
+    "mpCount": 3,
+    "reg": 212922,
+    "cast": 196707,
+    "validDom": 191476,
+    "gumruk": 384,
+    "totValid": 191860,
+    "votes": {
+      "ANAP": 75212,
+      "CHP": 63265,
+      "DP": 21989,
+      "DSP": 10424,
+      "SAADET": 8934,
+      "MHP": 10308,
+      "IDP": 1475,
+      "OTHER": 253
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "07-1",
+    "ilId": "07",
+    "circle": 1,
+    "name": "Antalya 1. Bölge",
+    "mpCount": 5,
+    "reg": 332135,
+    "cast": 310264,
+    "validDom": 303078,
+    "gumruk": 607,
+    "totValid": 303685,
+    "votes": {
+      "ANAP": 101871,
+      "CHP": 77988,
+      "DP": 92857,
+      "DSP": 13293,
+      "SAADET": 10541,
+      "MHP": 4820,
+      "IDP": 2172,
+      "OTHER": 143
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "CHP": 1,
+      "DP": 1
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "07-2",
+    "ilId": "07",
+    "circle": 2,
+    "name": "Antalya 2. Bölge",
+    "mpCount": 3,
+    "reg": 174377,
+    "cast": 165723,
+    "validDom": 161473,
+    "gumruk": 324,
+    "totValid": 161797,
+    "votes": {
+      "ANAP": 49402,
+      "CHP": 37940,
+      "DP": 58323,
+      "DSP": 6002,
+      "SAADET": 3977,
+      "MHP": 4934,
+      "IDP": 1219,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "DP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "08",
+    "ilId": "08",
+    "circle": null,
+    "name": "Artvin",
+    "mpCount": 3,
+    "reg": 123971,
+    "cast": 113573,
+    "validDom": 111285,
+    "gumruk": 223,
+    "totValid": 111508,
+    "votes": {
+      "ANAP": 32249,
+      "CHP": 34396,
+      "DP": 31517,
+      "DSP": 6763,
+      "SAADET": 4171,
+      "MHP": 1467,
+      "IDP": 945,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 1,
+      "DP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "09-1",
+    "ilId": "09",
+    "circle": 1,
+    "name": "Aydın 1. Bölge",
+    "mpCount": 4,
+    "reg": 241139,
+    "cast": 229293,
+    "validDom": 224377,
+    "gumruk": 450,
+    "totValid": 224827,
+    "votes": {
+      "ANAP": 94211,
+      "CHP": 60096,
+      "DP": 42129,
+      "DSP": 15963,
+      "SAADET": 7755,
+      "MHP": 3405,
+      "IDP": 1268,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "CHP": 1
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "09-2",
+    "ilId": "09",
+    "circle": 2,
+    "name": "Aydın 2. Bölge",
+    "mpCount": 3,
+    "reg": 192580,
+    "cast": 186651,
+    "validDom": 181279,
+    "gumruk": 363,
+    "totValid": 181642,
+    "votes": {
+      "ANAP": 73035,
+      "CHP": 42506,
+      "DP": 44883,
+      "DSP": 11711,
+      "SAADET": 4753,
+      "MHP": 3215,
+      "IDP": 1455,
+      "OTHER": 84
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "10-1",
+    "ilId": "10",
+    "circle": 1,
+    "name": "Balıkesir 1. Bölge",
+    "mpCount": 5,
+    "reg": 362035,
+    "cast": 346979,
+    "validDom": 339948,
+    "gumruk": 681,
+    "totValid": 340629,
+    "votes": {
+      "ANAP": 124139,
+      "CHP": 83142,
+      "DP": 80143,
+      "DSP": 27741,
+      "SAADET": 16190,
+      "MHP": 6968,
+      "IDP": 2306,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "CHP": 1,
+      "DP": 1
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "10-2",
+    "ilId": "10",
+    "circle": 2,
+    "name": "Balıkesir 2. Bölge",
+    "mpCount": 3,
+    "reg": 221137,
+    "cast": 211308,
+    "validDom": 207507,
+    "gumruk": 416,
+    "totValid": 207923,
+    "votes": {
+      "ANAP": 82798,
+      "CHP": 47761,
+      "DP": 45810,
+      "DSP": 17058,
+      "SAADET": 10111,
+      "MHP": 2925,
+      "IDP": 1460,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "11",
+    "ilId": "11",
+    "circle": null,
+    "name": "Bilecik",
+    "mpCount": 2,
+    "reg": 96550,
+    "cast": 93527,
+    "validDom": 91693,
+    "gumruk": 184,
+    "totValid": 91877,
+    "votes": {
+      "ANAP": 37294,
+      "CHP": 24733,
+      "DP": 18678,
+      "DSP": 5792,
+      "SAADET": 3218,
+      "MHP": 1259,
+      "IDP": 903,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 50
+  },
+  {
+    "id": "12",
+    "ilId": "12",
+    "circle": null,
+    "name": "Bingöl",
+    "mpCount": 3,
+    "reg": 85564,
+    "cast": 80137,
+    "validDom": 76624,
+    "gumruk": 154,
+    "totValid": 76778,
+    "votes": {
+      "ANAP": 21835,
+      "CHP": 11625,
+      "DP": 22753,
+      "DSP": 1751,
+      "SAADET": 17020,
+      "MHP": 837,
+      "IDP": 507,
+      "OTHER": 450
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 1,
+      "DP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "13",
+    "ilId": "13",
+    "circle": null,
+    "name": "Bitlis",
+    "mpCount": 3,
+    "reg": 90096,
+    "cast": 84610,
+    "validDom": 81658,
+    "gumruk": 164,
+    "totValid": 81822,
+    "votes": {
+      "ANAP": 35822,
+      "CHP": 10795,
+      "DP": 12811,
+      "DSP": 3145,
+      "SAADET": 17285,
+      "MHP": 1312,
+      "IDP": 652,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "14",
+    "ilId": "14",
+    "circle": null,
+    "name": "Bolu",
+    "mpCount": 5,
+    "reg": 287995,
+    "cast": 275567,
+    "validDom": 270430,
+    "gumruk": 542,
+    "totValid": 270972,
+    "votes": {
+      "ANAP": 127895,
+      "CHP": 39133,
+      "DP": 54450,
+      "DSP": 22426,
+      "SAADET": 20423,
+      "MHP": 4685,
+      "IDP": 1960,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "DP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "15",
+    "ilId": "15",
+    "circle": null,
+    "name": "Burdur",
+    "mpCount": 3,
+    "reg": 143409,
+    "cast": 138900,
+    "validDom": 135447,
+    "gumruk": 271,
+    "totValid": 135718,
+    "votes": {
+      "ANAP": 56083,
+      "CHP": 25230,
+      "DP": 34373,
+      "DSP": 9970,
+      "SAADET": 4823,
+      "MHP": 3794,
+      "IDP": 1445,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "16-1",
+    "ilId": "16",
+    "circle": 1,
+    "name": "Bursa 1. Bölge",
+    "mpCount": 6,
+    "reg": 472292,
+    "cast": 449292,
+    "validDom": 431639,
+    "gumruk": 865,
+    "totValid": 432504,
+    "votes": {
+      "ANAP": 165850,
+      "CHP": 89184,
+      "DP": 97788,
+      "DSP": 41829,
+      "SAADET": 26757,
+      "MHP": 7101,
+      "IDP": 2631,
+      "OTHER": 1364
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "CHP": 1,
+      "DP": 1
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "16-2",
+    "ilId": "16",
+    "circle": 2,
+    "name": "Bursa 2. Bölge",
+    "mpCount": 5,
+    "reg": 356748,
+    "cast": 343648,
+    "validDom": 335313,
+    "gumruk": 672,
+    "totValid": 335985,
+    "votes": {
+      "ANAP": 117148,
+      "CHP": 59320,
+      "DP": 102361,
+      "DSP": 26394,
+      "SAADET": 21639,
+      "MHP": 5943,
+      "IDP": 3011,
+      "OTHER": 169
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "DP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "17",
+    "ilId": "17",
+    "circle": null,
+    "name": "Çanakkale",
+    "mpCount": 4,
+    "reg": 262934,
+    "cast": 253715,
+    "validDom": 249864,
+    "gumruk": 501,
+    "totValid": 250365,
+    "votes": {
+      "ANAP": 101454,
+      "CHP": 62043,
+      "DP": 56348,
+      "DSP": 19207,
+      "SAADET": 6715,
+      "MHP": 2957,
+      "IDP": 1641,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 4
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "18",
+    "ilId": "18",
+    "circle": null,
+    "name": "Çankırı",
+    "mpCount": 3,
+    "reg": 127197,
+    "cast": 120459,
+    "validDom": 115785,
+    "gumruk": 232,
+    "totValid": 116017,
+    "votes": {
+      "ANAP": 51052,
+      "CHP": 11855,
+      "DP": 26943,
+      "DSP": 9395,
+      "SAADET": 7917,
+      "MHP": 6444,
+      "IDP": 1513,
+      "OTHER": 898
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "19",
+    "ilId": "19",
+    "circle": null,
+    "name": "Çorum",
+    "mpCount": 6,
+    "reg": 305307,
+    "cast": 292392,
+    "validDom": 283596,
+    "gumruk": 568,
+    "totValid": 284164,
+    "votes": {
+      "ANAP": 110838,
+      "CHP": 68538,
+      "DP": 42773,
+      "DSP": 20813,
+      "SAADET": 18284,
+      "MHP": 19346,
+      "IDP": 3374,
+      "OTHER": 198
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "20",
+    "ilId": "20",
+    "circle": null,
+    "name": "Denizli",
+    "mpCount": 6,
+    "reg": 381046,
+    "cast": 365436,
+    "validDom": 354924,
+    "gumruk": 711,
+    "totValid": 355635,
+    "votes": {
+      "ANAP": 125017,
+      "CHP": 95114,
+      "DP": 85715,
+      "DSP": 29497,
+      "SAADET": 10192,
+      "MHP": 7121,
+      "IDP": 2979,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "CHP": 2,
+      "DP": 1
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "21-1",
+    "ilId": "21",
+    "circle": 1,
+    "name": "Diyarbakır 1. Bölge",
+    "mpCount": 5,
+    "reg": 229145,
+    "cast": 206018,
+    "validDom": 197357,
+    "gumruk": 396,
+    "totValid": 197753,
+    "votes": {
+      "ANAP": 46986,
+      "CHP": 60124,
+      "DP": 24381,
+      "DSP": 18520,
+      "SAADET": 44889,
+      "MHP": 1447,
+      "IDP": 1406,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "CHP": 3
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "21-2",
+    "ilId": "21",
+    "circle": 2,
+    "name": "Diyarbakır 2. Bölge",
+    "mpCount": 3,
+    "reg": 113501,
+    "cast": 105961,
+    "validDom": 100042,
+    "gumruk": 201,
+    "totValid": 100243,
+    "votes": {
+      "ANAP": 21347,
+      "CHP": 15950,
+      "DP": 15216,
+      "DSP": 9378,
+      "SAADET": 28036,
+      "MHP": 581,
+      "IDP": 550,
+      "OTHER": 9185
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 1,
+      "DP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "22",
+    "ilId": "22",
+    "circle": null,
+    "name": "Edirne",
+    "mpCount": 4,
+    "reg": 230128,
+    "cast": 222430,
+    "validDom": 218203,
+    "gumruk": 437,
+    "totValid": 218640,
+    "votes": {
+      "ANAP": 57053,
+      "CHP": 63429,
+      "DP": 43857,
+      "DSP": 46660,
+      "SAADET": 4662,
+      "MHP": 1911,
+      "IDP": 970,
+      "OTHER": 98
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "CHP": 2
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "23",
+    "ilId": "23",
+    "circle": null,
+    "name": "Elazığ",
+    "mpCount": 5,
+    "reg": 222796,
+    "cast": 207609,
+    "validDom": 200786,
+    "gumruk": 402,
+    "totValid": 201188,
+    "votes": {
+      "ANAP": 47434,
+      "CHP": 38026,
+      "DP": 62670,
+      "DSP": 7264,
+      "SAADET": 35427,
+      "MHP": 7458,
+      "IDP": 2909,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "DP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "24",
+    "ilId": "24",
+    "circle": null,
+    "name": "Erzincan",
+    "mpCount": 3,
+    "reg": 132217,
+    "cast": 117243,
+    "validDom": 115490,
+    "gumruk": 231,
+    "totValid": 115721,
+    "votes": {
+      "ANAP": 45817,
+      "CHP": 38882,
+      "DP": 11127,
+      "DSP": 4734,
+      "SAADET": 4664,
+      "MHP": 9994,
+      "IDP": 503,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "CHP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "25-1",
+    "ilId": "25",
+    "circle": 1,
+    "name": "Erzurum 1. Bölge",
+    "mpCount": 4,
+    "reg": 215147,
+    "cast": 196687,
+    "validDom": 192436,
+    "gumruk": 386,
+    "totValid": 192822,
+    "votes": {
+      "ANAP": 82754,
+      "CHP": 13574,
+      "DP": 51385,
+      "DSP": 8460,
+      "SAADET": 21643,
+      "MHP": 13235,
+      "IDP": 1771,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "DP": 1
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "25-2",
+    "ilId": "25",
+    "circle": 2,
+    "name": "Erzurum 2. Bölge",
+    "mpCount": 3,
+    "reg": 152524,
+    "cast": 141409,
+    "validDom": 137267,
+    "gumruk": 275,
+    "totValid": 137542,
+    "votes": {
+      "ANAP": 52465,
+      "CHP": 17810,
+      "DP": 34747,
+      "DSP": 7121,
+      "SAADET": 10724,
+      "MHP": 11877,
+      "IDP": 2798,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "26",
+    "ilId": "26",
+    "circle": null,
+    "name": "Eskişehir",
+    "mpCount": 5,
+    "reg": 362432,
+    "cast": 349062,
+    "validDom": 341039,
+    "gumruk": 683,
+    "totValid": 341722,
+    "votes": {
+      "ANAP": 141597,
+      "CHP": 94419,
+      "DP": 66588,
+      "DSP": 20195,
+      "SAADET": 9821,
+      "MHP": 5459,
+      "IDP": 3418,
+      "OTHER": 225
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "CHP": 2
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "27-1",
+    "ilId": "27",
+    "circle": 1,
+    "name": "Gaziantep 1. Bölge",
+    "mpCount": 5,
+    "reg": 284206,
+    "cast": 266958,
+    "validDom": 259083,
+    "gumruk": 519,
+    "totValid": 259602,
+    "votes": {
+      "ANAP": 91819,
+      "CHP": 91195,
+      "DP": 36354,
+      "DSP": 14792,
+      "SAADET": 16284,
+      "MHP": 6974,
+      "IDP": 2184,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "27-2",
+    "ilId": "27",
+    "circle": 2,
+    "name": "Gaziantep 2. Bölge",
+    "mpCount": 3,
+    "reg": 154570,
+    "cast": 148094,
+    "validDom": 144433,
+    "gumruk": 289,
+    "totValid": 144722,
+    "votes": {
+      "ANAP": 55425,
+      "CHP": 34658,
+      "DP": 31199,
+      "DSP": 6650,
+      "SAADET": 9739,
+      "MHP": 6013,
+      "IDP": 1038,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "28",
+    "ilId": "28",
+    "circle": null,
+    "name": "Giresun",
+    "mpCount": 5,
+    "reg": 239904,
+    "cast": 218479,
+    "validDom": 212605,
+    "gumruk": 426,
+    "totValid": 213031,
+    "votes": {
+      "ANAP": 89843,
+      "CHP": 47169,
+      "DP": 35679,
+      "DSP": 15958,
+      "SAADET": 14317,
+      "MHP": 7850,
+      "IDP": 2113,
+      "OTHER": 102
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "CHP": 2
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "29",
+    "ilId": "29",
+    "circle": null,
+    "name": "Gümüşhane",
+    "mpCount": 3,
+    "reg": 123429,
+    "cast": 107583,
+    "validDom": 104248,
+    "gumruk": 209,
+    "totValid": 104457,
+    "votes": {
+      "ANAP": 50830,
+      "CHP": 9949,
+      "DP": 20067,
+      "DSP": 4876,
+      "SAADET": 13773,
+      "MHP": 3916,
+      "IDP": 1046,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "30",
+    "ilId": "30",
+    "circle": null,
+    "name": "Hakkari",
+    "mpCount": 2,
+    "reg": 62064,
+    "cast": 59129,
+    "validDom": 57612,
+    "gumruk": 116,
+    "totValid": 57728,
+    "votes": {
+      "ANAP": 20755,
+      "CHP": 18161,
+      "DP": 6369,
+      "DSP": 10352,
+      "SAADET": 1620,
+      "MHP": 212,
+      "IDP": 259,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 50
+  },
+  {
+    "id": "31-1",
+    "ilId": "31",
+    "circle": 1,
+    "name": "Hatay 1. Bölge",
+    "mpCount": 6,
+    "reg": 322849,
+    "cast": 303831,
+    "validDom": 296539,
+    "gumruk": 594,
+    "totValid": 297133,
+    "votes": {
+      "ANAP": 91573,
+      "CHP": 102436,
+      "DP": 55154,
+      "DSP": 17432,
+      "SAADET": 18826,
+      "MHP": 10254,
+      "IDP": 1338,
+      "OTHER": 120
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "CHP": 4
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "31-2",
+    "ilId": "31",
+    "circle": 2,
+    "name": "Hatay 2. Bölge",
+    "mpCount": 3,
+    "reg": 143297,
+    "cast": 135094,
+    "validDom": 131185,
+    "gumruk": 263,
+    "totValid": 131448,
+    "votes": {
+      "ANAP": 40259,
+      "CHP": 37637,
+      "DP": 30959,
+      "DSP": 11316,
+      "SAADET": 7176,
+      "MHP": 3225,
+      "IDP": 876,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 1,
+      "DP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "32",
+    "ilId": "32",
+    "circle": null,
+    "name": "Isparta",
+    "mpCount": 4,
+    "reg": 195756,
+    "cast": 188502,
+    "validDom": 183811,
+    "gumruk": 368,
+    "totValid": 184179,
+    "votes": {
+      "ANAP": 35573,
+      "CHP": 19572,
+      "DP": 110946,
+      "DSP": 5486,
+      "SAADET": 6345,
+      "MHP": 5176,
+      "IDP": 1081,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "DP": 4
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "33-1",
+    "ilId": "33",
+    "circle": 1,
+    "name": "Mersin 1. Bölge",
+    "mpCount": 6,
+    "reg": 357285,
+    "cast": 332556,
+    "validDom": 324484,
+    "gumruk": 650,
+    "totValid": 325134,
+    "votes": {
+      "ANAP": 118657,
+      "CHP": 122582,
+      "DP": 42939,
+      "DSP": 16784,
+      "SAADET": 14536,
+      "MHP": 7640,
+      "IDP": 1872,
+      "OTHER": 124
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "CHP": 4
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "33-2",
+    "ilId": "33",
+    "circle": 2,
+    "name": "Mersin 2. Bölge",
+    "mpCount": 3,
+    "reg": 186871,
+    "cast": 178077,
+    "validDom": 174534,
+    "gumruk": 350,
+    "totValid": 174884,
+    "votes": {
+      "ANAP": 61129,
+      "CHP": 46891,
+      "DP": 45103,
+      "DSP": 5128,
+      "SAADET": 5363,
+      "MHP": 10073,
+      "IDP": 1197,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "34-1",
+    "ilId": "34",
+    "circle": 1,
+    "name": "İstanbul 1. Bölge",
+    "mpCount": 6,
+    "reg": 523822,
+    "cast": 453041,
+    "validDom": 443545,
+    "gumruk": 889,
+    "totValid": 444434,
+    "votes": {
+      "ANAP": 197309,
+      "CHP": 151583,
+      "DP": 43161,
+      "DSP": 27880,
+      "SAADET": 18947,
+      "MHP": 3911,
+      "IDP": 1326,
+      "OTHER": 317
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "34-2",
+    "ilId": "34",
+    "circle": 2,
+    "name": "İstanbul 2. Bölge",
+    "mpCount": 6,
+    "reg": 438791,
+    "cast": 397606,
+    "validDom": 387468,
+    "gumruk": 777,
+    "totValid": 388245,
+    "votes": {
+      "ANAP": 165464,
+      "CHP": 102773,
+      "DP": 46227,
+      "DSP": 35274,
+      "SAADET": 32191,
+      "MHP": 4422,
+      "IDP": 1541,
+      "OTHER": 353
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "34-3",
+    "ilId": "34",
+    "circle": 3,
+    "name": "İstanbul 3. Bölge",
+    "mpCount": 6,
+    "reg": 492599,
+    "cast": 428137,
+    "validDom": 418019,
+    "gumruk": 838,
+    "totValid": 418857,
+    "votes": {
+      "ANAP": 151075,
+      "CHP": 131755,
+      "DP": 54892,
+      "DSP": 42504,
+      "SAADET": 30460,
+      "MHP": 6154,
+      "IDP": 1678,
+      "OTHER": 339
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "34-4",
+    "ilId": "34",
+    "circle": 4,
+    "name": "İstanbul 4. Bölge",
+    "mpCount": 6,
+    "reg": 420956,
+    "cast": 387410,
+    "validDom": 377286,
+    "gumruk": 756,
+    "totValid": 378042,
+    "votes": {
+      "ANAP": 142812,
+      "CHP": 107160,
+      "DP": 51262,
+      "DSP": 36908,
+      "SAADET": 31691,
+      "MHP": 5875,
+      "IDP": 1850,
+      "OTHER": 484
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "34-5",
+    "ilId": "34",
+    "circle": 5,
+    "name": "İstanbul 5. Bölge",
+    "mpCount": 6,
+    "reg": 474325,
+    "cast": 422348,
+    "validDom": 411890,
+    "gumruk": 825,
+    "totValid": 412715,
+    "votes": {
+      "ANAP": 166781,
+      "CHP": 115459,
+      "DP": 51792,
+      "DSP": 44945,
+      "SAADET": 26868,
+      "MHP": 4668,
+      "IDP": 1853,
+      "OTHER": 349
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "34-6",
+    "ilId": "34",
+    "circle": 6,
+    "name": "İstanbul 6. Bölge",
+    "mpCount": 6,
+    "reg": 426644,
+    "cast": 396417,
+    "validDom": 387081,
+    "gumruk": 776,
+    "totValid": 387857,
+    "votes": {
+      "ANAP": 144916,
+      "CHP": 108781,
+      "DP": 51992,
+      "DSP": 47870,
+      "SAADET": 28405,
+      "MHP": 3963,
+      "IDP": 1669,
+      "OTHER": 261
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "34-7",
+    "ilId": "34",
+    "circle": 7,
+    "name": "İstanbul 7. Bölge",
+    "mpCount": 6,
+    "reg": 509172,
+    "cast": 460995,
+    "validDom": 450435,
+    "gumruk": 903,
+    "totValid": 451338,
+    "votes": {
+      "ANAP": 166625,
+      "CHP": 135820,
+      "DP": 46381,
+      "DSP": 57098,
+      "SAADET": 37156,
+      "MHP": 5821,
+      "IDP": 2014,
+      "OTHER": 423
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "34-8",
+    "ilId": "34",
+    "circle": 8,
+    "name": "İstanbul 8. Bölge",
+    "mpCount": 3,
+    "reg": 258080,
+    "cast": 232598,
+    "validDom": 229185,
+    "gumruk": 459,
+    "totValid": 229644,
+    "votes": {
+      "ANAP": 100141,
+      "CHP": 75128,
+      "DP": 22971,
+      "DSP": 20763,
+      "SAADET": 7826,
+      "MHP": 1991,
+      "IDP": 824,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "35-1",
+    "ilId": "35",
+    "circle": 1,
+    "name": "İzmir 1. Bölge",
+    "mpCount": 5,
+    "reg": 397120,
+    "cast": 360276,
+    "validDom": 351019,
+    "gumruk": 703,
+    "totValid": 351722,
+    "votes": {
+      "ANAP": 141864,
+      "CHP": 130490,
+      "DP": 39285,
+      "DSP": 27825,
+      "SAADET": 7452,
+      "MHP": 3046,
+      "IDP": 1447,
+      "OTHER": 313
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "35-2",
+    "ilId": "35",
+    "circle": 2,
+    "name": "İzmir 2. Bölge",
+    "mpCount": 3,
+    "reg": 229105,
+    "cast": 210867,
+    "validDom": 207271,
+    "gumruk": 415,
+    "totValid": 207686,
+    "votes": {
+      "ANAP": 82347,
+      "CHP": 71640,
+      "DP": 27395,
+      "DSP": 18260,
+      "SAADET": 4909,
+      "MHP": 2055,
+      "IDP": 1080,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "CHP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "35-3",
+    "ilId": "35",
+    "circle": 3,
+    "name": "İzmir 3. Bölge",
+    "mpCount": 6,
+    "reg": 441200,
+    "cast": 420609,
+    "validDom": 414274,
+    "gumruk": 830,
+    "totValid": 415104,
+    "votes": {
+      "ANAP": 138716,
+      "CHP": 154517,
+      "DP": 69273,
+      "DSP": 36456,
+      "SAADET": 9851,
+      "MHP": 4420,
+      "IDP": 1871,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "CHP": 4
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "35-4",
+    "ilId": "35",
+    "circle": 4,
+    "name": "İzmir 4. Bölge",
+    "mpCount": 5,
+    "reg": 368841,
+    "cast": 350978,
+    "validDom": 344210,
+    "gumruk": 690,
+    "totValid": 344900,
+    "votes": {
+      "ANAP": 109381,
+      "CHP": 112720,
+      "DP": 70603,
+      "DSP": 39018,
+      "SAADET": 7974,
+      "MHP": 3488,
+      "IDP": 1716,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 3,
+      "DP": 1
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "36",
+    "ilId": "36",
+    "circle": null,
+    "name": "Kars",
+    "mpCount": 6,
+    "reg": 293537,
+    "cast": 260559,
+    "validDom": 249855,
+    "gumruk": 501,
+    "totValid": 250356,
+    "votes": {
+      "ANAP": 92294,
+      "CHP": 85706,
+      "DP": 19840,
+      "DSP": 30327,
+      "SAADET": 10284,
+      "MHP": 4755,
+      "IDP": 2652,
+      "OTHER": 4498
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "37",
+    "ilId": "37",
+    "circle": null,
+    "name": "Kastamonu",
+    "mpCount": 4,
+    "reg": 255380,
+    "cast": 236811,
+    "validDom": 229670,
+    "gumruk": 460,
+    "totValid": 230130,
+    "votes": {
+      "ANAP": 85060,
+      "CHP": 37319,
+      "DP": 56828,
+      "DSP": 28804,
+      "SAADET": 8500,
+      "MHP": 10322,
+      "IDP": 3044,
+      "OTHER": 253
+    },
+    "officialSeats": {
+      "ANAP": 4
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "38-1",
+    "ilId": "38",
+    "circle": 1,
+    "name": "Kayseri 1. Bölge",
+    "mpCount": 5,
+    "reg": 277343,
+    "cast": 260247,
+    "validDom": 253396,
+    "gumruk": 508,
+    "totValid": 253904,
+    "votes": {
+      "ANAP": 120791,
+      "CHP": 41732,
+      "DP": 38534,
+      "DSP": 14808,
+      "SAADET": 21201,
+      "MHP": 14663,
+      "IDP": 2008,
+      "OTHER": 167
+    },
+    "officialSeats": {
+      "ANAP": 5
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "38-2",
+    "ilId": "38",
+    "circle": 2,
+    "name": "Kayseri 2. Bölge",
+    "mpCount": 3,
+    "reg": 154826,
+    "cast": 145306,
+    "validDom": 142330,
+    "gumruk": 285,
+    "totValid": 142615,
+    "votes": {
+      "ANAP": 56319,
+      "CHP": 25689,
+      "DP": 19672,
+      "DSP": 11364,
+      "SAADET": 15580,
+      "MHP": 12507,
+      "IDP": 1484,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "39",
+    "ilId": "39",
+    "circle": null,
+    "name": "Kırklareli",
+    "mpCount": 3,
+    "reg": 176994,
+    "cast": 170139,
+    "validDom": 167803,
+    "gumruk": 336,
+    "totValid": 168139,
+    "votes": {
+      "ANAP": 56175,
+      "CHP": 59999,
+      "DP": 30746,
+      "DSP": 15540,
+      "SAADET": 3359,
+      "MHP": 1542,
+      "IDP": 778,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 2
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "40",
+    "ilId": "40",
+    "circle": null,
+    "name": "Kırşehir",
+    "mpCount": 3,
+    "reg": 124149,
+    "cast": 115328,
+    "validDom": 112298,
+    "gumruk": 225,
+    "totValid": 112523,
+    "votes": {
+      "ANAP": 46589,
+      "CHP": 32854,
+      "DP": 10033,
+      "DSP": 7902,
+      "SAADET": 6855,
+      "MHP": 6791,
+      "IDP": 1499,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "41-1",
+    "ilId": "41",
+    "circle": 1,
+    "name": "Kocaeli 1. Bölge",
+    "mpCount": 4,
+    "reg": 251504,
+    "cast": 236796,
+    "validDom": 232257,
+    "gumruk": 465,
+    "totValid": 232722,
+    "votes": {
+      "ANAP": 60434,
+      "CHP": 63708,
+      "DP": 50521,
+      "DSP": 21415,
+      "SAADET": 31006,
+      "MHP": 4002,
+      "IDP": 1636,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 3
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "41-2",
+    "ilId": "41",
+    "circle": 2,
+    "name": "Kocaeli 2. Bölge",
+    "mpCount": 3,
+    "reg": 185656,
+    "cast": 172118,
+    "validDom": 168997,
+    "gumruk": 339,
+    "totValid": 169336,
+    "votes": {
+      "ANAP": 48573,
+      "CHP": 47184,
+      "DP": 30061,
+      "DSP": 16958,
+      "SAADET": 22153,
+      "MHP": 3290,
+      "IDP": 1117,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 1,
+      "DP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "42-1",
+    "ilId": "42",
+    "circle": 1,
+    "name": "Konya 1. Bölge",
+    "mpCount": 6,
+    "reg": 378186,
+    "cast": 359169,
+    "validDom": 349876,
+    "gumruk": 701,
+    "totValid": 350577,
+    "votes": {
+      "ANAP": 153451,
+      "CHP": 46542,
+      "DP": 46658,
+      "DSP": 15903,
+      "SAADET": 68804,
+      "MHP": 15701,
+      "IDP": 3362,
+      "OTHER": 156
+    },
+    "officialSeats": {
+      "ANAP": 6
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "42-2",
+    "ilId": "42",
+    "circle": 2,
+    "name": "Konya 2. Bölge",
+    "mpCount": 5,
+    "reg": 297671,
+    "cast": 284582,
+    "validDom": 276111,
+    "gumruk": 553,
+    "totValid": 276664,
+    "votes": {
+      "ANAP": 89591,
+      "CHP": 40875,
+      "DP": 65276,
+      "DSP": 24415,
+      "SAADET": 37350,
+      "MHP": 14679,
+      "IDP": 4478,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "DP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "42-3",
+    "ilId": "42",
+    "circle": 3,
+    "name": "Konya 3. Bölge",
+    "mpCount": 3,
+    "reg": 184299,
+    "cast": 176065,
+    "validDom": 172026,
+    "gumruk": 345,
+    "totValid": 172371,
+    "votes": {
+      "ANAP": 64033,
+      "CHP": 48226,
+      "DP": 24787,
+      "DSP": 12776,
+      "SAADET": 14105,
+      "MHP": 6781,
+      "IDP": 1663,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "43",
+    "ilId": "43",
+    "circle": null,
+    "name": "Kütahya",
+    "mpCount": 5,
+    "reg": 307391,
+    "cast": 296645,
+    "validDom": 288592,
+    "gumruk": 578,
+    "totValid": 289170,
+    "votes": {
+      "ANAP": 104541,
+      "CHP": 45636,
+      "DP": 78033,
+      "DSP": 19948,
+      "SAADET": 26412,
+      "MHP": 10208,
+      "IDP": 4392,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "DP": 2
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "44",
+    "ilId": "44",
+    "circle": null,
+    "name": "Malatya",
+    "mpCount": 6,
+    "reg": 300781,
+    "cast": 278133,
+    "validDom": 271556,
+    "gumruk": 544,
+    "totValid": 272100,
+    "votes": {
+      "ANAP": 159540,
+      "CHP": 67700,
+      "DP": 12636,
+      "DSP": 8797,
+      "SAADET": 16315,
+      "MHP": 5452,
+      "IDP": 1552,
+      "OTHER": 108
+    },
+    "officialSeats": {
+      "ANAP": 5,
+      "CHP": 1
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "45-1",
+    "ilId": "45",
+    "circle": 1,
+    "name": "Manisa 1. Bölge",
+    "mpCount": 6,
+    "reg": 395391,
+    "cast": 384105,
+    "validDom": 376022,
+    "gumruk": 754,
+    "totValid": 376776,
+    "votes": {
+      "ANAP": 128439,
+      "CHP": 83272,
+      "DP": 103520,
+      "DSP": 36263,
+      "SAADET": 17639,
+      "MHP": 5031,
+      "IDP": 2494,
+      "OTHER": 118
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "CHP": 1,
+      "DP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "45-2",
+    "ilId": "45",
+    "circle": 2,
+    "name": "Manisa 2. Bölge",
+    "mpCount": 3,
+    "reg": 212214,
+    "cast": 206433,
+    "validDom": 202386,
+    "gumruk": 406,
+    "totValid": 202792,
+    "votes": {
+      "ANAP": 65118,
+      "CHP": 53318,
+      "DP": 58845,
+      "DSP": 13416,
+      "SAADET": 7118,
+      "MHP": 3599,
+      "IDP": 1378,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 1,
+      "DP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "46-1",
+    "ilId": "46",
+    "circle": 1,
+    "name": "Kahramanmaraş 1. Bölge",
+    "mpCount": 4,
+    "reg": 195991,
+    "cast": 184566,
+    "validDom": 180105,
+    "gumruk": 361,
+    "totValid": 180466,
+    "votes": {
+      "ANAP": 54919,
+      "CHP": 30761,
+      "DP": 45738,
+      "DSP": 4320,
+      "SAADET": 29940,
+      "MHP": 13307,
+      "IDP": 1481,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "DP": 1
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "46-2",
+    "ilId": "46",
+    "circle": 2,
+    "name": "Kahramanmaraş 2. Bölge",
+    "mpCount": 3,
+    "reg": 143040,
+    "cast": 132227,
+    "validDom": 129386,
+    "gumruk": 259,
+    "totValid": 129645,
+    "votes": {
+      "ANAP": 36443,
+      "CHP": 31730,
+      "DP": 24334,
+      "DSP": 5708,
+      "SAADET": 12889,
+      "MHP": 17702,
+      "IDP": 839,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 1,
+      "DP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "47",
+    "ilId": "47",
+    "circle": null,
+    "name": "Mardin",
+    "mpCount": 6,
+    "reg": 236295,
+    "cast": 221002,
+    "validDom": 211633,
+    "gumruk": 424,
+    "totValid": 212057,
+    "votes": {
+      "ANAP": 59043,
+      "CHP": 58750,
+      "DP": 45120,
+      "DSP": 11125,
+      "SAADET": 35972,
+      "MHP": 932,
+      "IDP": 1115,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "CHP": 2,
+      "DP": 1
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "48",
+    "ilId": "48",
+    "circle": null,
+    "name": "Muğla",
+    "mpCount": 5,
+    "reg": 300108,
+    "cast": 285897,
+    "validDom": 278521,
+    "gumruk": 558,
+    "totValid": 279079,
+    "votes": {
+      "ANAP": 93948,
+      "CHP": 82273,
+      "DP": 71937,
+      "DSP": 20294,
+      "SAADET": 5242,
+      "MHP": 3367,
+      "IDP": 2018,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "CHP": 2,
+      "DP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "49",
+    "ilId": "49",
+    "circle": null,
+    "name": "Muş",
+    "mpCount": 4,
+    "reg": 117865,
+    "cast": 109098,
+    "validDom": 104950,
+    "gumruk": 210,
+    "totValid": 105160,
+    "votes": {
+      "ANAP": 35905,
+      "CHP": 20309,
+      "DP": 19270,
+      "DSP": 4790,
+      "SAADET": 14309,
+      "MHP": 966,
+      "IDP": 444,
+      "OTHER": 9167
+    },
+    "officialSeats": {
+      "ANAP": 4
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "50",
+    "ilId": "50",
+    "circle": null,
+    "name": "Nevşehir",
+    "mpCount": 3,
+    "reg": 142860,
+    "cast": 133383,
+    "validDom": 129786,
+    "gumruk": 260,
+    "totValid": 130046,
+    "votes": {
+      "ANAP": 43118,
+      "CHP": 27001,
+      "DP": 29655,
+      "DSP": 7035,
+      "SAADET": 13892,
+      "MHP": 8359,
+      "IDP": 986,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 1,
+      "DP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "51",
+    "ilId": "51",
+    "circle": null,
+    "name": "Niğde",
+    "mpCount": 5,
+    "reg": 254926,
+    "cast": 239941,
+    "validDom": 233700,
+    "gumruk": 468,
+    "totValid": 234168,
+    "votes": {
+      "ANAP": 86124,
+      "CHP": 45035,
+      "DP": 51039,
+      "DSP": 20753,
+      "SAADET": 18914,
+      "MHP": 10258,
+      "IDP": 2045,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "DP": 2
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "52-1",
+    "ilId": "52",
+    "circle": 1,
+    "name": "Ordu 1. Bölge",
+    "mpCount": 4,
+    "reg": 220724,
+    "cast": 203094,
+    "validDom": 196041,
+    "gumruk": 393,
+    "totValid": 196434,
+    "votes": {
+      "ANAP": 84205,
+      "CHP": 42789,
+      "DP": 28461,
+      "DSP": 25114,
+      "SAADET": 8943,
+      "MHP": 4070,
+      "IDP": 2107,
+      "OTHER": 745
+    },
+    "officialSeats": {
+      "ANAP": 4
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "52-2",
+    "ilId": "52",
+    "circle": 2,
+    "name": "Ordu 2. Bölge",
+    "mpCount": 3,
+    "reg": 138168,
+    "cast": 128020,
+    "validDom": 122915,
+    "gumruk": 246,
+    "totValid": 123161,
+    "votes": {
+      "ANAP": 42970,
+      "CHP": 26529,
+      "DP": 24557,
+      "DSP": 13699,
+      "SAADET": 11423,
+      "MHP": 2095,
+      "IDP": 1888,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "53",
+    "ilId": "53",
+    "circle": null,
+    "name": "Rize",
+    "mpCount": 4,
+    "reg": 195103,
+    "cast": 170049,
+    "validDom": 166350,
+    "gumruk": 333,
+    "totValid": 166683,
+    "votes": {
+      "ANAP": 51616,
+      "CHP": 30479,
+      "DP": 39996,
+      "DSP": 15638,
+      "SAADET": 23773,
+      "MHP": 4324,
+      "IDP": 857,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 4
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "54",
+    "ilId": "54",
+    "circle": null,
+    "name": "Sakarya",
+    "mpCount": 6,
+    "reg": 356457,
+    "cast": 329134,
+    "validDom": 321543,
+    "gumruk": 644,
+    "totValid": 322187,
+    "votes": {
+      "ANAP": 111400,
+      "CHP": 46059,
+      "DP": 86136,
+      "DSP": 32732,
+      "SAADET": 34127,
+      "MHP": 9442,
+      "IDP": 2101,
+      "OTHER": 190
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "DP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "55-1",
+    "ilId": "55",
+    "circle": 1,
+    "name": "Samsun 1. Bölge",
+    "mpCount": 6,
+    "reg": 384219,
+    "cast": 361794,
+    "validDom": 350099,
+    "gumruk": 702,
+    "totValid": 350801,
+    "votes": {
+      "ANAP": 109260,
+      "CHP": 69090,
+      "DP": 101552,
+      "DSP": 34438,
+      "SAADET": 23570,
+      "MHP": 8950,
+      "IDP": 2561,
+      "OTHER": 1380
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "DP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "55-2",
+    "ilId": "55",
+    "circle": 2,
+    "name": "Samsun 2. Bölge",
+    "mpCount": 3,
+    "reg": 193361,
+    "cast": 182544,
+    "validDom": 178925,
+    "gumruk": 359,
+    "totValid": 179284,
+    "votes": {
+      "ANAP": 53563,
+      "CHP": 25735,
+      "DP": 61585,
+      "DSP": 23908,
+      "SAADET": 8389,
+      "MHP": 4767,
+      "IDP": 1337,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "DP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "56",
+    "ilId": "56",
+    "circle": null,
+    "name": "Siirt",
+    "mpCount": 5,
+    "reg": 179681,
+    "cast": 168439,
+    "validDom": 161453,
+    "gumruk": 324,
+    "totValid": 161777,
+    "votes": {
+      "ANAP": 45132,
+      "CHP": 28055,
+      "DP": 37017,
+      "DSP": 7768,
+      "SAADET": 38966,
+      "MHP": 1120,
+      "IDP": 886,
+      "OTHER": 2833
+    },
+    "officialSeats": {
+      "ANAP": 3,
+      "DP": 2
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "57",
+    "ilId": "57",
+    "circle": null,
+    "name": "Sinop",
+    "mpCount": 3,
+    "reg": 143812,
+    "cast": 134986,
+    "validDom": 130097,
+    "gumruk": 261,
+    "totValid": 130358,
+    "votes": {
+      "ANAP": 39187,
+      "CHP": 28924,
+      "DP": 29479,
+      "DSP": 22107,
+      "SAADET": 6487,
+      "MHP": 2419,
+      "IDP": 1755,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 1,
+      "CHP": 1,
+      "DP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "58-1",
+    "ilId": "58",
+    "circle": 1,
+    "name": "Sivas 1. Bölge",
+    "mpCount": 4,
+    "reg": 212273,
+    "cast": 195496,
+    "validDom": 190707,
+    "gumruk": 382,
+    "totValid": 191089,
+    "votes": {
+      "ANAP": 77318,
+      "CHP": 40840,
+      "DP": 14942,
+      "DSP": 10969,
+      "SAADET": 30153,
+      "MHP": 14255,
+      "IDP": 2612,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 4
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "58-2",
+    "ilId": "58",
+    "circle": 2,
+    "name": "Sivas 2. Bölge",
+    "mpCount": 3,
+    "reg": 137997,
+    "cast": 126367,
+    "validDom": 123347,
+    "gumruk": 247,
+    "totValid": 123594,
+    "votes": {
+      "ANAP": 46918,
+      "CHP": 41334,
+      "DP": 8301,
+      "DSP": 7447,
+      "SAADET": 9923,
+      "MHP": 8037,
+      "IDP": 1634,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "CHP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "59",
+    "ilId": "59",
+    "circle": null,
+    "name": "Tekirdağ",
+    "mpCount": 4,
+    "reg": 242042,
+    "cast": 231205,
+    "validDom": 227874,
+    "gumruk": 457,
+    "totValid": 228331,
+    "votes": {
+      "ANAP": 76716,
+      "CHP": 71001,
+      "DP": 43282,
+      "DSP": 29490,
+      "SAADET": 4826,
+      "MHP": 1906,
+      "IDP": 1110,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "CHP": 2
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "60",
+    "ilId": "60",
+    "circle": null,
+    "name": "Tokat",
+    "mpCount": 6,
+    "reg": 332145,
+    "cast": 313820,
+    "validDom": 306392,
+    "gumruk": 614,
+    "totValid": 307006,
+    "votes": {
+      "ANAP": 104652,
+      "CHP": 74933,
+      "DP": 54785,
+      "DSP": 23113,
+      "SAADET": 26672,
+      "MHP": 18185,
+      "IDP": 4666,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 4,
+      "CHP": 2
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "61-1",
+    "ilId": "61",
+    "circle": 1,
+    "name": "Trabzon 1. Bölge",
+    "mpCount": 4,
+    "reg": 220058,
+    "cast": 205579,
+    "validDom": 200615,
+    "gumruk": 402,
+    "totValid": 201017,
+    "votes": {
+      "ANAP": 79323,
+      "CHP": 38322,
+      "DP": 38407,
+      "DSP": 23028,
+      "SAADET": 12367,
+      "MHP": 8076,
+      "IDP": 1494,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 4
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "61-2",
+    "ilId": "61",
+    "circle": 2,
+    "name": "Trabzon 2. Bölge",
+    "mpCount": 3,
+    "reg": 156536,
+    "cast": 139253,
+    "validDom": 135395,
+    "gumruk": 271,
+    "totValid": 135666,
+    "votes": {
+      "ANAP": 44662,
+      "CHP": 18808,
+      "DP": 24864,
+      "DSP": 14451,
+      "SAADET": 25264,
+      "MHP": 5992,
+      "IDP": 1625,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "DP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "62",
+    "ilId": "62",
+    "circle": null,
+    "name": "Tunceli",
+    "mpCount": 2,
+    "reg": 65212,
+    "cast": 58754,
+    "validDom": 57388,
+    "gumruk": 115,
+    "totValid": 57503,
+    "votes": {
+      "ANAP": 10973,
+      "CHP": 31531,
+      "DP": 2346,
+      "DSP": 10921,
+      "SAADET": 832,
+      "MHP": 563,
+      "IDP": 337,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "CHP": 2
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 50
+  },
+  {
+    "id": "63-1",
+    "ilId": "63",
+    "circle": 1,
+    "name": "Şanlıurfa 1. Bölge",
+    "mpCount": 4,
+    "reg": 185885,
+    "cast": 170942,
+    "validDom": 158693,
+    "gumruk": 318,
+    "totValid": 159011,
+    "votes": {
+      "ANAP": 47516,
+      "CHP": 21579,
+      "DP": 29433,
+      "DSP": 9441,
+      "SAADET": 20838,
+      "MHP": 1648,
+      "IDP": 951,
+      "OTHER": 27605
+    },
+    "officialSeats": {
+      "ANAP": 4
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 25
+  },
+  {
+    "id": "63-2",
+    "ilId": "63",
+    "circle": 2,
+    "name": "Şanlıurfa 2. Bölge",
+    "mpCount": 3,
+    "reg": 125225,
+    "cast": 115626,
+    "validDom": 111610,
+    "gumruk": 224,
+    "totValid": 111834,
+    "votes": {
+      "ANAP": 50081,
+      "CHP": 18930,
+      "DP": 20671,
+      "DSP": 8980,
+      "SAADET": 11399,
+      "MHP": 1073,
+      "IDP": 700,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "64",
+    "ilId": "64",
+    "circle": null,
+    "name": "Uşak",
+    "mpCount": 3,
+    "reg": 155735,
+    "cast": 149569,
+    "validDom": 145580,
+    "gumruk": 292,
+    "totValid": 145872,
+    "votes": {
+      "ANAP": 58027,
+      "CHP": 42771,
+      "DP": 20995,
+      "DSP": 13923,
+      "SAADET": 5679,
+      "MHP": 3068,
+      "IDP": 1409,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 3
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  },
+  {
+    "id": "65",
+    "ilId": "65",
+    "circle": null,
+    "name": "Van",
+    "mpCount": 5,
+    "reg": 198988,
+    "cast": 184008,
+    "validDom": 172852,
+    "gumruk": 346,
+    "totValid": 173198,
+    "votes": {
+      "ANAP": 43927,
+      "CHP": 24331,
+      "DP": 24388,
+      "DSP": 16872,
+      "SAADET": 30064,
+      "MHP": 7120,
+      "IDP": 1957,
+      "OTHER": 24539
+    },
+    "officialSeats": {
+      "ANAP": 5
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "66",
+    "ilId": "66",
+    "circle": null,
+    "name": "Yozgat",
+    "mpCount": 5,
+    "reg": 246618,
+    "cast": 232967,
+    "validDom": 227704,
+    "gumruk": 456,
+    "totValid": 228160,
+    "votes": {
+      "ANAP": 103001,
+      "CHP": 41191,
+      "DP": 21721,
+      "DSP": 13660,
+      "SAADET": 18547,
+      "MHP": 24547,
+      "IDP": 5493,
+      "OTHER": 0
+    },
+    "officialSeats": {
+      "ANAP": 5
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "67-1",
+    "ilId": "67",
+    "circle": 1,
+    "name": "Zonguldak 1. Bölge",
+    "mpCount": 6,
+    "reg": 369680,
+    "cast": 353257,
+    "validDom": 343106,
+    "gumruk": 688,
+    "totValid": 343794,
+    "votes": {
+      "ANAP": 74297,
+      "CHP": 63722,
+      "DP": 84134,
+      "DSP": 100514,
+      "SAADET": 14932,
+      "MHP": 3899,
+      "IDP": 1934,
+      "OTHER": 362
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "DP": 4
+    },
+    "kontenjanSeats": 1,
+    "constituencyThresholdPct": 20
+  },
+  {
+    "id": "67-2",
+    "ilId": "67",
+    "circle": 2,
+    "name": "Zonguldak 2. Bölge",
+    "mpCount": 3,
+    "reg": 191862,
+    "cast": 183130,
+    "validDom": 177640,
+    "gumruk": 356,
+    "totValid": 177996,
+    "votes": {
+      "ANAP": 53812,
+      "CHP": 22609,
+      "DP": 45569,
+      "DSP": 40034,
+      "SAADET": 11231,
+      "MHP": 3416,
+      "IDP": 1228,
+      "OTHER": 97
+    },
+    "officialSeats": {
+      "ANAP": 2,
+      "DP": 1
+    },
+    "kontenjanSeats": 0,
+    "constituencyThresholdPct": 33.3333
+  }
+]

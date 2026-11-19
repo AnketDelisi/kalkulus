@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { HeaderBar, WorkspaceTab } from './components/HeaderBar';
+import { ArchiveBanner } from './components/ArchiveBanner';
 import { InputEditorPanel } from './components/InputEditorPanel';
 import { MapPanel } from './components/MapPanel';
 import { NationalResultsTable, ParliamentHemicycle } from './components/ParliamentHemicycle';
@@ -54,6 +55,11 @@ const InfographicStudio = lazy(() =>
     default: m.InfographicStudio,
   }))
 );
+const HistoricalTrendCard = lazy(() =>
+  import('./components/HistoricalTrendCard').then((m) => ({
+    default: m.HistoricalTrendCard,
+  }))
+);
 
 const PanelFallback: React.FC = () => (
   <div className="bg-white border border-[#090A0F] p-6 text-center font-mono text-xs text-slate-500 uppercase tracking-wider">
@@ -63,6 +69,7 @@ const PanelFallback: React.FC = () => (
 
 export const App: React.FC = () => {
   const electionMode = useElectionStore((s) => s.electionMode);
+  const activeArchiveId = useElectionStore((s) => s.activeArchiveId);
   const baselinesReady = useElectionStore((s) => s.baselinesReady);
   const lang = useElectionStore((s) => s.lang);
   const [activeTab, setActiveTab] = useState<WorkspaceTab>('studio');
@@ -115,12 +122,22 @@ export const App: React.FC = () => {
         return;
       }
 
+      if ((e.key === '[' || e.key === ']') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const st = useElectionStore.getState();
+        if (st.activeArchiveId) {
+          e.preventDefault();
+          void st.stepArchiveElection(e.key === ']' ? 1 : -1);
+          return;
+        }
+      }
+
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
         const st = useElectionStore.getState();
         if (st.zoomedProvinceId) {
           e.preventDefault();
           const delta: 1 | -1 = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : -1;
-          const nextIlId = stepPlateCode(st.zoomedProvinceId, delta);
+          const maxPlate = Object.keys(st.projection.provinceResults).length || 81;
+          const nextIlId = stepPlateCode(st.zoomedProvinceId, delta, maxPlate);
           st.setZoomedProvinceId(nextIlId);
           st.setActiveScope({ type: 'province', ilId: nextIlId });
         }
@@ -199,6 +216,7 @@ export const App: React.FC = () => {
             </div>
           ) : (
             <>
+              <ArchiveBanner />
               {activeTab === 'studio' && (
                 <>
                   {/* Mobile (< lg) Above-the-Fold Quick Switcher: Map first! */}
@@ -289,6 +307,13 @@ export const App: React.FC = () => {
                           <NationalResultsTable />
                         )}
                       </div>
+                      {activeArchiveId && (
+                        <div className={mobileStudioView === 'summary' ? 'block' : 'hidden lg:block'}>
+                          <Suspense fallback={<PanelFallback />}>
+                            <HistoricalTrendCard />
+                          </Suspense>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </>

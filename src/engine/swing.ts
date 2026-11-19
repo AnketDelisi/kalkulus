@@ -685,6 +685,10 @@ export function runMultiLayerProjection(input: ProjectionEngineInput): ComputedE
       parties,
       dhondtMode,
       jointListRules,
+      independentSplitWeights: distConfig.independentSplitWeights,
+      kontenjanSeats: distConfig.kontenjanSeats,
+      constituencyThresholdPct: distConfig.constituencyThresholdPct,
+      subCircles: distConfig.subCircles,
     });
 
     for (const p of parties) {

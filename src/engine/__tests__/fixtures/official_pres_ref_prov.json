@@ -1,0 +1,4543 @@
+{
+  "2023_pres_r1": {
+    "nationalShares": {
+      "ERDOGAN": 49.5179,
+      "KILICDAROGLU": 44.8849,
+      "OGAN": 5.1669,
+      "INCE": 0.4303
+    },
+    "abroadShares": {
+      "ERDOGAN": 57.4702,
+      "KILICDAROGLU": 39.5712,
+      "OGAN": 1.8993,
+      "INCE": 1.0593
+    },
+    "provinces": {
+      "10": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 45.07,
+          "KILICDAROGLU": 48.67,
+          "OGAN": 5.59,
+          "INCE": 0.68
+        },
+        "validVotes": 885618
+      },
+      "11": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 49.88,
+          "KILICDAROGLU": 41.26,
+          "OGAN": 8.12,
+          "INCE": 0.73
+        },
+        "validVotes": 150553
+      },
+      "12": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 65.08,
+          "KILICDAROGLU": 32.53,
+          "OGAN": 2,
+          "INCE": 0.39
+        },
+        "validVotes": 145069
+      },
+      "13": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 46.45,
+          "KILICDAROGLU": 50.91,
+          "OGAN": 2.25,
+          "INCE": 0.39
+        },
+        "validVotes": 174392
+      },
+      "14": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 60.88,
+          "KILICDAROGLU": 31.03,
+          "OGAN": 7.5,
+          "INCE": 0.6
+        },
+        "validVotes": 211826
+      },
+      "15": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 51.71,
+          "KILICDAROGLU": 40.89,
+          "OGAN": 6.57,
+          "INCE": 0.83
+        },
+        "validVotes": 180016
+      },
+      "16": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 51.47,
+          "KILICDAROGLU": 40.62,
+          "OGAN": 7.46,
+          "INCE": 0.46
+        },
+        "validVotes": 2116743
+      },
+      "17": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 39.49,
+          "KILICDAROGLU": 54.58,
+          "OGAN": 5.22,
+          "INCE": 0.7
+        },
+        "validVotes": 392877
+      },
+      "18": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 72.14,
+          "KILICDAROGLU": 20.34,
+          "OGAN": 7.06,
+          "INCE": 0.47
+        },
+        "validVotes": 123251
+      },
+      "19": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 61.74,
+          "KILICDAROGLU": 33.12,
+          "OGAN": 4.75,
+          "INCE": 0.4
+        },
+        "validVotes": 354416
+      },
+      "20": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 43.88,
+          "KILICDAROGLU": 48.36,
+          "OGAN": 7.09,
+          "INCE": 0.67
+        },
+        "validVotes": 712408
+      },
+      "21": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 26.48,
+          "KILICDAROGLU": 71.95,
+          "OGAN": 1.26,
+          "INCE": 0.31
+        },
+        "validVotes": 905818
+      },
+      "22": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 32.11,
+          "KILICDAROGLU": 63.46,
+          "OGAN": 3.84,
+          "INCE": 0.59
+        },
+        "validVotes": 283446
+      },
+      "23": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 67.18,
+          "KILICDAROGLU": 28.24,
+          "OGAN": 4.31,
+          "INCE": 0.28
+        },
+        "validVotes": 360396
+      },
+      "24": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 59.3,
+          "KILICDAROGLU": 35.69,
+          "OGAN": 4.82,
+          "INCE": 0.18
+        },
+        "validVotes": 151446
+      },
+      "25": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 68.59,
+          "KILICDAROGLU": 24.56,
+          "OGAN": 6.57,
+          "INCE": 0.28
+        },
+        "validVotes": 431076
+      },
+      "26": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 41.81,
+          "KILICDAROGLU": 50.39,
+          "OGAN": 7.31,
+          "INCE": 0.49
+        },
+        "validVotes": 616328
+      },
+      "27": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 59.76,
+          "KILICDAROGLU": 34.65,
+          "OGAN": 5.18,
+          "INCE": 0.41
+        },
+        "validVotes": 1144597
+      },
+      "28": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 61.05,
+          "KILICDAROGLU": 32.92,
+          "OGAN": 5.48,
+          "INCE": 0.55
+        },
+        "validVotes": 300995
+      },
+      "29": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 74.42,
+          "KILICDAROGLU": 19.92,
+          "OGAN": 5.34,
+          "INCE": 0.32
+        },
+        "validVotes": 78297
+      },
+      "30": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 24.64,
+          "KILICDAROGLU": 72.32,
+          "OGAN": 2.74,
+          "INCE": 0.3
+        },
+        "validVotes": 150933
+      },
+      "31": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 48.03,
+          "KILICDAROGLU": 48.08,
+          "OGAN": 3.57,
+          "INCE": 0.32
+        },
+        "validVotes": 870802
+      },
+      "32": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 53.65,
+          "KILICDAROGLU": 38.23,
+          "OGAN": 7.48,
+          "INCE": 0.64
+        },
+        "validVotes": 287662
+      },
+      "33": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 37.57,
+          "KILICDAROGLU": 57.18,
+          "OGAN": 4.84,
+          "INCE": 0.41
+        },
+        "validVotes": 1212257
+      },
+      "34": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 46.68,
+          "KILICDAROGLU": 48.56,
+          "OGAN": 4.51,
+          "INCE": 0.25
+        },
+        "validVotes": 10150715
+      },
+      "35": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 31.48,
+          "KILICDAROGLU": 63.31,
+          "OGAN": 4.76,
+          "INCE": 0.45
+        },
+        "validVotes": 3063673
+      },
+      "36": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 39.39,
+          "KILICDAROGLU": 54.57,
+          "OGAN": 5.56,
+          "INCE": 0.48
+        },
+        "validVotes": 143115
+      },
+      "37": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 65.45,
+          "KILICDAROGLU": 26.64,
+          "OGAN": 7.15,
+          "INCE": 0.76
+        },
+        "validVotes": 252961
+      },
+      "38": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 63.33,
+          "KILICDAROGLU": 27.48,
+          "OGAN": 8.83,
+          "INCE": 0.36
+        },
+        "validVotes": 919120
+      },
+      "39": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 30.47,
+          "KILICDAROGLU": 65.02,
+          "OGAN": 4.04,
+          "INCE": 0.47
+        },
+        "validVotes": 261990
+      },
+      "40": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 54.11,
+          "KILICDAROGLU": 38.8,
+          "OGAN": 6.69,
+          "INCE": 0.39
+        },
+        "validVotes": 149447
+      },
+      "41": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 54.27,
+          "KILICDAROGLU": 38.73,
+          "OGAN": 6.63,
+          "INCE": 0.37
+        },
+        "validVotes": 1364496
+      },
+      "42": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 68.94,
+          "KILICDAROGLU": 23.92,
+          "OGAN": 6.75,
+          "INCE": 0.39
+        },
+        "validVotes": 1426270
+      },
+      "43": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 66.31,
+          "KILICDAROGLU": 26.39,
+          "OGAN": 6.67,
+          "INCE": 0.63
+        },
+        "validVotes": 386364
+      },
+      "44": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 69.39,
+          "KILICDAROGLU": 27.11,
+          "OGAN": 3.26,
+          "INCE": 0.25
+        },
+        "validVotes": 426839
+      },
+      "45": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 47.15,
+          "KILICDAROGLU": 46.08,
+          "OGAN": 6.12,
+          "INCE": 0.65
+        },
+        "validVotes": 994439
+      },
+      "46": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 71.88,
+          "KILICDAROGLU": 22.2,
+          "OGAN": 5.5,
+          "INCE": 0.42
+        },
+        "validVotes": 630985
+      },
+      "47": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 32.29,
+          "KILICDAROGLU": 66.11,
+          "OGAN": 1.36,
+          "INCE": 0.24
+        },
+        "validVotes": 437340
+      },
+      "48": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 31.66,
+          "KILICDAROGLU": 62.9,
+          "OGAN": 4.77,
+          "INCE": 0.67
+        },
+        "validVotes": 713677
+      },
+      "49": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 39.12,
+          "KILICDAROGLU": 58.88,
+          "OGAN": 1.69,
+          "INCE": 0.3
+        },
+        "validVotes": 184298
+      },
+      "50": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 62.88,
+          "KILICDAROGLU": 30.64,
+          "OGAN": 6.09,
+          "INCE": 0.39
+        },
+        "validVotes": 200207
+      },
+      "51": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 58.49,
+          "KILICDAROGLU": 34.92,
+          "OGAN": 6.07,
+          "INCE": 0.52
+        },
+        "validVotes": 222999
+      },
+      "52": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 62.16,
+          "KILICDAROGLU": 32.45,
+          "OGAN": 4.81,
+          "INCE": 0.59
+        },
+        "validVotes": 502773
+      },
+      "53": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 72.79,
+          "KILICDAROGLU": 22.03,
+          "OGAN": 4.83,
+          "INCE": 0.35
+        },
+        "validVotes": 232478
+      },
+      "54": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 64.75,
+          "KILICDAROGLU": 27.87,
+          "OGAN": 6.95,
+          "INCE": 0.43
+        },
+        "validVotes": 706097
+      },
+      "55": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 62.02,
+          "KILICDAROGLU": 31.47,
+          "OGAN": 6.05,
+          "INCE": 0.47
+        },
+        "validVotes": 896038
+      },
+      "56": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 41.55,
+          "KILICDAROGLU": 56.26,
+          "OGAN": 1.82,
+          "INCE": 0.37
+        },
+        "validVotes": 162381
+      },
+      "57": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 58.52,
+          "KILICDAROGLU": 35.46,
+          "OGAN": 5.24,
+          "INCE": 0.79
+        },
+        "validVotes": 145952
+      },
+      "58": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 69.4,
+          "KILICDAROGLU": 24.25,
+          "OGAN": 6.11,
+          "INCE": 0.24
+        },
+        "validVotes": 403871
+      },
+      "59": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 39.02,
+          "KILICDAROGLU": 55.44,
+          "OGAN": 5.04,
+          "INCE": 0.49
+        },
+        "validVotes": 764910
+      },
+      "60": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 63.19,
+          "KILICDAROGLU": 31.37,
+          "OGAN": 5.11,
+          "INCE": 0.33
+        },
+        "validVotes": 390696
+      },
+      "61": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 65.32,
+          "KILICDAROGLU": 28.33,
+          "OGAN": 5.98,
+          "INCE": 0.37
+        },
+        "validVotes": 534630
+      },
+      "62": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 16.2,
+          "KILICDAROGLU": 80.26,
+          "OGAN": 3.41,
+          "INCE": 0.13
+        },
+        "validVotes": 56640
+      },
+      "63": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 62,
+          "KILICDAROGLU": 36.09,
+          "OGAN": 1.59,
+          "INCE": 0.31
+        },
+        "validVotes": 978296
+      },
+      "64": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 47.6,
+          "KILICDAROGLU": 45.13,
+          "OGAN": 6.55,
+          "INCE": 0.72
+        },
+        "validVotes": 248975
+      },
+      "65": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 35.61,
+          "KILICDAROGLU": 62.26,
+          "OGAN": 1.78,
+          "INCE": 0.35
+        },
+        "validVotes": 536739
+      },
+      "66": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 72.7,
+          "KILICDAROGLU": 21.34,
+          "OGAN": 5.61,
+          "INCE": 0.35
+        },
+        "validVotes": 255350
+      },
+      "67": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 51.89,
+          "KILICDAROGLU": 41.59,
+          "OGAN": 5.8,
+          "INCE": 0.72
+        },
+        "validVotes": 396477
+      },
+      "68": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 71.53,
+          "KILICDAROGLU": 22.4,
+          "OGAN": 5.64,
+          "INCE": 0.43
+        },
+        "validVotes": 251891
+      },
+      "69": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 78.85,
+          "KILICDAROGLU": 15.45,
+          "OGAN": 5.51,
+          "INCE": 0.18
+        },
+        "validVotes": 49150
+      },
+      "70": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 61.28,
+          "KILICDAROGLU": 30.17,
+          "OGAN": 7.91,
+          "INCE": 0.64
+        },
+        "validVotes": 164576
+      },
+      "71": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 59.66,
+          "KILICDAROGLU": 33.09,
+          "OGAN": 6.82,
+          "INCE": 0.43
+        },
+        "validVotes": 177083
+      },
+      "72": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 30.95,
+          "KILICDAROGLU": 67.57,
+          "OGAN": 1.2,
+          "INCE": 0.29
+        },
+        "validVotes": 327619
+      },
+      "73": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 21.43,
+          "KILICDAROGLU": 75.85,
+          "OGAN": 2.44,
+          "INCE": 0.28
+        },
+        "validVotes": 267016
+      },
+      "74": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 56.1,
+          "KILICDAROGLU": 36.49,
+          "OGAN": 6.43,
+          "INCE": 0.97
+        },
+        "validVotes": 132659
+      },
+      "75": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 39.16,
+          "KILICDAROGLU": 56.15,
+          "OGAN": 4.2,
+          "INCE": 0.49
+        },
+        "validVotes": 54534
+      },
+      "76": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 25.29,
+          "KILICDAROGLU": 62.49,
+          "OGAN": 11.94,
+          "INCE": 0.28
+        },
+        "validVotes": 103013
+      },
+      "77": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 47.74,
+          "KILICDAROGLU": 45.42,
+          "OGAN": 6.21,
+          "INCE": 0.64
+        },
+        "validVotes": 175138
+      },
+      "78": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 59.4,
+          "KILICDAROGLU": 32.05,
+          "OGAN": 7.91,
+          "INCE": 0.65
+        },
+        "validVotes": 158927
+      },
+      "79": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 65.55,
+          "KILICDAROGLU": 27.02,
+          "OGAN": 6.81,
+          "INCE": 0.62
+        },
+        "validVotes": 84593
+      },
+      "80": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 62.32,
+          "KILICDAROGLU": 30.74,
+          "OGAN": 6.41,
+          "INCE": 0.54
+        },
+        "validVotes": 332069
+      },
+      "81": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 68.6,
+          "KILICDAROGLU": 24.91,
+          "OGAN": 6.1,
+          "INCE": 0.39
+        },
+        "validVotes": 266748
+      },
+      "06": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 46,
+          "KILICDAROGLU": 47.32,
+          "OGAN": 6.39,
+          "INCE": 0.29
+        },
+        "validVotes": 3854407
+      },
+      "09": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 38.08,
+          "KILICDAROGLU": 56.04,
+          "OGAN": 5.2,
+          "INCE": 0.68
+        },
+        "validVotes": 772398
+      },
+      "03": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 63.86,
+          "KILICDAROGLU": 28.87,
+          "OGAN": 6.71,
+          "INCE": 0.56
+        },
+        "validVotes": 472801
+      },
+      "07": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 39.85,
+          "KILICDAROGLU": 53.13,
+          "OGAN": 6.44,
+          "INCE": 0.59
+        },
+        "validVotes": 1675653
+      },
+      "01": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 43.93,
+          "KILICDAROGLU": 50.89,
+          "OGAN": 4.82,
+          "INCE": 0.37
+        },
+        "validVotes": 1388925
+      },
+      "05": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 56.25,
+          "KILICDAROGLU": 38.04,
+          "OGAN": 5.31,
+          "INCE": 0.39
+        },
+        "validVotes": 231547
+      },
+      "02": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 66.2,
+          "KILICDAROGLU": 31.24,
+          "OGAN": 2.18,
+          "INCE": 0.38
+        },
+        "validVotes": 319326
+      },
+      "08": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 47.68,
+          "KILICDAROGLU": 46.59,
+          "OGAN": 5.2,
+          "INCE": 0.52
+        },
+        "validVotes": 114550
+      },
+      "04": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 31.72,
+          "KILICDAROGLU": 65.8,
+          "OGAN": 2.08,
+          "INCE": 0.4
+        },
+        "validVotes": 215851
+      }
+    }
+  },
+  "2023_pres_r2": {
+    "nationalShares": {
+      "ERDOGAN": 52.184,
+      "KILICDAROGLU": 47.816
+    },
+    "abroadShares": {
+      "ERDOGAN": 59.563,
+      "KILICDAROGLU": 40.437
+    },
+    "provinces": {
+      "10": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 47.8,
+          "KILICDAROGLU": 52.2
+        },
+        "validVotes": 863524
+      },
+      "11": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 53.47,
+          "KILICDAROGLU": 46.53
+        },
+        "validVotes": 146276
+      },
+      "12": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 68.08,
+          "KILICDAROGLU": 31.92
+        },
+        "validVotes": 140615
+      },
+      "13": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 49.79,
+          "KILICDAROGLU": 50.21
+        },
+        "validVotes": 165150
+      },
+      "14": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 64.67,
+          "KILICDAROGLU": 35.33
+        },
+        "validVotes": 206700
+      },
+      "15": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 55.83,
+          "KILICDAROGLU": 44.17
+        },
+        "validVotes": 175452
+      },
+      "16": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 54.66,
+          "KILICDAROGLU": 45.34
+        },
+        "validVotes": 2046286
+      },
+      "17": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 41.91,
+          "KILICDAROGLU": 58.09
+        },
+        "validVotes": 383490
+      },
+      "18": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 76.76,
+          "KILICDAROGLU": 23.24
+        },
+        "validVotes": 120633
+      },
+      "19": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 64.78,
+          "KILICDAROGLU": 35.22
+        },
+        "validVotes": 348247
+      },
+      "20": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 47.01,
+          "KILICDAROGLU": 52.99
+        },
+        "validVotes": 693482
+      },
+      "21": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 28.34,
+          "KILICDAROGLU": 71.66
+        },
+        "validVotes": 854055
+      },
+      "22": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 33.09,
+          "KILICDAROGLU": 66.91
+        },
+        "validVotes": 277378
+      },
+      "23": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 70.27,
+          "KILICDAROGLU": 29.73
+        },
+        "validVotes": 348512
+      },
+      "24": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 62.05,
+          "KILICDAROGLU": 37.95
+        },
+        "validVotes": 148655
+      },
+      "25": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 73.55,
+          "KILICDAROGLU": 26.45
+        },
+        "validVotes": 416690
+      },
+      "26": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 44.59,
+          "KILICDAROGLU": 55.41
+        },
+        "validVotes": 596658
+      },
+      "27": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 62.72,
+          "KILICDAROGLU": 37.28
+        },
+        "validVotes": 1111712
+      },
+      "28": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 64.69,
+          "KILICDAROGLU": 35.31
+        },
+        "validVotes": 294400
+      },
+      "29": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 78.54,
+          "KILICDAROGLU": 21.46
+        },
+        "validVotes": 76906
+      },
+      "30": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 27.89,
+          "KILICDAROGLU": 72.11
+        },
+        "validVotes": 142538
+      },
+      "31": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 50.14,
+          "KILICDAROGLU": 49.86
+        },
+        "validVotes": 858909
+      },
+      "32": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 57.67,
+          "KILICDAROGLU": 42.33
+        },
+        "validVotes": 279065
+      },
+      "33": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 39.73,
+          "KILICDAROGLU": 60.27
+        },
+        "validVotes": 1177077
+      },
+      "34": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 48.22,
+          "KILICDAROGLU": 51.78
+        },
+        "validVotes": 9889854
+      },
+      "35": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 32.87,
+          "KILICDAROGLU": 67.13
+        },
+        "validVotes": 2976701
+      },
+      "36": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 43.6,
+          "KILICDAROGLU": 56.4
+        },
+        "validVotes": 135440
+      },
+      "37": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 69.73,
+          "KILICDAROGLU": 30.27
+        },
+        "validVotes": 247084
+      },
+      "38": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 67.89,
+          "KILICDAROGLU": 32.11
+        },
+        "validVotes": 890797
+      },
+      "39": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 31.58,
+          "KILICDAROGLU": 68.42
+        },
+        "validVotes": 256126
+      },
+      "40": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 57.32,
+          "KILICDAROGLU": 42.68
+        },
+        "validVotes": 143865
+      },
+      "41": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 57.01,
+          "KILICDAROGLU": 42.99
+        },
+        "validVotes": 1324159
+      },
+      "42": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 72.99,
+          "KILICDAROGLU": 27.01
+        },
+        "validVotes": 1381516
+      },
+      "43": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 70.59,
+          "KILICDAROGLU": 29.41
+        },
+        "validVotes": 377417
+      },
+      "44": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 71.96,
+          "KILICDAROGLU": 28.04
+        },
+        "validVotes": 420084
+      },
+      "45": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 50.2,
+          "KILICDAROGLU": 49.8
+        },
+        "validVotes": 967048
+      },
+      "46": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 75.77,
+          "KILICDAROGLU": 24.23
+        },
+        "validVotes": 619052
+      },
+      "47": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 34.76,
+          "KILICDAROGLU": 65.24
+        },
+        "validVotes": 420634
+      },
+      "48": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 33.46,
+          "KILICDAROGLU": 66.54
+        },
+        "validVotes": 693755
+      },
+      "49": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 41.67,
+          "KILICDAROGLU": 58.33
+        },
+        "validVotes": 174496
+      },
+      "50": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 66.54,
+          "KILICDAROGLU": 33.46
+        },
+        "validVotes": 195177
+      },
+      "51": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 62.05,
+          "KILICDAROGLU": 37.95
+        },
+        "validVotes": 215891
+      },
+      "52": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 65.21,
+          "KILICDAROGLU": 34.79
+        },
+        "validVotes": 490906
+      },
+      "53": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 75.86,
+          "KILICDAROGLU": 24.14
+        },
+        "validVotes": 228393
+      },
+      "54": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 68.49,
+          "KILICDAROGLU": 31.51
+        },
+        "validVotes": 685893
+      },
+      "55": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 65.32,
+          "KILICDAROGLU": 34.68
+        },
+        "validVotes": 872499
+      },
+      "56": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 44.56,
+          "KILICDAROGLU": 55.44
+        },
+        "validVotes": 155105
+      },
+      "57": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 61.85,
+          "KILICDAROGLU": 38.15
+        },
+        "validVotes": 144638
+      },
+      "58": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 73.09,
+          "KILICDAROGLU": 26.91
+        },
+        "validVotes": 394218
+      },
+      "59": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 40.67,
+          "KILICDAROGLU": 59.33
+        },
+        "validVotes": 743048
+      },
+      "60": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 66.3,
+          "KILICDAROGLU": 33.7
+        },
+        "validVotes": 385016
+      },
+      "61": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 68.89,
+          "KILICDAROGLU": 31.11
+        },
+        "validVotes": 520971
+      },
+      "62": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 17.19,
+          "KILICDAROGLU": 82.81
+        },
+        "validVotes": 56890
+      },
+      "63": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 64.86,
+          "KILICDAROGLU": 35.14
+        },
+        "validVotes": 940681
+      },
+      "64": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 51.02,
+          "KILICDAROGLU": 48.98
+        },
+        "validVotes": 242592
+      },
+      "65": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 38.5,
+          "KILICDAROGLU": 61.5
+        },
+        "validVotes": 501457
+      },
+      "66": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 76.36,
+          "KILICDAROGLU": 23.64
+        },
+        "validVotes": 250022
+      },
+      "67": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 54.8,
+          "KILICDAROGLU": 45.2
+        },
+        "validVotes": 386850
+      },
+      "68": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 75.38,
+          "KILICDAROGLU": 24.62
+        },
+        "validVotes": 246236
+      },
+      "69": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 82.45,
+          "KILICDAROGLU": 17.55
+        },
+        "validVotes": 48186
+      },
+      "70": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 65.88,
+          "KILICDAROGLU": 34.12
+        },
+        "validVotes": 159850
+      },
+      "71": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 63.71,
+          "KILICDAROGLU": 36.29
+        },
+        "validVotes": 170056
+      },
+      "72": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 31.94,
+          "KILICDAROGLU": 68.06
+        },
+        "validVotes": 313676
+      },
+      "73": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 23.7,
+          "KILICDAROGLU": 76.3
+        },
+        "validVotes": 253772
+      },
+      "74": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 60,
+          "KILICDAROGLU": 40
+        },
+        "validVotes": 129934
+      },
+      "75": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 42.32,
+          "KILICDAROGLU": 57.68
+        },
+        "validVotes": 53154
+      },
+      "76": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 33.22,
+          "KILICDAROGLU": 66.78
+        },
+        "validVotes": 94827
+      },
+      "77": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 50.42,
+          "KILICDAROGLU": 49.58
+        },
+        "validVotes": 169011
+      },
+      "78": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 63.72,
+          "KILICDAROGLU": 36.28
+        },
+        "validVotes": 154605
+      },
+      "79": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 69.99,
+          "KILICDAROGLU": 30.01
+        },
+        "validVotes": 81917
+      },
+      "80": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 66.2,
+          "KILICDAROGLU": 33.8
+        },
+        "validVotes": 321685
+      },
+      "81": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 71.93,
+          "KILICDAROGLU": 28.07
+        },
+        "validVotes": 261061
+      },
+      "06": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 48.77,
+          "KILICDAROGLU": 51.23
+        },
+        "validVotes": 3727550
+      },
+      "09": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 40.16,
+          "KILICDAROGLU": 59.84
+        },
+        "validVotes": 751268
+      },
+      "03": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 67.84,
+          "KILICDAROGLU": 32.16
+        },
+        "validVotes": 460588
+      },
+      "07": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 42.65,
+          "KILICDAROGLU": 57.35
+        },
+        "validVotes": 1615882
+      },
+      "01": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 45.96,
+          "KILICDAROGLU": 54.04
+        },
+        "validVotes": 1351277
+      },
+      "05": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 59.16,
+          "KILICDAROGLU": 40.84
+        },
+        "validVotes": 227239
+      },
+      "02": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 68.84,
+          "KILICDAROGLU": 31.16
+        },
+        "validVotes": 314473
+      },
+      "08": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 50.65,
+          "KILICDAROGLU": 49.35
+        },
+        "validVotes": 113141
+      },
+      "04": {
+        "winner": "KILICDAROGLU",
+        "shares": {
+          "ERDOGAN": 34.66,
+          "KILICDAROGLU": 65.34
+        },
+        "validVotes": 198483
+      }
+    }
+  },
+  "2018_pres": {
+    "nationalShares": {
+      "ERDOGAN": 52.5895,
+      "INCE": 30.6386,
+      "DEMIRTAS": 8.4001,
+      "AKSENER": 7.2881,
+      "KARAMOLLAOGLU": 0.8862,
+      "PERINCEK": 0.1976
+    },
+    "abroadShares": {
+      "ERDOGAN": 59.38,
+      "INCE": 25.7897,
+      "DEMIRTAS": 11.0454,
+      "AKSENER": 2.9984,
+      "KARAMOLLAOGLU": 0.5856,
+      "PERINCEK": 0.2009
+    },
+    "provinces": {
+      "10": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 47.46,
+          "INCE": 39.51,
+          "DEMIRTAS": 1.67,
+          "AKSENER": 10.35,
+          "KARAMOLLAOGLU": 0.75,
+          "PERINCEK": 0.26
+        },
+        "validVotes": 836566
+      },
+      "11": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 51.44,
+          "INCE": 32.09,
+          "DEMIRTAS": 2.1,
+          "AKSENER": 13.17,
+          "KARAMOLLAOGLU": 0.96,
+          "PERINCEK": 0.24
+        },
+        "validVotes": 136731
+      },
+      "12": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 66.79,
+          "INCE": 6.86,
+          "DEMIRTAS": 23.45,
+          "AKSENER": 1.71,
+          "KARAMOLLAOGLU": 1.04,
+          "PERINCEK": 0.15
+        },
+        "validVotes": 140634
+      },
+      "13": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 50.35,
+          "INCE": 6.23,
+          "DEMIRTAS": 39.97,
+          "AKSENER": 2.29,
+          "KARAMOLLAOGLU": 1.02,
+          "PERINCEK": 0.14
+        },
+        "validVotes": 159709
+      },
+      "14": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 66.04,
+          "INCE": 23.23,
+          "DEMIRTAS": 0.78,
+          "AKSENER": 8.51,
+          "KARAMOLLAOGLU": 1.21,
+          "PERINCEK": 0.23
+        },
+        "validVotes": 194111
+      },
+      "15": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 54.09,
+          "INCE": 27.93,
+          "DEMIRTAS": 0.69,
+          "AKSENER": 15.77,
+          "KARAMOLLAOGLU": 1.21,
+          "PERINCEK": 0.32
+        },
+        "validVotes": 170328
+      },
+      "16": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 55.56,
+          "INCE": 31.46,
+          "DEMIRTAS": 3.49,
+          "AKSENER": 8.23,
+          "KARAMOLLAOGLU": 1.06,
+          "PERINCEK": 0.21
+        },
+        "validVotes": 1889298
+      },
+      "17": {
+        "winner": "INCE",
+        "shares": {
+          "ERDOGAN": 41.96,
+          "INCE": 43.77,
+          "DEMIRTAS": 1.66,
+          "AKSENER": 11.9,
+          "KARAMOLLAOGLU": 0.43,
+          "PERINCEK": 0.28
+        },
+        "validVotes": 362554
+      },
+      "18": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 76.52,
+          "INCE": 12.23,
+          "DEMIRTAS": 0.22,
+          "AKSENER": 9.86,
+          "KARAMOLLAOGLU": 0.98,
+          "PERINCEK": 0.18
+        },
+        "validVotes": 114224
+      },
+      "19": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 64.65,
+          "INCE": 26.51,
+          "DEMIRTAS": 0.46,
+          "AKSENER": 7.34,
+          "KARAMOLLAOGLU": 0.86,
+          "PERINCEK": 0.19
+        },
+        "validVotes": 345347
+      },
+      "20": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 47.88,
+          "INCE": 35.36,
+          "DEMIRTAS": 2.14,
+          "AKSENER": 13.81,
+          "KARAMOLLAOGLU": 0.55,
+          "PERINCEK": 0.26
+        },
+        "validVotes": 662990
+      },
+      "21": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 27.42,
+          "INCE": 6.16,
+          "DEMIRTAS": 64.33,
+          "AKSENER": 1.01,
+          "KARAMOLLAOGLU": 0.97,
+          "PERINCEK": 0.12
+        },
+        "validVotes": 829135
+      },
+      "22": {
+        "winner": "INCE",
+        "shares": {
+          "ERDOGAN": 31.41,
+          "INCE": 55.66,
+          "DEMIRTAS": 1.65,
+          "AKSENER": 10.36,
+          "KARAMOLLAOGLU": 0.64,
+          "PERINCEK": 0.27
+        },
+        "validVotes": 267709
+      },
+      "23": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 70.21,
+          "INCE": 15.49,
+          "DEMIRTAS": 6.36,
+          "AKSENER": 6.25,
+          "KARAMOLLAOGLU": 1.57,
+          "PERINCEK": 0.12
+        },
+        "validVotes": 338405
+      },
+      "24": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 60.73,
+          "INCE": 31.43,
+          "DEMIRTAS": 1.24,
+          "AKSENER": 5.47,
+          "KARAMOLLAOGLU": 0.99,
+          "PERINCEK": 0.14
+        },
+        "validVotes": 142656
+      },
+      "25": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 72.41,
+          "INCE": 9.85,
+          "DEMIRTAS": 9.63,
+          "AKSENER": 6.59,
+          "KARAMOLLAOGLU": 1.42,
+          "PERINCEK": 0.12
+        },
+        "validVotes": 419604
+      },
+      "26": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 46.51,
+          "INCE": 41.06,
+          "DEMIRTAS": 1.76,
+          "AKSENER": 9.66,
+          "KARAMOLLAOGLU": 0.78,
+          "PERINCEK": 0.23
+        },
+        "validVotes": 563424
+      },
+      "27": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 63.98,
+          "INCE": 21.74,
+          "DEMIRTAS": 7.88,
+          "AKSENER": 5.32,
+          "KARAMOLLAOGLU": 0.88,
+          "PERINCEK": 0.19
+        },
+        "validVotes": 1014735
+      },
+      "28": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 64.49,
+          "INCE": 25.58,
+          "DEMIRTAS": 0.26,
+          "AKSENER": 8.42,
+          "KARAMOLLAOGLU": 1.01,
+          "PERINCEK": 0.23
+        },
+        "validVotes": 281114
+      },
+      "29": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 77.21,
+          "INCE": 12.75,
+          "DEMIRTAS": 0.29,
+          "AKSENER": 8,
+          "KARAMOLLAOGLU": 1.61,
+          "PERINCEK": 0.14
+        },
+        "validVotes": 78216
+      },
+      "30": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 22.82,
+          "INCE": 4.84,
+          "DEMIRTAS": 70.79,
+          "AKSENER": 1.04,
+          "KARAMOLLAOGLU": 0.42,
+          "PERINCEK": 0.09
+        },
+        "validVotes": 135880
+      },
+      "31": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 48.56,
+          "INCE": 42.76,
+          "DEMIRTAS": 2.3,
+          "AKSENER": 5.63,
+          "KARAMOLLAOGLU": 0.6,
+          "PERINCEK": 0.15
+        },
+        "validVotes": 907512
+      },
+      "32": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 58.81,
+          "INCE": 24.32,
+          "DEMIRTAS": 0.75,
+          "AKSENER": 14.78,
+          "KARAMOLLAOGLU": 1.09,
+          "PERINCEK": 0.26
+        },
+        "validVotes": 270326
+      },
+      "33": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 37.98,
+          "INCE": 37.42,
+          "DEMIRTAS": 11.83,
+          "AKSENER": 12.11,
+          "KARAMOLLAOGLU": 0.46,
+          "PERINCEK": 0.19
+        },
+        "validVotes": 1098027
+      },
+      "34": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 50.04,
+          "INCE": 36.88,
+          "DEMIRTAS": 7.21,
+          "AKSENER": 4.75,
+          "KARAMOLLAOGLU": 0.94,
+          "PERINCEK": 0.18
+        },
+        "validVotes": 9143333
+      },
+      "35": {
+        "winner": "INCE",
+        "shares": {
+          "ERDOGAN": 32.95,
+          "INCE": 54,
+          "DEMIRTAS": 6.02,
+          "AKSENER": 6.29,
+          "KARAMOLLAOGLU": 0.46,
+          "PERINCEK": 0.29
+        },
+        "validVotes": 2822680
+      },
+      "36": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 44.23,
+          "INCE": 22.32,
+          "DEMIRTAS": 27.2,
+          "AKSENER": 5.56,
+          "KARAMOLLAOGLU": 0.52,
+          "PERINCEK": 0.18
+        },
+        "validVotes": 142640
+      },
+      "37": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 69,
+          "INCE": 19.79,
+          "DEMIRTAS": 0.32,
+          "AKSENER": 9.83,
+          "KARAMOLLAOGLU": 0.76,
+          "PERINCEK": 0.31
+        },
+        "validVotes": 239684
+      },
+      "38": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 70.39,
+          "INCE": 18.56,
+          "DEMIRTAS": 0.8,
+          "AKSENER": 8.96,
+          "KARAMOLLAOGLU": 1.13,
+          "PERINCEK": 0.15
+        },
+        "validVotes": 843597
+      },
+      "39": {
+        "winner": "INCE",
+        "shares": {
+          "ERDOGAN": 29.84,
+          "INCE": 58.45,
+          "DEMIRTAS": 1.39,
+          "AKSENER": 9.73,
+          "KARAMOLLAOGLU": 0.34,
+          "PERINCEK": 0.25
+        },
+        "validVotes": 241182
+      },
+      "40": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 55.9,
+          "INCE": 28.13,
+          "DEMIRTAS": 2.74,
+          "AKSENER": 12.23,
+          "KARAMOLLAOGLU": 0.81,
+          "PERINCEK": 0.18
+        },
+        "validVotes": 138630
+      },
+      "41": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 58.89,
+          "INCE": 28.04,
+          "DEMIRTAS": 4.31,
+          "AKSENER": 7.14,
+          "KARAMOLLAOGLU": 1.46,
+          "PERINCEK": 0.16
+        },
+        "validVotes": 1172471
+      },
+      "42": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 74.27,
+          "INCE": 13.63,
+          "DEMIRTAS": 2.26,
+          "AKSENER": 8.23,
+          "KARAMOLLAOGLU": 1.44,
+          "PERINCEK": 0.15
+        },
+        "validVotes": 1307683
+      },
+      "43": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 71.62,
+          "INCE": 16.47,
+          "DEMIRTAS": 0.32,
+          "AKSENER": 10.07,
+          "KARAMOLLAOGLU": 1.32,
+          "PERINCEK": 0.2
+        },
+        "validVotes": 374955
+      },
+      "44": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 69.28,
+          "INCE": 22.91,
+          "DEMIRTAS": 2.2,
+          "AKSENER": 4.35,
+          "KARAMOLLAOGLU": 1.15,
+          "PERINCEK": 0.12
+        },
+        "validVotes": 476706
+      },
+      "45": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 48.68,
+          "INCE": 34.59,
+          "DEMIRTAS": 4.86,
+          "AKSENER": 11.03,
+          "KARAMOLLAOGLU": 0.61,
+          "PERINCEK": 0.24
+        },
+        "validVotes": 926303
+      },
+      "46": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 74.23,
+          "INCE": 14.92,
+          "DEMIRTAS": 1.18,
+          "AKSENER": 8.45,
+          "KARAMOLLAOGLU": 1.08,
+          "PERINCEK": 0.14
+        },
+        "validVotes": 645902
+      },
+      "47": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 34.45,
+          "INCE": 5.36,
+          "DEMIRTAS": 58.73,
+          "AKSENER": 0.79,
+          "KARAMOLLAOGLU": 0.6,
+          "PERINCEK": 0.06
+        },
+        "validVotes": 386934
+      },
+      "48": {
+        "winner": "INCE",
+        "shares": {
+          "ERDOGAN": 32.16,
+          "INCE": 52.6,
+          "DEMIRTAS": 2.79,
+          "AKSENER": 11.8,
+          "KARAMOLLAOGLU": 0.33,
+          "PERINCEK": 0.32
+        },
+        "validVotes": 627694
+      },
+      "49": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 38.49,
+          "INCE": 5.92,
+          "DEMIRTAS": 53.28,
+          "AKSENER": 1.45,
+          "KARAMOLLAOGLU": 0.75,
+          "PERINCEK": 0.11
+        },
+        "validVotes": 183419
+      },
+      "50": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 68.14,
+          "INCE": 21.66,
+          "DEMIRTAS": 0.52,
+          "AKSENER": 8.48,
+          "KARAMOLLAOGLU": 1,
+          "PERINCEK": 0.2
+        },
+        "validVotes": 183907
+      },
+      "51": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 61.65,
+          "INCE": 25.03,
+          "DEMIRTAS": 0.6,
+          "AKSENER": 11.43,
+          "KARAMOLLAOGLU": 1.01,
+          "PERINCEK": 0.28
+        },
+        "validVotes": 204749
+      },
+      "52": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 65.18,
+          "INCE": 25.92,
+          "DEMIRTAS": 0.3,
+          "AKSENER": 7.57,
+          "KARAMOLLAOGLU": 0.78,
+          "PERINCEK": 0.25
+        },
+        "validVotes": 467077
+      },
+      "53": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 77.02,
+          "INCE": 16.61,
+          "DEMIRTAS": 0.27,
+          "AKSENER": 4.65,
+          "KARAMOLLAOGLU": 1.28,
+          "PERINCEK": 0.17
+        },
+        "validVotes": 216985
+      },
+      "54": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 70.56,
+          "INCE": 19.26,
+          "DEMIRTAS": 1.48,
+          "AKSENER": 7.14,
+          "KARAMOLLAOGLU": 1.4,
+          "PERINCEK": 0.16
+        },
+        "validVotes": 622723
+      },
+      "55": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 66.62,
+          "INCE": 23.04,
+          "DEMIRTAS": 0.29,
+          "AKSENER": 8.85,
+          "KARAMOLLAOGLU": 1,
+          "PERINCEK": 0.2
+        },
+        "validVotes": 824433
+      },
+      "56": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 42.91,
+          "INCE": 5.5,
+          "DEMIRTAS": 49.27,
+          "AKSENER": 1.38,
+          "KARAMOLLAOGLU": 0.84,
+          "PERINCEK": 0.1
+        },
+        "validVotes": 146469
+      },
+      "57": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 61.26,
+          "INCE": 28.48,
+          "DEMIRTAS": 0.47,
+          "AKSENER": 8.57,
+          "KARAMOLLAOGLU": 0.83,
+          "PERINCEK": 0.4
+        },
+        "validVotes": 134390
+      },
+      "58": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 72.27,
+          "INCE": 19.77,
+          "DEMIRTAS": 0.33,
+          "AKSENER": 6.11,
+          "KARAMOLLAOGLU": 1.38,
+          "PERINCEK": 0.14
+        },
+        "validVotes": 394131
+      },
+      "59": {
+        "winner": "INCE",
+        "shares": {
+          "ERDOGAN": 40.34,
+          "INCE": 47.21,
+          "DEMIRTAS": 4.26,
+          "AKSENER": 7.52,
+          "KARAMOLLAOGLU": 0.46,
+          "PERINCEK": 0.21
+        },
+        "validVotes": 643969
+      },
+      "60": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 64.65,
+          "INCE": 25.29,
+          "DEMIRTAS": 0.33,
+          "AKSENER": 8.54,
+          "KARAMOLLAOGLU": 1.03,
+          "PERINCEK": 0.17
+        },
+        "validVotes": 371647
+      },
+      "61": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 69.42,
+          "INCE": 20.82,
+          "DEMIRTAS": 0.29,
+          "AKSENER": 7.6,
+          "KARAMOLLAOGLU": 1.67,
+          "PERINCEK": 0.2
+        },
+        "validVotes": 495912
+      },
+      "62": {
+        "winner": "INCE",
+        "shares": {
+          "ERDOGAN": 18.67,
+          "INCE": 58.08,
+          "DEMIRTAS": 21.13,
+          "AKSENER": 1.79,
+          "KARAMOLLAOGLU": 0.18,
+          "PERINCEK": 0.15
+        },
+        "validVotes": 54182
+      },
+      "63": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 64.95,
+          "INCE": 8.09,
+          "DEMIRTAS": 24.64,
+          "AKSENER": 1.35,
+          "KARAMOLLAOGLU": 0.85,
+          "PERINCEK": 0.12
+        },
+        "validVotes": 842994
+      },
+      "64": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 51.58,
+          "INCE": 34.93,
+          "DEMIRTAS": 1.28,
+          "AKSENER": 11.07,
+          "KARAMOLLAOGLU": 0.91,
+          "PERINCEK": 0.24
+        },
+        "validVotes": 234647
+      },
+      "65": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 35.53,
+          "INCE": 4.5,
+          "DEMIRTAS": 58.33,
+          "AKSENER": 0.92,
+          "KARAMOLLAOGLU": 0.62,
+          "PERINCEK": 0.11
+        },
+        "validVotes": 511497
+      },
+      "66": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 75.61,
+          "INCE": 14.65,
+          "DEMIRTAS": 0.31,
+          "AKSENER": 8.31,
+          "KARAMOLLAOGLU": 0.97,
+          "PERINCEK": 0.15
+        },
+        "validVotes": 248489
+      },
+      "67": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 55.19,
+          "INCE": 35.76,
+          "DEMIRTAS": 0.51,
+          "AKSENER": 7.03,
+          "KARAMOLLAOGLU": 1.19,
+          "PERINCEK": 0.32
+        },
+        "validVotes": 377922
+      },
+      "68": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 76.2,
+          "INCE": 14.19,
+          "DEMIRTAS": 0.6,
+          "AKSENER": 8.11,
+          "KARAMOLLAOGLU": 0.76,
+          "PERINCEK": 0.14
+        },
+        "validVotes": 225287
+      },
+      "69": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 82.31,
+          "INCE": 8.77,
+          "DEMIRTAS": 0.23,
+          "AKSENER": 6.03,
+          "KARAMOLLAOGLU": 2.53,
+          "PERINCEK": 0.13
+        },
+        "validVotes": 47142
+      },
+      "70": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 66.35,
+          "INCE": 19.7,
+          "DEMIRTAS": 0.58,
+          "AKSENER": 11.89,
+          "KARAMOLLAOGLU": 1.24,
+          "PERINCEK": 0.24
+        },
+        "validVotes": 152032
+      },
+      "71": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 65.24,
+          "INCE": 21.52,
+          "DEMIRTAS": 0.4,
+          "AKSENER": 11.6,
+          "KARAMOLLAOGLU": 1.05,
+          "PERINCEK": 0.19
+        },
+        "validVotes": 168457
+      },
+      "72": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 31.46,
+          "INCE": 4.12,
+          "DEMIRTAS": 62.59,
+          "AKSENER": 0.72,
+          "KARAMOLLAOGLU": 1.02,
+          "PERINCEK": 0.1
+        },
+        "validVotes": 283836
+      },
+      "73": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 21.24,
+          "INCE": 4.87,
+          "DEMIRTAS": 72.08,
+          "AKSENER": 1.36,
+          "KARAMOLLAOGLU": 0.38,
+          "PERINCEK": 0.08
+        },
+        "validVotes": 226778
+      },
+      "74": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 60.52,
+          "INCE": 30.19,
+          "DEMIRTAS": 0.56,
+          "AKSENER": 6.81,
+          "KARAMOLLAOGLU": 1.56,
+          "PERINCEK": 0.37
+        },
+        "validVotes": 122358
+      },
+      "75": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 42.57,
+          "INCE": 36.79,
+          "DEMIRTAS": 15.63,
+          "AKSENER": 4.07,
+          "KARAMOLLAOGLU": 0.67,
+          "PERINCEK": 0.27
+        },
+        "validVotes": 56504
+      },
+      "76": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 30.04,
+          "INCE": 17.83,
+          "DEMIRTAS": 45.11,
+          "AKSENER": 6.43,
+          "KARAMOLLAOGLU": 0.45,
+          "PERINCEK": 0.15
+        },
+        "validVotes": 90643
+      },
+      "77": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 50.37,
+          "INCE": 38.86,
+          "DEMIRTAS": 4.89,
+          "AKSENER": 4.78,
+          "KARAMOLLAOGLU": 0.93,
+          "PERINCEK": 0.17
+        },
+        "validVotes": 151945
+      },
+      "78": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 65.59,
+          "INCE": 23.12,
+          "DEMIRTAS": 0.45,
+          "AKSENER": 9.23,
+          "KARAMOLLAOGLU": 1.32,
+          "PERINCEK": 0.29
+        },
+        "validVotes": 148776
+      },
+      "79": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 70.42,
+          "INCE": 18.84,
+          "DEMIRTAS": 1.1,
+          "AKSENER": 8.55,
+          "KARAMOLLAOGLU": 0.85,
+          "PERINCEK": 0.23
+        },
+        "validVotes": 72830
+      },
+      "80": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 63.13,
+          "INCE": 22.25,
+          "DEMIRTAS": 2.13,
+          "AKSENER": 11.5,
+          "KARAMOLLAOGLU": 0.78,
+          "PERINCEK": 0.21
+        },
+        "validVotes": 298895
+      },
+      "81": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 73.18,
+          "INCE": 18.41,
+          "DEMIRTAS": 0.93,
+          "AKSENER": 6.13,
+          "KARAMOLLAOGLU": 1.09,
+          "PERINCEK": 0.25
+        },
+        "validVotes": 237541
+      },
+      "06": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 51.57,
+          "INCE": 36.19,
+          "DEMIRTAS": 2.06,
+          "AKSENER": 9.03,
+          "KARAMOLLAOGLU": 0.94,
+          "PERINCEK": 0.21
+        },
+        "validVotes": 3424855
+      },
+      "09": {
+        "winner": "INCE",
+        "shares": {
+          "ERDOGAN": 38,
+          "INCE": 44.23,
+          "DEMIRTAS": 5.76,
+          "AKSENER": 11.26,
+          "KARAMOLLAOGLU": 0.44,
+          "PERINCEK": 0.31
+        },
+        "validVotes": 706480
+      },
+      "03": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 68.14,
+          "INCE": 18.79,
+          "DEMIRTAS": 0.35,
+          "AKSENER": 11.64,
+          "KARAMOLLAOGLU": 0.87,
+          "PERINCEK": 0.21
+        },
+        "validVotes": 444585
+      },
+      "07": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 42.85,
+          "INCE": 38.78,
+          "DEMIRTAS": 4.08,
+          "AKSENER": 13.48,
+          "KARAMOLLAOGLU": 0.6,
+          "PERINCEK": 0.21
+        },
+        "validVotes": 1436455
+      },
+      "01": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 44.18,
+          "INCE": 35.82,
+          "DEMIRTAS": 9.27,
+          "AKSENER": 9.79,
+          "KARAMOLLAOGLU": 0.76,
+          "PERINCEK": 0.18
+        },
+        "validVotes": 1284028
+      },
+      "05": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 57.54,
+          "INCE": 30.89,
+          "DEMIRTAS": 0.38,
+          "AKSENER": 10.14,
+          "KARAMOLLAOGLU": 0.88,
+          "PERINCEK": 0.17
+        },
+        "validVotes": 218991
+      },
+      "02": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 67.47,
+          "INCE": 20.42,
+          "DEMIRTAS": 7.4,
+          "AKSENER": 3.4,
+          "KARAMOLLAOGLU": 1.16,
+          "PERINCEK": 0.16
+        },
+        "validVotes": 336179
+      },
+      "08": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 48.18,
+          "INCE": 41.3,
+          "DEMIRTAS": 0.74,
+          "AKSENER": 8.53,
+          "KARAMOLLAOGLU": 0.98,
+          "PERINCEK": 0.27
+        },
+        "validVotes": 111531
+      },
+      "04": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 31.84,
+          "INCE": 4.95,
+          "DEMIRTAS": 61.27,
+          "AKSENER": 1.14,
+          "KARAMOLLAOGLU": 0.69,
+          "PERINCEK": 0.11
+        },
+        "validVotes": 224146
+      }
+    }
+  },
+  "2014_pres": {
+    "nationalShares": {
+      "ERDOGAN": 51.7935,
+      "IHSANOGLU": 38.4446,
+      "DEMIRTAS": 9.7619
+    },
+    "abroadShares": {
+      "ERDOGAN": 62.5413,
+      "IHSANOGLU": 29.1616,
+      "DEMIRTAS": 8.2971
+    },
+    "provinces": {
+      "10": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 47.8,
+          "IHSANOGLU": 49.36,
+          "DEMIRTAS": 2.85
+        },
+        "validVotes": 747265
+      },
+      "11": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 50.9,
+          "IHSANOGLU": 46.05,
+          "DEMIRTAS": 3.04
+        },
+        "validVotes": 121967
+      },
+      "12": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 65.03,
+          "IHSANOGLU": 4.41,
+          "DEMIRTAS": 30.56
+        },
+        "validVotes": 122306
+      },
+      "13": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 52.06,
+          "IHSANOGLU": 4.22,
+          "DEMIRTAS": 43.72
+        },
+        "validVotes": 138571
+      },
+      "14": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 66.13,
+          "IHSANOGLU": 32.26,
+          "DEMIRTAS": 1.61
+        },
+        "validVotes": 169435
+      },
+      "15": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 54,
+          "IHSANOGLU": 43.91,
+          "DEMIRTAS": 2.09
+        },
+        "validVotes": 156009
+      },
+      "16": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 54.88,
+          "IHSANOGLU": 40.96,
+          "DEMIRTAS": 4.16
+        },
+        "validVotes": 1546473
+      },
+      "17": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 41.9,
+          "IHSANOGLU": 55.37,
+          "DEMIRTAS": 2.73
+        },
+        "validVotes": 319133
+      },
+      "18": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 73.69,
+          "IHSANOGLU": 25.3,
+          "DEMIRTAS": 1
+        },
+        "validVotes": 103539
+      },
+      "19": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 63.76,
+          "IHSANOGLU": 34.71,
+          "DEMIRTAS": 1.52
+        },
+        "validVotes": 317399
+      },
+      "20": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 47.09,
+          "IHSANOGLU": 49.63,
+          "DEMIRTAS": 3.28
+        },
+        "validVotes": 569331
+      },
+      "21": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 33.48,
+          "IHSANOGLU": 2.35,
+          "DEMIRTAS": 64.17
+        },
+        "validVotes": 639520
+      },
+      "22": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 32.18,
+          "IHSANOGLU": 64.96,
+          "DEMIRTAS": 2.86
+        },
+        "validVotes": 241640
+      },
+      "23": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 70.56,
+          "IHSANOGLU": 18.55,
+          "DEMIRTAS": 10.88
+        },
+        "validVotes": 285342
+      },
+      "24": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 58.74,
+          "IHSANOGLU": 37.2,
+          "DEMIRTAS": 4.06
+        },
+        "validVotes": 124501
+      },
+      "25": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 68.8,
+          "IHSANOGLU": 18.13,
+          "DEMIRTAS": 13.07
+        },
+        "validVotes": 364908
+      },
+      "26": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 45.42,
+          "IHSANOGLU": 51.95,
+          "DEMIRTAS": 2.64
+        },
+        "validVotes": 472582
+      },
+      "27": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 60.44,
+          "IHSANOGLU": 29,
+          "DEMIRTAS": 10.56
+        },
+        "validVotes": 786759
+      },
+      "28": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 66.64,
+          "IHSANOGLU": 31.94,
+          "DEMIRTAS": 1.41
+        },
+        "validVotes": 238850
+      },
+      "29": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 75.06,
+          "IHSANOGLU": 23.81,
+          "DEMIRTAS": 1.14
+        },
+        "validVotes": 69994
+      },
+      "30": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 16.35,
+          "IHSANOGLU": 2.05,
+          "DEMIRTAS": 81.6
+        },
+        "validVotes": 125504
+      },
+      "31": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 44.11,
+          "IHSANOGLU": 52.29,
+          "DEMIRTAS": 3.6
+        },
+        "validVotes": 784699
+      },
+      "32": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 55.46,
+          "IHSANOGLU": 42.86,
+          "DEMIRTAS": 1.68
+        },
+        "validVotes": 240801
+      },
+      "33": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 31.98,
+          "IHSANOGLU": 54.56,
+          "DEMIRTAS": 13.46
+        },
+        "validVotes": 910572
+      },
+      "34": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 49.83,
+          "IHSANOGLU": 41.08,
+          "DEMIRTAS": 9.09
+        },
+        "validVotes": 7159907
+      },
+      "35": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 33.38,
+          "IHSANOGLU": 58.65,
+          "DEMIRTAS": 7.98
+        },
+        "validVotes": 2357707
+      },
+      "36": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 42.52,
+          "IHSANOGLU": 24.59,
+          "DEMIRTAS": 32.89
+        },
+        "validVotes": 125472
+      },
+      "37": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 65.83,
+          "IHSANOGLU": 32.77,
+          "DEMIRTAS": 1.4
+        },
+        "validVotes": 216525
+      },
+      "38": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 66.13,
+          "IHSANOGLU": 32.02,
+          "DEMIRTAS": 1.85
+        },
+        "validVotes": 717572
+      },
+      "39": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 29.77,
+          "IHSANOGLU": 67.95,
+          "DEMIRTAS": 2.28
+        },
+        "validVotes": 212747
+      },
+      "40": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 52.82,
+          "IHSANOGLU": 42.21,
+          "DEMIRTAS": 4.97
+        },
+        "validVotes": 119250
+      },
+      "41": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 58.54,
+          "IHSANOGLU": 35.98,
+          "DEMIRTAS": 5.49
+        },
+        "validVotes": 890898
+      },
+      "42": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 74.62,
+          "IHSANOGLU": 22.33,
+          "DEMIRTAS": 3.05
+        },
+        "validVotes": 1108346
+      },
+      "43": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 69.31,
+          "IHSANOGLU": 29.54,
+          "DEMIRTAS": 1.15
+        },
+        "validVotes": 344606
+      },
+      "44": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 70.27,
+          "IHSANOGLU": 24.4,
+          "DEMIRTAS": 5.33
+        },
+        "validVotes": 406134
+      },
+      "45": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 46.13,
+          "IHSANOGLU": 48.27,
+          "DEMIRTAS": 5.6
+        },
+        "validVotes": 822334
+      },
+      "46": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 71.48,
+          "IHSANOGLU": 24.22,
+          "DEMIRTAS": 4.29
+        },
+        "validVotes": 535874
+      },
+      "47": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 36.61,
+          "IHSANOGLU": 2.48,
+          "DEMIRTAS": 60.9
+        },
+        "validVotes": 325998
+      },
+      "48": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 32.26,
+          "IHSANOGLU": 63.61,
+          "DEMIRTAS": 4.13
+        },
+        "validVotes": 510687
+      },
+      "49": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 35.57,
+          "IHSANOGLU": 3.18,
+          "DEMIRTAS": 61.24
+        },
+        "validVotes": 172173
+      },
+      "50": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 64.42,
+          "IHSANOGLU": 34.18,
+          "DEMIRTAS": 1.4
+        },
+        "validVotes": 161836
+      },
+      "51": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 58.92,
+          "IHSANOGLU": 39.7,
+          "DEMIRTAS": 1.38
+        },
+        "validVotes": 174098
+      },
+      "52": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 66.98,
+          "IHSANOGLU": 31.61,
+          "DEMIRTAS": 1.41
+        },
+        "validVotes": 367076
+      },
+      "53": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 80.57,
+          "IHSANOGLU": 18.27,
+          "DEMIRTAS": 1.16
+        },
+        "validVotes": 184486
+      },
+      "54": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 69.08,
+          "IHSANOGLU": 28.65,
+          "DEMIRTAS": 2.27
+        },
+        "validVotes": 505518
+      },
+      "55": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 65.87,
+          "IHSANOGLU": 32.81,
+          "DEMIRTAS": 1.32
+        },
+        "validVotes": 678976
+      },
+      "56": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 42.41,
+          "IHSANOGLU": 3.51,
+          "DEMIRTAS": 54.07
+        },
+        "validVotes": 121136
+      },
+      "57": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 61.19,
+          "IHSANOGLU": 36.99,
+          "DEMIRTAS": 1.81
+        },
+        "validVotes": 121221
+      },
+      "58": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 69.99,
+          "IHSANOGLU": 28.8,
+          "DEMIRTAS": 1.22
+        },
+        "validVotes": 352743
+      },
+      "59": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 38.22,
+          "IHSANOGLU": 57.37,
+          "DEMIRTAS": 4.41
+        },
+        "validVotes": 507364
+      },
+      "60": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 62.29,
+          "IHSANOGLU": 36.5,
+          "DEMIRTAS": 1.21
+        },
+        "validVotes": 332165
+      },
+      "61": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 70.09,
+          "IHSANOGLU": 28.73,
+          "DEMIRTAS": 1.18
+        },
+        "validVotes": 390926
+      },
+      "62": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 14.36,
+          "IHSANOGLU": 33.39,
+          "DEMIRTAS": 52.25
+        },
+        "validVotes": 41622
+      },
+      "63": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 68.6,
+          "IHSANOGLU": 5.16,
+          "DEMIRTAS": 26.24
+        },
+        "validVotes": 663496
+      },
+      "64": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 50.55,
+          "IHSANOGLU": 46.91,
+          "DEMIRTAS": 2.54
+        },
+        "validVotes": 209845
+      },
+      "65": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 42.6,
+          "IHSANOGLU": 2.85,
+          "DEMIRTAS": 54.55
+        },
+        "validVotes": 409331
+      },
+      "66": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 65.84,
+          "IHSANOGLU": 33.22,
+          "DEMIRTAS": 0.95
+        },
+        "validVotes": 236533
+      },
+      "67": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 52.97,
+          "IHSANOGLU": 45.09,
+          "DEMIRTAS": 1.95
+        },
+        "validVotes": 335745
+      },
+      "68": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 74,
+          "IHSANOGLU": 24.54,
+          "DEMIRTAS": 1.46
+        },
+        "validVotes": 184985
+      },
+      "69": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 80.2,
+          "IHSANOGLU": 19.05,
+          "DEMIRTAS": 0.75
+        },
+        "validVotes": 42542
+      },
+      "70": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 66.22,
+          "IHSANOGLU": 32.13,
+          "DEMIRTAS": 1.65
+        },
+        "validVotes": 134118
+      },
+      "71": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 63.96,
+          "IHSANOGLU": 34.8,
+          "DEMIRTAS": 1.24
+        },
+        "validVotes": 143741
+      },
+      "72": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 38.02,
+          "IHSANOGLU": 1.98,
+          "DEMIRTAS": 60
+        },
+        "validVotes": 223947
+      },
+      "73": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 14.79,
+          "IHSANOGLU": 2.04,
+          "DEMIRTAS": 83.17
+        },
+        "validVotes": 190970
+      },
+      "74": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 57.71,
+          "IHSANOGLU": 39.95,
+          "DEMIRTAS": 2.35
+        },
+        "validVotes": 110233
+      },
+      "75": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 40.69,
+          "IHSANOGLU": 36.23,
+          "DEMIRTAS": 23.09
+        },
+        "validVotes": 50551
+      },
+      "76": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 26.89,
+          "IHSANOGLU": 30.17,
+          "DEMIRTAS": 42.94
+        },
+        "validVotes": 70525
+      },
+      "77": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 50.2,
+          "IHSANOGLU": 43.95,
+          "DEMIRTAS": 5.85
+        },
+        "validVotes": 122187
+      },
+      "78": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 64.57,
+          "IHSANOGLU": 34.03,
+          "DEMIRTAS": 1.39
+        },
+        "validVotes": 126399
+      },
+      "79": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 64.98,
+          "IHSANOGLU": 31.24,
+          "DEMIRTAS": 3.79
+        },
+        "validVotes": 59084
+      },
+      "80": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 48.57,
+          "IHSANOGLU": 48.59,
+          "DEMIRTAS": 2.84
+        },
+        "validVotes": 248408
+      },
+      "81": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 73.57,
+          "IHSANOGLU": 24.6,
+          "DEMIRTAS": 1.83
+        },
+        "validVotes": 200463
+      },
+      "01": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 38.91,
+          "IHSANOGLU": 50.43,
+          "DEMIRTAS": 10.66
+        },
+        "validVotes": 1073989
+      },
+      "02": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 69.3,
+          "IHSANOGLU": 15.42,
+          "DEMIRTAS": 15.27
+        },
+        "validVotes": 286175
+      },
+      "03": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 64.25,
+          "IHSANOGLU": 34.4,
+          "DEMIRTAS": 1.36
+        },
+        "validVotes": 403726
+      },
+      "04": {
+        "winner": "DEMIRTAS",
+        "shares": {
+          "ERDOGAN": 36.44,
+          "IHSANOGLU": 2.27,
+          "DEMIRTAS": 61.28
+        },
+        "validVotes": 198542
+      },
+      "05": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 56.66,
+          "IHSANOGLU": 42.17,
+          "DEMIRTAS": 1.16
+        },
+        "validVotes": 195969
+      },
+      "06": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 51.31,
+          "IHSANOGLU": 45.23,
+          "DEMIRTAS": 3.47
+        },
+        "validVotes": 2740153
+      },
+      "07": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 41.63,
+          "IHSANOGLU": 53.08,
+          "DEMIRTAS": 5.3
+        },
+        "validVotes": 1101558
+      },
+      "08": {
+        "winner": "ERDOGAN",
+        "shares": {
+          "ERDOGAN": 52.62,
+          "IHSANOGLU": 44.94,
+          "DEMIRTAS": 2.44
+        },
+        "validVotes": 95144
+      },
+      "09": {
+        "winner": "IHSANOGLU",
+        "shares": {
+          "ERDOGAN": 36.75,
+          "IHSANOGLU": 56.28,
+          "DEMIRTAS": 6.96
+        },
+        "validVotes": 598496
+      }
+    }
+  },
+  "2017_ref": {
+    "nationalShares": {
+      "EVET": 51.41,
+      "HAYIR": 48.59
+    },
+    "abroadShares": {
+      "EVET": 58.227,
+      "HAYIR": 41.773
+    },
+    "provinces": {
+      "10": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 45.56,
+          "HAYIR": 54.44
+        },
+        "validVotes": 810339
+      },
+      "11": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 48.88,
+          "HAYIR": 51.1
+        },
+        "validVotes": 134821
+      },
+      "12": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 72.72,
+          "HAYIR": 27.28
+        },
+        "validVotes": 132260
+      },
+      "13": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 59.36,
+          "HAYIR": 40.64
+        },
+        "validVotes": 148022
+      },
+      "14": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 62.28,
+          "HAYIR": 37.71
+        },
+        "validVotes": 193847
+      },
+      "15": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 51.71,
+          "HAYIR": 48.26
+        },
+        "validVotes": 169001
+      },
+      "16": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 53.22,
+          "HAYIR": 46.78
+        },
+        "validVotes": 1856692
+      },
+      "17": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 39.55,
+          "HAYIR": 60.44
+        },
+        "validVotes": 353965
+      },
+      "18": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 73.45,
+          "HAYIR": 26.54
+        },
+        "validVotes": 108740
+      },
+      "19": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 64.49,
+          "HAYIR": 35.51
+        },
+        "validVotes": 340208
+      },
+      "20": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 44.55,
+          "HAYIR": 55.45
+        },
+        "validVotes": 651182
+      },
+      "21": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 32.44,
+          "HAYIR": 67.56
+        },
+        "validVotes": 776822
+      },
+      "22": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 29.5,
+          "HAYIR": 70.48
+        },
+        "validVotes": 267420
+      },
+      "23": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 71.84,
+          "HAYIR": 28.16
+        },
+        "validVotes": 335394
+      },
+      "24": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 60.51,
+          "HAYIR": 39.5
+        },
+        "validVotes": 133719
+      },
+      "25": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 74.51,
+          "HAYIR": 25.49
+        },
+        "validVotes": 403596
+      },
+      "26": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 42.49,
+          "HAYIR": 57.51
+        },
+        "validVotes": 558617
+      },
+      "27": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 62.44,
+          "HAYIR": 37.56
+        },
+        "validVotes": 967090
+      },
+      "28": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 61.7,
+          "HAYIR": 38.3
+        },
+        "validVotes": 266896
+      },
+      "29": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 75.16,
+          "HAYIR": 24.84
+        },
+        "validVotes": 72651
+      },
+      "30": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 32.46,
+          "HAYIR": 67.54
+        },
+        "validVotes": 126793
+      },
+      "31": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 45.68,
+          "HAYIR": 54.32
+        },
+        "validVotes": 879383
+      },
+      "32": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 56.02,
+          "HAYIR": 43.95
+        },
+        "validVotes": 265726
+      },
+      "33": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 36,
+          "HAYIR": 64
+        },
+        "validVotes": 1077359
+      },
+      "34": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 48.65,
+          "HAYIR": 51.35
+        },
+        "validVotes": 9207590
+      },
+      "35": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 31.24,
+          "HAYIR": 68.76
+        },
+        "validVotes": 2790403
+      },
+      "36": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 50.96,
+          "HAYIR": 48.98
+        },
+        "validVotes": 139109
+      },
+      "37": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 64.83,
+          "HAYIR": 35.15
+        },
+        "validVotes": 227608
+      },
+      "38": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 67.76,
+          "HAYIR": 32.24
+        },
+        "validVotes": 822636
+      },
+      "39": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 28.67,
+          "HAYIR": 71.33
+        },
+        "validVotes": 239126
+      },
+      "40": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 53.35,
+          "HAYIR": 46.65
+        },
+        "validVotes": 135883
+      },
+      "41": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 56.7,
+          "HAYIR": 43.3
+        },
+        "validVotes": 1147261
+      },
+      "42": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 72.87,
+          "HAYIR": 27.12
+        },
+        "validVotes": 1274212
+      },
+      "43": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 70.3,
+          "HAYIR": 29.71
+        },
+        "validVotes": 371589
+      },
+      "44": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 69.57,
+          "HAYIR": 30.43
+        },
+        "validVotes": 465177
+      },
+      "45": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 45.68,
+          "HAYIR": 54.32
+        },
+        "validVotes": 914008
+      },
+      "46": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 73.96,
+          "HAYIR": 26.04
+        },
+        "validVotes": 619744
+      },
+      "47": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 41,
+          "HAYIR": 59
+        },
+        "validVotes": 365386
+      },
+      "48": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 30.81,
+          "HAYIR": 69.19
+        },
+        "validVotes": 601091
+      },
+      "49": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 50.56,
+          "HAYIR": 49.44
+        },
+        "validVotes": 172684
+      },
+      "50": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 65.59,
+          "HAYIR": 34.41
+        },
+        "validVotes": 179211
+      },
+      "51": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 59.82,
+          "HAYIR": 40.18
+        },
+        "validVotes": 201836
+      },
+      "52": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 61.89,
+          "HAYIR": 38.1
+        },
+        "validVotes": 444872
+      },
+      "53": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 75.56,
+          "HAYIR": 24.44
+        },
+        "validVotes": 205186
+      },
+      "54": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 68.11,
+          "HAYIR": 31.89
+        },
+        "validVotes": 606975
+      },
+      "55": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 63.56,
+          "HAYIR": 36.44
+        },
+        "validVotes": 798235
+      },
+      "56": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 47.96,
+          "HAYIR": 52.04
+        },
+        "validVotes": 142486
+      },
+      "57": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 57.88,
+          "HAYIR": 42.08
+        },
+        "validVotes": 126975
+      },
+      "58": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 71.31,
+          "HAYIR": 28.71
+        },
+        "validVotes": 368134
+      },
+      "59": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 39,
+          "HAYIR": 61
+        },
+        "validVotes": 622595
+      },
+      "60": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 63.3,
+          "HAYIR": 36.7
+        },
+        "validVotes": 359023
+      },
+      "61": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 66.48,
+          "HAYIR": 33.52
+        },
+        "validVotes": 475989
+      },
+      "62": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 19.56,
+          "HAYIR": 80.32
+        },
+        "validVotes": 50337
+      },
+      "63": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 70.82,
+          "HAYIR": 29.18
+        },
+        "validVotes": 845908
+      },
+      "64": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 47.04,
+          "HAYIR": 52.95
+        },
+        "validVotes": 232316
+      },
+      "65": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 42.72,
+          "HAYIR": 57.28
+        },
+        "validVotes": 453159
+      },
+      "66": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 74.29,
+          "HAYIR": 25.71
+        },
+        "validVotes": 242249
+      },
+      "67": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 49.35,
+          "HAYIR": 50.65
+        },
+        "validVotes": 377314
+      },
+      "68": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 75.61,
+          "HAYIR": 24.39
+        },
+        "validVotes": 215746
+      },
+      "69": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 81.68,
+          "HAYIR": 18.34
+        },
+        "validVotes": 46060
+      },
+      "70": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 63.82,
+          "HAYIR": 36.14
+        },
+        "validVotes": 147675
+      },
+      "71": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 62.51,
+          "HAYIR": 37.49
+        },
+        "validVotes": 166262
+      },
+      "72": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 36.52,
+          "HAYIR": 63.48
+        },
+        "validVotes": 264515
+      },
+      "73": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 28.41,
+          "HAYIR": 71.57
+        },
+        "validVotes": 207089
+      },
+      "74": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 56.03,
+          "HAYIR": 43.97
+        },
+        "validVotes": 120904
+      },
+      "75": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 44.47,
+          "HAYIR": 55.53
+        },
+        "validVotes": 52984
+      },
+      "76": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 34.83,
+          "HAYIR": 65.08
+        },
+        "validVotes": 88553
+      },
+      "77": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 49.73,
+          "HAYIR": 50.27
+        },
+        "validVotes": 144637
+      },
+      "78": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 60.73,
+          "HAYIR": 39.27
+        },
+        "validVotes": 146615
+      },
+      "79": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 64.16,
+          "HAYIR": 35.89
+        },
+        "validVotes": 69373
+      },
+      "80": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 57.86,
+          "HAYIR": 42.14
+        },
+        "validVotes": 293778
+      },
+      "81": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 70.58,
+          "HAYIR": 29.42
+        },
+        "validVotes": 232598
+      },
+      "01": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 41.86,
+          "HAYIR": 58.15
+        },
+        "validVotes": 1281208
+      },
+      "02": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 69.84,
+          "HAYIR": 30.18
+        },
+        "validVotes": 329957
+      },
+      "03": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 64.59,
+          "HAYIR": 35.41
+        },
+        "validVotes": 435854
+      },
+      "04": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 43.11,
+          "HAYIR": 56.89
+        },
+        "validVotes": 202528
+      },
+      "05": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 56.36,
+          "HAYIR": 43.64
+        },
+        "validVotes": 215727
+      },
+      "06": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 48.87,
+          "HAYIR": 51.13
+        },
+        "validVotes": 3415697
+      },
+      "07": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 40.96,
+          "HAYIR": 59.04
+        },
+        "validVotes": 1403836
+      },
+      "08": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 46.94,
+          "HAYIR": 53.05
+        },
+        "validVotes": 106478
+      },
+      "09": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 35.76,
+          "HAYIR": 64.24
+        },
+        "validVotes": 686887
+      }
+    }
+  },
+  "2010_ref": {
+    "nationalShares": {
+      "EVET": 57.8809,
+      "HAYIR": 42.1191
+    },
+    "abroadShares": {
+      "EVET": 61.5276,
+      "HAYIR": 38.4724
+    },
+    "provinces": {
+      "10": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 48.25,
+          "HAYIR": 51.75
+        },
+        "validVotes": 722086
+      },
+      "11": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 49.49,
+          "HAYIR": 50.51
+        },
+        "validVotes": 121762
+      },
+      "12": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 95.26,
+          "HAYIR": 4.74
+        },
+        "validVotes": 115651
+      },
+      "13": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 93.07,
+          "HAYIR": 6.93
+        },
+        "validVotes": 116543
+      },
+      "14": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 65.44,
+          "HAYIR": 34.56
+        },
+        "validVotes": 169077
+      },
+      "15": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 52.59,
+          "HAYIR": 47.41
+        },
+        "validVotes": 160711
+      },
+      "16": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 56.36,
+          "HAYIR": 43.64
+        },
+        "validVotes": 1490239
+      },
+      "17": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 40.1,
+          "HAYIR": 59.9
+        },
+        "validVotes": 308723
+      },
+      "18": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 76.51,
+          "HAYIR": 23.49
+        },
+        "validVotes": 107527
+      },
+      "19": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 67.83,
+          "HAYIR": 32.17
+        },
+        "validVotes": 333237
+      },
+      "20": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 46.3,
+          "HAYIR": 53.7
+        },
+        "validVotes": 562978
+      },
+      "21": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 93.92,
+          "HAYIR": 6.08
+        },
+        "validVotes": 278871
+      },
+      "22": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 26.52,
+          "HAYIR": 73.48
+        },
+        "validVotes": 249744
+      },
+      "23": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 81.78,
+          "HAYIR": 18.22
+        },
+        "validVotes": 296663
+      },
+      "24": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 64.02,
+          "HAYIR": 35.98
+        },
+        "validVotes": 121643
+      },
+      "25": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 86.86,
+          "HAYIR": 13.14
+        },
+        "validVotes": 373026
+      },
+      "26": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 45.98,
+          "HAYIR": 54.02
+        },
+        "validVotes": 463957
+      },
+      "27": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 69.85,
+          "HAYIR": 30.15
+        },
+        "validVotes": 701112
+      },
+      "28": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 63.49,
+          "HAYIR": 36.51
+        },
+        "validVotes": 240153
+      },
+      "29": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 78.48,
+          "HAYIR": 21.52
+        },
+        "validVotes": 66396
+      },
+      "30": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 94.27,
+          "HAYIR": 5.73
+        },
+        "validVotes": 10512
+      },
+      "31": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 47.84,
+          "HAYIR": 52.16
+        },
+        "validVotes": 756763
+      },
+      "32": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 57.49,
+          "HAYIR": 42.51
+        },
+        "validVotes": 245664
+      },
+      "33": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 37.17,
+          "HAYIR": 62.83
+        },
+        "validVotes": 804397
+      },
+      "34": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 54.86,
+          "HAYIR": 45.14
+        },
+        "validVotes": 6641160
+      },
+      "35": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 36.32,
+          "HAYIR": 63.68
+        },
+        "validVotes": 2246593
+      },
+      "36": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 65.51,
+          "HAYIR": 34.49
+        },
+        "validVotes": 122490
+      },
+      "37": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 62.77,
+          "HAYIR": 37.23
+        },
+        "validVotes": 223044
+      },
+      "38": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 73.25,
+          "HAYIR": 26.75
+        },
+        "validVotes": 680984
+      },
+      "39": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 25.62,
+          "HAYIR": 74.38
+        },
+        "validVotes": 216797
+      },
+      "40": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 58.16,
+          "HAYIR": 41.84
+        },
+        "validVotes": 122527
+      },
+      "41": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 60.89,
+          "HAYIR": 39.11
+        },
+        "validVotes": 848323
+      },
+      "42": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 78.14,
+          "HAYIR": 21.86
+        },
+        "validVotes": 1096922
+      },
+      "43": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 74.75,
+          "HAYIR": 25.25
+        },
+        "validVotes": 364178
+      },
+      "44": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 75.2,
+          "HAYIR": 24.8
+        },
+        "validVotes": 408425
+      },
+      "45": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 49.65,
+          "HAYIR": 50.35
+        },
+        "validVotes": 810917
+      },
+      "46": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 79.39,
+          "HAYIR": 20.61
+        },
+        "validVotes": 539219
+      },
+      "47": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 93.45,
+          "HAYIR": 6.55
+        },
+        "validVotes": 157664
+      },
+      "48": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 30.98,
+          "HAYIR": 69.02
+        },
+        "validVotes": 483363
+      },
+      "49": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 92.21,
+          "HAYIR": 7.79
+        },
+        "validVotes": 107806
+      },
+      "50": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 67.55,
+          "HAYIR": 32.45
+        },
+        "validVotes": 164404
+      },
+      "51": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 60.96,
+          "HAYIR": 39.04
+        },
+        "validVotes": 176310
+      },
+      "52": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 63.5,
+          "HAYIR": 36.5
+        },
+        "validVotes": 391422
+      },
+      "53": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 76.09,
+          "HAYIR": 23.91
+        },
+        "validVotes": 177369
+      },
+      "54": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 67.3,
+          "HAYIR": 32.7
+        },
+        "validVotes": 496127
+      },
+      "55": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 67.16,
+          "HAYIR": 32.84
+        },
+        "validVotes": 709959
+      },
+      "56": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 95.17,
+          "HAYIR": 4.83
+        },
+        "validVotes": 72342
+      },
+      "57": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 60.44,
+          "HAYIR": 39.56
+        },
+        "validVotes": 121213
+      },
+      "58": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 76.6,
+          "HAYIR": 23.4
+        },
+        "validVotes": 350504
+      },
+      "59": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 34.67,
+          "HAYIR": 65.33
+        },
+        "validVotes": 458124
+      },
+      "60": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 64.58,
+          "HAYIR": 35.42
+        },
+        "validVotes": 353708
+      },
+      "61": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 68.6,
+          "HAYIR": 31.4
+        },
+        "validVotes": 421131
+      },
+      "62": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 18.98,
+          "HAYIR": 81.02
+        },
+        "validVotes": 37260
+      },
+      "63": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 94.15,
+          "HAYIR": 5.85
+        },
+        "validVotes": 556434
+      },
+      "64": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 49.78,
+          "HAYIR": 50.22
+        },
+        "validVotes": 211620
+      },
+      "65": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 94.45,
+          "HAYIR": 5.55
+        },
+        "validVotes": 220748
+      },
+      "66": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 77.32,
+          "HAYIR": 22.68
+        },
+        "validVotes": 253675
+      },
+      "67": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 50.05,
+          "HAYIR": 49.95
+        },
+        "validVotes": 369517
+      },
+      "68": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 76.65,
+          "HAYIR": 23.35
+        },
+        "validVotes": 190600
+      },
+      "69": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 85.07,
+          "HAYIR": 14.93
+        },
+        "validVotes": 40777
+      },
+      "70": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 65.94,
+          "HAYIR": 34.06
+        },
+        "validVotes": 133482
+      },
+      "71": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 69.24,
+          "HAYIR": 30.76
+        },
+        "validVotes": 156827
+      },
+      "72": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 94.69,
+          "HAYIR": 5.31
+        },
+        "validVotes": 99500
+      },
+      "73": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 89.08,
+          "HAYIR": 10.92
+        },
+        "validVotes": 37749
+      },
+      "74": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 55.36,
+          "HAYIR": 44.64
+        },
+        "validVotes": 116891
+      },
+      "75": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 55,
+          "HAYIR": 45
+        },
+        "validVotes": 51835
+      },
+      "76": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 53.95,
+          "HAYIR": 46.05
+        },
+        "validVotes": 51941
+      },
+      "77": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 51.2,
+          "HAYIR": 48.8
+        },
+        "validVotes": 113885
+      },
+      "78": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 63.76,
+          "HAYIR": 36.24
+        },
+        "validVotes": 133024
+      },
+      "79": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 66.86,
+          "HAYIR": 33.14
+        },
+        "validVotes": 61936
+      },
+      "80": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 53.43,
+          "HAYIR": 46.57
+        },
+        "validVotes": 250480
+      },
+      "81": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 72.51,
+          "HAYIR": 27.49
+        },
+        "validVotes": 197817
+      },
+      "01": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 43.75,
+          "HAYIR": 56.25
+        },
+        "validVotes": 992202
+      },
+      "02": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 80.43,
+          "HAYIR": 19.57
+        },
+        "validVotes": 287491
+      },
+      "03": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 65.68,
+          "HAYIR": 34.32
+        },
+        "validVotes": 411452
+      },
+      "04": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 95.75,
+          "HAYIR": 4.25
+        },
+        "validVotes": 148624
+      },
+      "05": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 58.68,
+          "HAYIR": 41.32
+        },
+        "validVotes": 202159
+      },
+      "06": {
+        "winner": "EVET",
+        "shares": {
+          "EVET": 54.07,
+          "HAYIR": 45.93
+        },
+        "validVotes": 2632720
+      },
+      "07": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 43.28,
+          "HAYIR": 56.72
+        },
+        "validVotes": 1027278
+      },
+      "08": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 49.8,
+          "HAYIR": 50.2
+        },
+        "validVotes": 94707
+      },
+      "09": {
+        "winner": "HAYIR",
+        "shares": {
+          "EVET": 35.84,
+          "HAYIR": 64.16
+        },
+        "validVotes": 585485
+      }
+    }
+  }
+}

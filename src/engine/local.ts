@@ -19,7 +19,15 @@ import {
   PartyConfig,
   SwingMode,
 } from '../types/election';
-import { IlceOverride, ProvinceOverride, runMultiLayerProjection } from './swing';
+import {
+  IlceOverride,
+  ProvinceOverride,
+  applyTurnoutMultipliers,
+  normalizeSharesTo100,
+  runMultiLayerProjection,
+  swingShareVector,
+} from './swing';
+import { applyLocalBuffsToShares, resolveMatchingBuffs } from './buffs';
 
 export interface LocalEngineInput {
   baseline: BaselineDataset;
@@ -41,6 +49,12 @@ export interface LocalEngineInput {
   /** Differential voter mobilization multiplier per party (0.5..1.5, default 1.0) */
   partyTurnoutMultipliers?: Record<string, number>;
   provinceTurnoutMultipliers?: Record<string, Record<string, number>>;
+  /** Optional historical reference year and winners for Archive Mode comparisons */
+  referenceYear?: 2009 | 2014 | 2019 | 2024;
+  referenceProvinceWinners?: Record<string, string>;
+  referenceIlceWinners?: Record<string, string>;
+  /** Optional set of province IDs treated as Büyükşehir (e.g. 16 metros in 2009 vs 30 post-2014) */
+  buyuksehirIds?: Set<string>;
 }
 
 function applyProvincePointShift(
@@ -72,7 +86,8 @@ function findTopTwoLocal(
   votes: Record<string, number>,
   totalValid: number,
   parties: PartyConfig[],
-  allowOther = true
+  allowOther = true,
+  otherMaxRatio = 1
 ): {
   winnerPartyId: string;
   runnerUpPartyId: string;
@@ -80,8 +95,15 @@ function findTopTwoLocal(
   marginPct: number;
 } {
   const pool = allowOther ? parties : parties.filter((p) => !p.isOther);
+  const clampedRatio = Math.max(0, Math.min(1, otherMaxRatio));
   const ranked = pool
-    .map((p) => ({ id: p.id, v: votes[p.id] ?? 0 }))
+    .map((p) => {
+      const rawVotes = votes[p.id] ?? 0;
+      return {
+        id: p.id,
+        v: p.isOther ? Math.round(rawVotes * clampedRatio) : rawVotes,
+      };
+    })
     .sort((a, b) => b.v - a.v);
 
   const first = ranked[0] || { id: '', v: 0 };
@@ -160,8 +182,12 @@ export function computeLocalProjection(input: LocalEngineInput): ComputedLocalPr
     }
   }
 
-  const refProvinceHolders: Record<string, string> = { ...WINNERS_2024_PROVINCES };
-  const refIlceHolders: Record<string, string> = { ...WINNERS_2024_ILCELER };
+  const refProvinceHolders: Record<string, string> = {
+    ...(input.referenceProvinceWinners ?? WINNERS_2024_PROVINCES),
+  };
+  const refIlceHolders: Record<string, string> = {
+    ...(input.referenceIlceWinners ?? WINNERS_2024_ILCELER),
+  };
   if (referenceBaseline === 'current') {
     for (const [id, entry] of Object.entries(activeProvDefections)) {
       refProvinceHolders[id] = entry.toPartyId;
@@ -180,6 +206,12 @@ export function computeLocalProjection(input: LocalEngineInput): ComputedLocalPr
   for (const w of Object.values(refIlceHolders)) {
     base2024IlceCounts[w] = (base2024IlceCounts[w] || 0) + 1;
   }
+
+  const ilceById = new Map(baseline.ilceler.map((i) => [i.id, i]));
+  const normalizedTargetShares = normalizeSharesTo100(targetShares, parties);
+  const localOnlyBuffs = (input.localBuffs || [])
+    .filter((b) => b.mode === 'local')
+    .map((b) => ({ ...b, mode: 'parliamentary' as const }));
 
   // 1. Build 973 İlçe Mayoral Results
   const ilceResults: Record<string, ComputedLocalIlceResult> = {};
@@ -318,11 +350,13 @@ export function computeLocalProjection(input: LocalEngineInput): ComputedLocalPr
       partyShares[p.id] = validVotes > 0 ? ((partyVotes[p.id] || 0) / validVotes) * 100 : 0;
     }
 
+    const ilceOtherMaxRatio = ilceById.get(baseIlce.id)?.otherMaxCandidateRatio ?? 1;
     const { winnerPartyId, runnerUpPartyId, marginVotes, marginPct } = findTopTwoLocal(
       partyVotes,
       validVotes,
       parties,
-      true
+      true,
+      ilceOtherMaxRatio
     );
 
     const baseline2024WinnerPartyId = refIlceHolders[baseIlce.id] || winnerPartyId;
@@ -364,7 +398,9 @@ export function computeLocalProjection(input: LocalEngineInput): ComputedLocalPr
 
   for (const prov of baseline.provinces) {
     const meta = PROVINCE_MUNICIPAL_META[prov.id];
-    const isBuyuksehir = meta?.isBuyuksehir ?? false;
+    const isBuyuksehir = input.buyuksehirIds
+      ? input.buyuksehirIds.has(prov.id)
+      : meta?.isBuyuksehir ?? false;
     const merkezIlceId = meta?.merkezIlceId ?? null;
     const countingBasis: LocalProvinceMode =
       !isBuyuksehir && localProvinceMode === 'merkez_ilce' && merkezIlceId
@@ -376,12 +412,49 @@ export function computeLocalProjection(input: LocalEngineInput): ComputedLocalPr
     let validVotes = 0;
     let partyVotes: Record<string, number> = {};
 
+    const isProvLocked = Boolean(provinceOverrides[prov.id]?.isLocked);
+
     if (countingBasis === 'merkez_ilce' && merkezIlceId && ilceResults[merkezIlceId]) {
       const mRes = ilceResults[merkezIlceId];
       regVoters = mRes.registeredVoters;
       turnout = mRes.turnout;
       validVotes = mRes.validVotes;
       partyVotes = { ...mRes.partyVotes };
+    } else if (countingBasis === 'province_wide' && prov.mayorPartyShares && !isProvLocked) {
+      const baseProv = baseProj.provinceResults[prov.id];
+      regVoters = baseProv.registeredVoters;
+      turnout = baseProv.turnout;
+      validVotes = baseProv.totalValidVotes;
+      let effShares = swingShareVector(
+        prov.mayorPartyShares,
+        baseline.nationalBaseShares,
+        normalizedTargetShares,
+        swingMode,
+        parties
+      );
+      if (localOnlyBuffs.length > 0) {
+        const provBuffs = resolveMatchingBuffs(localOnlyBuffs, 'parliamentary', prov.id, undefined, '');
+        if (provBuffs.length > 0) {
+          effShares = applyLocalBuffsToShares(effShares, provBuffs, parties.map((p) => p.id));
+        }
+      }
+      const provMults = input.provinceTurnoutMultipliers?.[prov.id];
+      if (input.partyTurnoutMultipliers || provMults) {
+        const mergedMults = provMults
+          ? { ...(input.partyTurnoutMultipliers || {}), ...provMults }
+          : input.partyTurnoutMultipliers;
+        const adjusted = applyTurnoutMultipliers(
+          effShares,
+          turnout,
+          mergedMults,
+          parties.map((p) => p.id)
+        );
+        effShares = adjusted.shares;
+        turnout = adjusted.turnout;
+      }
+      for (const p of parties) {
+        partyVotes[p.id] = Math.round(validVotes * ((effShares[p.id] ?? 0) / 100));
+      }
     } else {
       const baseProv = baseProj.provinceResults[prov.id];
       regVoters = baseProv.registeredVoters;
@@ -397,7 +470,6 @@ export function computeLocalProjection(input: LocalEngineInput): ComputedLocalPr
     );
     const provBonus = input.localIncumbency?.provinceBonuses?.[prov.id];
     const provDefection = activeProvDefections[prov.id];
-    const isProvLocked = Boolean(provinceOverrides[prov.id]?.isLocked);
     const isMerkezLocked =
       countingBasis === 'merkez_ilce' && merkezIlceId
         ? Boolean(ilceOverrides[merkezIlceId]?.isLocked)
@@ -544,11 +616,16 @@ export function computeLocalProjection(input: LocalEngineInput): ComputedLocalPr
       partyShares[p.id] = validVotes > 0 ? ((partyVotes[p.id] || 0) / validVotes) * 100 : 0;
     }
 
+    const provOtherMaxRatio =
+      countingBasis === 'merkez_ilce' && merkezIlceId
+        ? ilceById.get(merkezIlceId)?.otherMaxCandidateRatio ?? 1
+        : prov.mayorOtherMaxCandidateRatio ?? 1;
     const { winnerPartyId, runnerUpPartyId, marginVotes, marginPct } = findTopTwoLocal(
       partyVotes,
       validVotes,
       parties,
-      true
+      true,
+      provOtherMaxRatio
     );
 
     const winner2024PartyId = refProvinceHolders[prov.id] || winnerPartyId;
@@ -607,6 +684,7 @@ export function computeLocalProjection(input: LocalEngineInput): ComputedLocalPr
 
   return {
     referenceBaseline,
+    referenceYear: input.referenceYear,
     totalRegisteredVoters: baseProj.domesticRegisteredVoters,
     totalVotesCast: baseProj.domesticVotesCast,
     totalValidVotes: baseProj.domesticValidVotes,

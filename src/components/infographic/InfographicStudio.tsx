@@ -7,6 +7,7 @@ import {
   Image as ImageIcon,
   RefreshCw,
 } from 'lucide-react';
+import { ARCHIVE_ELECTIONS } from '../../data/archiveRegistry';
 import {
   GeoCollection,
   getCachedGeoLayer,
@@ -17,6 +18,7 @@ import {
 } from '../../data/geoCache';
 import { preloadAllPartyLogos } from '../../data/partyLogoCache';
 import { useElectionStore } from '../../store/useElectionStore';
+import { buildDynamicArchiveGeo } from '../../utils/geoDissolve';
 import {
   copySvgElementAsPng,
   downloadSvgElement,
@@ -40,10 +42,12 @@ import {
 export const InfographicStudio: React.FC = () => {
   const {
     lang,
+    activeArchiveId,
     electionMode,
     parties,
     alliances,
     projection,
+    baselineProjection,
     official2023Projection,
     presCandidates,
     presRoundView,
@@ -67,15 +71,46 @@ export const InfographicStudio: React.FC = () => {
   );
   const [logosLoadedTick, setLogosLoadedTick] = useState(0);
 
+  const distCount = Object.keys(projection.districtResults).length || 87;
+  const ilceCount =
+    (electionMode === 'local'
+      ? Object.keys(localProjection.ilceResults).length
+      : Object.keys(projection.ilceResults).length) || 973;
+
+  const resolveTexts = () => {
+    const base = buildDefaultInfographicTexts(
+      electionMode,
+      presRoundView,
+      localProjection.referenceBaseline,
+      lang,
+      distCount
+    );
+    if (!activeArchiveId) return base;
+    const cfg = ARCHIVE_ELECTIONS[activeArchiveId];
+    if (!cfg) return base;
+    return {
+      ...base,
+      title: lang === 'tr' ? cfg.dateLabelTr : cfg.dateLabelEn,
+      subtitle:
+        electionMode === 'parliamentary'
+          ? lang === 'tr'
+            ? `${distCount} Seçim Çevresi · ${projection.totalSeatsAllocated || 600} MV · D'Hondt`
+            : `${distCount} Districts · ${projection.totalSeatsAllocated || 600} MPs · D'Hondt`
+          : cfg.category === 'referendum'
+          ? lang === 'tr'
+            ? '%50+1 Halk Oylaması · 81 İl + Yurt Dışı'
+            : '50%+1 Constitutional Referendum · 81 Provinces + Abroad'
+          : cfg.category === 'presidential'
+          ? lang === 'tr'
+            ? 'Cumhurbaşkanlığı Seçimi · 81 İl + Yurt Dışı'
+            : 'Presidential Election · 81 Provinces + Abroad'
+          : base.subtitle,
+    };
+  };
+
   const initialTexts = useMemo(
-    () =>
-      buildDefaultInfographicTexts(
-        electionMode,
-        presRoundView,
-        localProjection.referenceBaseline,
-        lang
-      ),
-    [electionMode, presRoundView, localProjection.referenceBaseline, lang]
+    () => resolveTexts(),
+    [activeArchiveId, electionMode, presRoundView, localProjection.referenceBaseline, lang, distCount, projection.totalSeatsAllocated]
   );
 
   const [config, setConfig] = useState<InfographicConfig>(() => ({
@@ -106,24 +141,26 @@ export const InfographicStudio: React.FC = () => {
 
   // Preload SVG party logos into base64 cache so Canvas PNG & SVG export stay crisp
   useEffect(() => {
-    void preloadAllPartyLogos(parties).then(() => {
+    void preloadAllPartyLogos([...parties, ...presCandidates]).then(() => {
       setLogosLoadedTick((t) => t + 1);
     });
-  }, [parties]);
+  }, [parties, presCandidates]);
 
-  // Auto-sync title/subtitle/layer defaults when election mode or round changes cleanly
+  const provCount = Object.keys(projection.provinceResults).length || 81;
+
+  // Auto-sync title/subtitle/layer defaults when election mode, archive, or round changes cleanly
   useEffect(() => {
-    const texts = buildDefaultInfographicTexts(
-      electionMode,
-      presRoundView,
-      localProjection.referenceBaseline,
-      lang
-    );
+    const texts = resolveTexts();
+    const provKeys = Object.keys(projection.provinceResults);
     setConfig((prev) => ({
       ...prev,
       title: texts.title,
       subtitle: texts.subtitle,
       footerNote: texts.footerNote,
+      spotlightProvinceId:
+        provKeys.length > 0 && prev.spotlightProvinceId && !projection.provinceResults[prev.spotlightProvinceId]
+          ? '06'
+          : prev.spotlightProvinceId,
       mapLayer:
         electionMode === 'parliamentary'
           ? prev.mapLayer
@@ -133,7 +170,28 @@ export const InfographicStudio: React.FC = () => {
           ? '81_il'
           : prev.mapLayer,
     }));
-  }, [electionMode, presRoundView, localProjection.referenceBaseline, lang]);
+  }, [
+    activeArchiveId,
+    electionMode,
+    presRoundView,
+    localProjection.referenceBaseline,
+    lang,
+    distCount,
+    provCount,
+    projection.totalSeatsAllocated,
+    projection.provinceResults,
+  ]);
+
+  const needDynamicGeo = Boolean(
+    activeArchiveId &&
+      (ARCHIVE_ELECTIONS[activeArchiveId]?.districtOverrides ||
+        ARCHIVE_ELECTIONS[activeArchiveId]?.ilceMergeMap ||
+        ARCHIVE_ELECTIONS[activeArchiveId]?.districtMergeMap ||
+        ARCHIVE_ELECTIONS[activeArchiveId]?.districtRenameMap ||
+        ARCHIVE_ELECTIONS[activeArchiveId]?.provinceMergeMap ||
+        ARCHIVE_ELECTIONS[activeArchiveId]?.ilceProvinceOverrides ||
+        ARCHIVE_ELECTIONS[activeArchiveId]?.customDistricts?.length)
+  );
 
   // Lazy-fetch required GeoJSON boundaries from shared cache
   useEffect(() => {
@@ -144,7 +202,7 @@ export const InfographicStudio: React.FC = () => {
     }
     if (
       electionMode === 'parliamentary' &&
-      (config.mapLayer === '87_district' || config.mapLayer === 'dual_il_ilce') &&
+      (config.mapLayer === '87_district' || config.mapLayer === 'dual_il_ilce' || config.mapLayer === '973_ilce') &&
       !districts87Geo
     ) {
       loadDistricts87Geo()
@@ -154,7 +212,14 @@ export const InfographicStudio: React.FC = () => {
     if (
       (config.mapLayer === '973_ilce' ||
         config.mapLayer === 'dual_il_ilce' ||
-        config.template === 'province_spotlight') &&
+        config.template === 'province_spotlight' ||
+        (electionMode === 'parliamentary' && config.mapLayer === '87_district' && needDynamicGeo) ||
+        (config.mapLayer === '81_il' &&
+          Boolean(
+            activeArchiveId &&
+              (ARCHIVE_ELECTIONS[activeArchiveId]?.provinceMergeMap ||
+                ARCHIVE_ELECTIONS[activeArchiveId]?.ilceProvinceOverrides)
+          ))) &&
       !ilcelerGeo
     ) {
       loadIlcelerGeo()
@@ -167,14 +232,33 @@ export const InfographicStudio: React.FC = () => {
         .catch(() => {});
     }
   }, [
+    activeArchiveId,
     electionMode,
     config.mapLayer,
     config.template,
+    needDynamicGeo,
     provincesGeo,
     districts87Geo,
     ilcelerGeo,
     worldGeo,
   ]);
+
+  const {
+    provincesGeo: activeProvincesGeo,
+    districts87Geo: activeDistricts87Geo,
+    ilcelerGeo: activeIlcelerGeo,
+  } = useMemo(
+    () =>
+      buildDynamicArchiveGeo({
+        archiveId: activeArchiveId,
+        provincesGeo,
+        districts87Geo,
+        ilcelerGeo,
+      }),
+    [activeArchiveId, provincesGeo, districts87Geo, ilcelerGeo]
+  );
+
+  const activeBaselineProjection = activeArchiveId ? baselineProjection : official2023Projection;
 
   const dataModel = useMemo(
     () =>
@@ -185,12 +269,13 @@ export const InfographicStudio: React.FC = () => {
         parties,
         alliances,
         projection,
-        baselineProjection: official2023Projection,
+        baselineProjection: activeBaselineProjection,
         presCandidates,
         presRoundView,
         presidentialProjection,
         localProjection,
         localDefections,
+        activeArchiveId,
       }),
     [
       config,
@@ -199,7 +284,7 @@ export const InfographicStudio: React.FC = () => {
       parties,
       alliances,
       projection,
-      official2023Projection,
+      activeBaselineProjection,
       presCandidates,
       presRoundView,
       presidentialProjection,
@@ -230,12 +315,7 @@ export const InfographicStudio: React.FC = () => {
   };
 
   const handleSyncTexts = () => {
-    const texts = buildDefaultInfographicTexts(
-      electionMode,
-      presRoundView,
-      localProjection.referenceBaseline,
-      lang
-    );
+    const texts = resolveTexts();
     setConfig((prev) => ({ ...prev, ...texts }));
   };
 
@@ -387,13 +467,15 @@ export const InfographicStudio: React.FC = () => {
               >
                 {electionMode === 'parliamentary' && (
                   <option value="87_district">
-                    {lang === 'tr' ? '87 Seçim Çevresi' : '87 Districts'}
+                    {lang === 'tr' ? `${distCount} Seçim Çevresi` : `${distCount} Districts`}
                   </option>
                 )}
-                <option value="81_il">{lang === 'tr' ? '81 İl' : '81 Provinces'}</option>
-                <option value="973_ilce">{lang === 'tr' ? '973 İlçe' : '973 Sub-districts'}</option>
+                <option value="81_il">{lang === 'tr' ? `${provCount} İl` : `${provCount} Provinces`}</option>
+                <option value="973_ilce">
+                  {lang === 'tr' ? `${ilceCount} İlçe` : `${ilceCount} Sub-districts`}
+                </option>
                 <option value="dual_il_ilce">
-                  {lang === 'tr' ? 'İl + 973 İlçe (İkili)' : 'Province + District (Dual)'}
+                  {lang === 'tr' ? `İl + ${ilceCount} İlçe (İkili)` : `Province + ${ilceCount} Sub (Dual)`}
                 </option>
                 {electionMode !== 'local' && (
                   <option value="abroad_world">
@@ -606,9 +688,9 @@ export const InfographicStudio: React.FC = () => {
               config={config}
               data={dataModel}
               lang={lang}
-              provincesGeo={provincesGeo}
-              districts87Geo={districts87Geo}
-              ilcelerGeo={ilcelerGeo}
+              provincesGeo={activeProvincesGeo}
+              districts87Geo={activeDistricts87Geo}
+              ilcelerGeo={activeIlcelerGeo}
               worldGeo={worldGeo}
               logosLoadedTick={logosLoadedTick}
             />

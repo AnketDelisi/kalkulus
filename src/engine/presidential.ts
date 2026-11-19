@@ -124,6 +124,18 @@ function deriveCandidateBaseSharesForUnit(
   return normalizeCandidateVector(out, candidates);
 }
 
+function hasBackingPartyOverlap(
+  unitPartyShares: Record<string, number>,
+  candidates: PresidentialCandidateConfig[]
+): boolean {
+  for (const c of candidates) {
+    for (const pid of c.backingPartyIds) {
+      if ((unitPartyShares[pid] ?? 0) > 0) return true;
+    }
+  }
+  return false;
+}
+
 function resolveLeaderAndRunnerUp(
   votes: Record<string, number>,
   totalValidVotes: number,
@@ -533,12 +545,14 @@ export function computePresidentialProjection(
   for (const country of ABROAD_COUNTRIES_2023) {
     const ovr = abroadCountryOverrides[country.id];
     const isLocked = Boolean(ovr?.isLocked);
-    const countryBaseCand = deriveCandidateBaseSharesForUnit(
-      country.partyShares,
-      candidates,
-      partyById,
-      referencePartyWeights
-    );
+    const countryBaseCand = hasBackingPartyOverlap(country.partyShares, candidates)
+      ? deriveCandidateBaseSharesForUnit(
+          country.partyShares,
+          candidates,
+          partyById,
+          referencePartyWeights
+        )
+      : abroadBaseCandShares;
     const cShares =
       isLocked && ovr?.partyShares
         ? normalizeCandidateVector(ovr.partyShares, candidates)

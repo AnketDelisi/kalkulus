@@ -10,10 +10,9 @@ import { getContrastTextColor, getDynamicPartyBoxTheme } from '../../utils/color
 import { formatInt, formatPct } from '../../utils/format';
 import { computeHemicycleSeats } from '../../utils/hemicycleGeometry';
 import {
-  SEAT_OFFSETS_81,
-  SEAT_OFFSETS_87,
+  IstanbulCalloutPanel,
   buildOrderedSeatColors,
-  computeSeatClusterLayout,
+  computeMapSeatLayouts,
 } from '../../utils/seatCirclesGeometry';
 import {
   InfographicAspect,
@@ -53,6 +52,7 @@ interface ProjectedMapPane {
     leaderLine?: { x1: number; y1: number; x2: number; y2: number };
     dots: { x: number; y: number; r: number; color: string }[];
   }[];
+  istanbulPanel?: IstanbulCalloutPanel | null;
 }
 
 function buildProjectedMapPane(
@@ -65,12 +65,11 @@ function buildProjectedMapPane(
     enabled: boolean;
     seatMap: Record<string, { seats: Record<string, number>; votes: Record<string, number> }>;
     partyColorMap: Record<string, string>;
-    offsetMap: Record<string, [number, number]>;
-    calloutProvIds: Set<string>;
+    isDistrictLayer: boolean;
   }
 ): ProjectedMapPane {
   if (features.length === 0) {
-    return { paths: [], borders: [], seatClusters: [] };
+    return { paths: [], borders: [], seatClusters: [], istanbulPanel: null };
   }
 
   const proj = geoMercator();
@@ -90,31 +89,40 @@ function buildProjectedMapPane(
   }));
   const borders = borderFeatures.map((f) => pathFn(f as never) || '').filter(Boolean);
 
-  const seatClusters: ProjectedMapPane['seatClusters'] = [];
+  let seatClusters: ProjectedMapPane['seatClusters'] = [];
+  let istanbulPanel: IstanbulCalloutPanel | null = null;
   if (seatConfig?.enabled) {
-    const scaleFactor = Math.max(0.42, box.w / 980);
-    for (const feat of features) {
-      const id = feat.properties.id;
-      const entry = seatConfig.seatMap[id];
-      if (!entry) continue;
-      const centroid = pathFn.centroid(feat as never);
-      const layout = computeSeatClusterLayout(
-        id,
-        centroid,
-        entry.seats,
-        entry.votes,
-        seatConfig.partyColorMap,
-        seatConfig.offsetMap,
-        seatConfig.calloutProvIds.has(id),
-        scaleFactor
-      );
-      if (layout) {
-        seatClusters.push({ id, leaderLine: layout.leaderLine, dots: layout.dots });
-      }
-    }
+    const units = features
+      .map((feat) => {
+        const id = feat.properties.id;
+        const entry = seatConfig.seatMap[id];
+        if (!entry) return null;
+        return {
+          id,
+          ilId: feat.properties.ilId || id.split('-')[0],
+          feature: feat,
+          partySeats: entry.seats,
+          partyVotes: entry.votes,
+        };
+      })
+      .filter((u): u is NonNullable<typeof u> => u !== null);
+
+    const layout = computeMapSeatLayouts({
+      units,
+      projection: (pt) => proj(pt),
+      viewportBox: box,
+      partyColorMap: seatConfig.partyColorMap,
+      isDistrictLayer: seatConfig.isDistrictLayer,
+    });
+    seatClusters = layout.clusters.map((c) => ({
+      id: c.id,
+      leaderLine: c.leaderLine,
+      dots: c.dots,
+    }));
+    istanbulPanel = layout.istanbulPanel;
   }
 
-  return { paths, borders, seatClusters };
+  return { paths, borders, seatClusters, istanbulPanel };
 }
 
 export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
@@ -300,8 +308,7 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
               enabled: config.showSeatCircles,
               seatMap: useDistrict87Top ? data.districtSeatMap : data.provinceSeatMap,
               partyColorMap: data.partyColorMap,
-              offsetMap: useDistrict87Top ? SEAT_OFFSETS_87 : SEAT_OFFSETS_81,
-              calloutProvIds: new Set(useDistrict87Top ? ['34-1', '34-2', '34-3'] : ['34']),
+              isDistrictLayer: useDistrict87Top,
             }
           : undefined
       );
@@ -380,8 +387,7 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
             enabled: config.showSeatCircles,
             seatMap: use87 ? data.districtSeatMap : data.provinceSeatMap,
             partyColorMap: data.partyColorMap,
-            offsetMap: use87 ? SEAT_OFFSETS_87 : SEAT_OFFSETS_81,
-            calloutProvIds: new Set(use87 ? ['34-1', '34-2', '34-3'] : ['34']),
+            isDistrictLayer: use87,
           }
         : undefined
     );
@@ -854,34 +860,39 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
           )}
 
           {/* Dual Pane Minimal Corner Labels */}
-          {isDualMap && (
-            <>
-              <text
-                x={dualTopBox.x + 6}
-                y={dualTopBox.y - 4}
-                fontSize={11}
-                fontWeight={700}
-                fill={palette.muted}
-              >
-                {data.mode === 'parliamentary'
-                  ? lang === 'tr'
-                    ? 'Üst: 87 Seçim Çevresi'
-                    : 'Top: 87 Electoral Districts'
-                  : lang === 'tr'
-                  ? 'Üst: 81 İl'
-                  : 'Top: 81 Provinces'}
-              </text>
-              <text
-                x={dualBottomBox.x + 6}
-                y={dualBottomBox.y - 4}
-                fontSize={11}
-                fontWeight={700}
-                fill={palette.muted}
-              >
-                {lang === 'tr' ? 'Alt: 973 İlçe' : 'Bottom: 973 Districts'}
-              </text>
-            </>
-          )}
+          {isDualMap && (() => {
+            const dualDistCount = Object.keys(data.districtFillById).length || 87;
+            const dualProvCount = Object.keys(data.provinceFillById).length || 81;
+            const dualIlceCount = Object.keys(data.ilceFillById).length || 973;
+            return (
+              <>
+                <text
+                  x={dualTopBox.x + 6}
+                  y={dualTopBox.y - 4}
+                  fontSize={11}
+                  fontWeight={700}
+                  fill={palette.muted}
+                >
+                  {data.mode === 'parliamentary'
+                    ? lang === 'tr'
+                      ? `Üst: ${dualDistCount} Seçim Çevresi`
+                      : `Top: ${dualDistCount} Electoral Districts`
+                    : lang === 'tr'
+                    ? `Üst: ${dualProvCount} İl`
+                    : `Top: ${dualProvCount} Provinces`}
+                </text>
+                <text
+                  x={dualBottomBox.x + 6}
+                  y={dualBottomBox.y - 4}
+                  fontSize={11}
+                  fontWeight={700}
+                  fill={palette.muted}
+                >
+                  {lang === 'tr' ? `Alt: ${dualIlceCount} İlçe` : `Bottom: ${dualIlceCount} Districts`}
+                </text>
+              </>
+            );
+          })()}
 
           {/* Primary Map Pane */}
           <g>
@@ -891,6 +902,7 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
                 d={f.d}
                 fill={f.fill}
                 fillRule="evenodd"
+                strokeLinejoin="round"
                 stroke={
                   isSpotlight
                     ? '#090A0F'
@@ -910,6 +922,7 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
                 fill="none"
                 stroke="#090A0F"
                 strokeWidth={0.95}
+                strokeLinejoin="round"
                 strokeOpacity={0.7}
               />
             ))}
@@ -921,9 +934,9 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
                     y1={cluster.leaderLine.y1}
                     x2={cluster.leaderLine.x2}
                     y2={cluster.leaderLine.y2}
-                    stroke="#090A0F"
+                    stroke={isDark ? '#E2E8F0' : '#090A0F'}
                     strokeWidth={0.7}
-                    strokeOpacity={0.65}
+                    strokeOpacity={0.6}
                   />
                 )}
                 {cluster.dots.map((dot, idx) => (
@@ -939,6 +952,92 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
                 ))}
               </g>
             ))}
+
+            {primaryPane.istanbulPanel && (() => {
+              const p = primaryPane.istanbulPanel;
+              const panelBg = isDark ? '#11131A' : '#FFFFFF';
+              const panelBorder = isDark ? palette.strongBorder : '#090A0F';
+              const headerFill = isDark ? '#2D3348' : '#090A0F';
+              const headerTextFill = '#FFFFFF';
+              const cellBg = isDark ? '#161923' : '#FFFFFF';
+              const cellStroke = isDark ? '#2D3348' : '#E2E8F0';
+              const hdrFont = Math.max(4.5, Math.min(7.2, p.headerH * 0.56));
+              const cellFont = Math.max(4.2, Math.min(6.8, (p.cells[0]?.h || 10) * 0.48));
+              return (
+                <g>
+                  <line
+                    x1={p.stem.x1}
+                    y1={p.stem.y1}
+                    x2={p.stem.x2}
+                    y2={p.stem.y2}
+                    stroke={isDark ? '#E2E8F0' : '#090A0F'}
+                    strokeWidth={0.85}
+                    strokeOpacity={0.6}
+                  />
+                  <rect
+                    x={p.x}
+                    y={p.y}
+                    width={p.w}
+                    height={p.h}
+                    fill={panelBg}
+                    stroke={panelBorder}
+                    strokeWidth={1.1}
+                  />
+                  <rect
+                    x={p.x}
+                    y={p.y}
+                    width={p.w}
+                    height={p.headerH}
+                    fill={headerFill}
+                  />
+                  <text
+                    x={p.x + 3.5}
+                    y={p.y + p.headerH * 0.74}
+                    fontSize={hdrFont}
+                    fontWeight={700}
+                    letterSpacing={0.25}
+                    fill={headerTextFill}
+                  >
+                    {lang === 'tr'
+                      ? `İSTANBUL · ${p.districtCount} BÖLGE (${p.totalMps} MV)`
+                      : `ISTANBUL · ${p.districtCount} DIST. (${p.totalMps} MPs)`}
+                  </text>
+                  {p.cells.map((cell) => (
+                    <g key={`inf-ist-${cell.id}`}>
+                      <rect
+                        x={cell.x}
+                        y={cell.y}
+                        width={cell.w}
+                        height={cell.h}
+                        fill={cellBg}
+                        stroke={cellStroke}
+                        strokeWidth={0.45}
+                      />
+                      <text
+                        x={cell.x + 2}
+                        y={cell.y + cell.h * 0.5 + cellFont * 0.36}
+                        fontSize={cellFont}
+                        fontWeight={700}
+                        fill={palette.ink}
+                      >
+                        {cell.shortLabel}
+                      </text>
+                      {cell.dots.map((dot, dIdx) => (
+                        <circle
+                          key={`inf-ist-d-${cell.id}-${dIdx}`}
+                          cx={dot.x}
+                          cy={dot.y}
+                          r={dot.r}
+                          fill={dot.color}
+                          stroke="#090A0F"
+                          strokeWidth={0.4}
+                        />
+                      ))}
+                    </g>
+                  ))}
+                </g>
+              );
+            })()}
 
             {!isSpotlight && !isDualMap && config.mapLayer === 'abroad_world' && data.abroadCountryFillById && (
               <g>
@@ -1000,6 +1099,7 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
                   d={f.d}
                   fill={f.fill}
                   fillRule="evenodd"
+                  strokeLinejoin="round"
                   stroke="#FFFFFF"
                   strokeWidth={0.22}
                 />
@@ -1011,6 +1111,7 @@ export const InfographicSvgCanvas: React.FC<InfographicSvgCanvasProps> = ({
                   fill="none"
                   stroke="#090A0F"
                   strokeWidth={0.75}
+                  strokeLinejoin="round"
                   strokeOpacity={0.65}
                 />
               ))}

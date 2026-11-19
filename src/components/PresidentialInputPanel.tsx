@@ -14,10 +14,11 @@ import {
   Users,
 } from 'lucide-react';
 import { ABROAD_COUNTRY_BY_ID } from '../data/abroadCountries';
+import { ARCHIVE_ELECTION_LIST } from '../data/archiveRegistry';
 import { getCachedBaseline } from '../data/baselineCache';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
-import { BaselineId, SwingMode } from '../types/election';
+import { ArchiveElectionId, BaselineId, SwingMode } from '../types/election';
 import { formatInt, formatPct } from '../utils/format';
 import { LocationSearchCombobox } from './LocationSearchCombobox';
 import { PollQuickEntryModal } from './PollQuickEntryModal';
@@ -41,10 +42,12 @@ export const PresidentialInputPanel: React.FC = () => {
     presidentialProjection,
     presCandidateTurnoutMultipliers,
     presProvinceTurnoutMultipliers,
+    activeArchiveId,
     activeScope,
     setActiveScope,
     setMapLayer,
     setZoomedProvinceId,
+    enterArchiveElection,
     setPresBaselineId,
     setPresSwingMode,
     updatePresCandidateShare,
@@ -270,14 +273,28 @@ export const PresidentialInputPanel: React.FC = () => {
 
         {/* Baseline + Swing + Sync Toolbar */}
         <div className="mt-2.5 pt-2.5 border-t border-slate-200 flex flex-wrap items-center gap-1.5">
-          <select
-            value={presBaselineId}
-            onChange={(e) => setPresBaselineId(e.target.value as BaselineId)}
-            className="text-micro font-medium border border-[#090A0F] bg-white px-2 py-1 focus:outline-none"
-          >
-            <option value="blended_90_10">{t.baselineBlended}</option>
-            <option value="2023_general">{t.baseline2023}</option>
-          </select>
+          {activeArchiveId ? (
+            <select
+              value={activeArchiveId}
+              onChange={(e) => void enterArchiveElection(e.target.value as ArchiveElectionId, false)}
+              className="text-micro font-bold border border-[#090A0F] bg-white px-2 py-1 focus:outline-none cursor-pointer"
+            >
+              {ARCHIVE_ELECTION_LIST.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {lang === 'tr' ? opt.shortLabelTr : opt.shortLabelEn}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <select
+              value={presBaselineId}
+              onChange={(e) => setPresBaselineId(e.target.value as BaselineId)}
+              className="text-micro font-medium border border-[#090A0F] bg-white px-2 py-1 focus:outline-none"
+            >
+              <option value="blended_90_10">{t.baselineBlended}</option>
+              <option value="2023_general">{t.baseline2023}</option>
+            </select>
+          )}
 
           <div className="inline-flex border border-[#090A0F] text-micro font-mono font-semibold">
             {(['proportional', 'uniform'] as SwingMode[]).map((m) => (
@@ -294,18 +311,20 @@ export const PresidentialInputPanel: React.FC = () => {
             ))}
           </div>
 
-          <button
-            onClick={syncPresidentialFromParliamentary}
-            className="ml-auto inline-flex items-center gap-1 px-2 py-1 text-micro font-semibold border border-[#090A0F] bg-slate-50 hover:bg-[#090A0F] hover:text-white transition-colors"
-            title={
-              lang === 'tr'
-                ? 'Genel Seçim parti oranlarını aday bloklarına topla'
-                : 'Derive candidate shares from Parliamentary party shares'
-            }
-          >
-            <ArrowDownToLine className="w-3 h-3" />
-            <span>{lang === 'tr' ? "Genel Seçim'den Aktar" : 'Sync from Parliamentary'}</span>
-          </button>
+          {!activeArchiveId && (
+            <button
+              onClick={syncPresidentialFromParliamentary}
+              className="ml-auto inline-flex items-center gap-1 px-2 py-1 text-micro font-semibold border border-[#090A0F] bg-slate-50 hover:bg-[#090A0F] hover:text-white transition-colors"
+              title={
+                lang === 'tr'
+                  ? 'Genel Seçim parti oranlarını aday bloklarına topla'
+                  : 'Derive candidate shares from Parliamentary party shares'
+              }
+            >
+              <ArrowDownToLine className="w-3 h-3" />
+              <span>{lang === 'tr' ? "Genel Seçim'den Aktar" : 'Sync from Parliamentary'}</span>
+            </button>
+          )}
         </div>
 
         {(activeScope.type === 'province' || activeScope.type === 'ilce') && (
@@ -452,6 +471,24 @@ export const PresidentialInputPanel: React.FC = () => {
                   className="w-4 h-4 p-0 border border-[#090A0F] cursor-pointer shrink-0 bg-transparent"
                   title={lang === 'tr' ? 'Aday rengi' : 'Candidate color'}
                 />
+                {cand.logoUrl && (
+                  <span
+                    role="img"
+                    aria-label={cand.shortName}
+                    className="w-4 h-4 shrink-0"
+                    style={{
+                      backgroundColor: cand.color,
+                      WebkitMaskImage: `url(${import.meta.env.BASE_URL}${cand.logoUrl})`,
+                      maskImage: `url(${import.meta.env.BASE_URL}${cand.logoUrl})`,
+                      WebkitMaskSize: 'contain',
+                      maskSize: 'contain',
+                      WebkitMaskRepeat: 'no-repeat',
+                      maskRepeat: 'no-repeat',
+                      WebkitMaskPosition: 'center',
+                      maskPosition: 'center',
+                    }}
+                  />
+                )}
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">

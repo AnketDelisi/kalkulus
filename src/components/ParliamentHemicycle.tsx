@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { ARCHIVE_ELECTIONS, getArchiveComparisonLabel } from '../data/archiveRegistry';
 import { OFFICIAL_2023_NATIONAL_SEATS, OFFICIAL_2023_PROVINCE_SEATS } from '../data/official2023Seats';
 import { translations } from '../i18n/translations';
 import { useElectionStore } from '../store/useElectionStore';
@@ -71,6 +72,9 @@ export const ParliamentHemicycle: React.FC = () => {
   }, [parties, projection]);
 
   const totalSeats = projection.totalSeatsAllocated || 600;
+  const majMark = Math.floor(totalSeats / 2) + 1;
+  const refMark = Math.ceil((totalSeats * 3) / 5);
+  const constMark = Math.ceil((totalSeats * 2) / 3);
 
   return (
     <div className="studio-panel p-5 flex flex-col gap-4">
@@ -193,7 +197,7 @@ export const ParliamentHemicycle: React.FC = () => {
                 className="h-full transition-all duration-200"
               />
             ))}
-            {[301, 360, 400].map((mark) => (
+            {[majMark, refMark, constMark].map((mark) => (
               <div
                 key={mark}
                 style={{ left: `${(mark / totalSeats) * 100}%` }}
@@ -205,14 +209,14 @@ export const ParliamentHemicycle: React.FC = () => {
 
           <div className="flex items-center justify-between text-[11px] font-mono">
             <div className="flex items-center gap-2.5 text-slate-600">
-              <span className={coalitionSeats >= 301 ? 'font-bold text-emerald-700' : ''}>
-                301 {lang === 'tr' ? 'Salt' : 'Maj.'}
+              <span className={coalitionSeats >= majMark ? 'font-bold text-emerald-700' : ''}>
+                {majMark} {lang === 'tr' ? 'Salt' : 'Maj.'}
               </span>
-              <span className={coalitionSeats >= 360 ? 'font-bold text-emerald-700' : ''}>
-                360 {lang === 'tr' ? 'Ref.' : 'Ref.'}
+              <span className={coalitionSeats >= refMark ? 'font-bold text-emerald-700' : ''}>
+                {refMark} {lang === 'tr' ? 'Ref.' : 'Ref.'}
               </span>
-              <span className={coalitionSeats >= 400 ? 'font-bold text-emerald-700' : ''}>
-                400 {lang === 'tr' ? 'Anayasa' : 'Const.'}
+              <span className={coalitionSeats >= constMark ? 'font-bold text-emerald-700' : ''}>
+                {constMark} {lang === 'tr' ? 'Anayasa' : 'Const.'}
               </span>
             </div>
 
@@ -221,29 +225,29 @@ export const ParliamentHemicycle: React.FC = () => {
                 <span className="text-slate-400">
                   {lang === 'tr' ? 'Parti seçilmedi' : 'No party selected'}
                 </span>
-              ) : coalitionSeats >= 400 ? (
+              ) : coalitionSeats >= constMark ? (
                 <span className="text-emerald-700">
                   {lang === 'tr'
-                    ? `Anayasa Değişikliği (+${coalitionSeats - 400})`
-                    : `Constitutional (+${coalitionSeats - 400})`}
+                    ? `Anayasa Değişikliği (+${coalitionSeats - constMark})`
+                    : `Constitutional (+${coalitionSeats - constMark})`}
                 </span>
-              ) : coalitionSeats >= 360 ? (
+              ) : coalitionSeats >= refMark ? (
                 <span className="text-emerald-700">
                   {lang === 'tr'
-                    ? `Referandum (+${coalitionSeats - 360}) · 400'e ${400 - coalitionSeats}`
-                    : `Referendum (+${coalitionSeats - 360})`}
+                    ? `Referandum (+${coalitionSeats - refMark}) · ${constMark}'e ${constMark - coalitionSeats}`
+                    : `Referendum (+${coalitionSeats - refMark})`}
                 </span>
-              ) : coalitionSeats >= 301 ? (
+              ) : coalitionSeats >= majMark ? (
                 <span className="text-emerald-700">
                   {lang === 'tr'
-                    ? `Salt Çoğunluk (+${coalitionSeats - 301}) · 360'a ${360 - coalitionSeats}`
-                    : `Majority (+${coalitionSeats - 301})`}
+                    ? `Salt Çoğunluk (+${coalitionSeats - majMark}) · ${refMark}'e ${refMark - coalitionSeats}`
+                    : `Majority (+${coalitionSeats - majMark})`}
                 </span>
               ) : (
                 <span className="text-amber-700">
                   {lang === 'tr'
-                    ? `301'e ${301 - coalitionSeats} MV kaldı`
-                    : `${301 - coalitionSeats} short of 301`}
+                    ? `${majMark}'e ${majMark - coalitionSeats} MV kaldı`
+                    : `${majMark - coalitionSeats} short of ${majMark}`}
                 </span>
               )}
             </div>
@@ -255,9 +259,25 @@ export const ParliamentHemicycle: React.FC = () => {
 };
 
 export const NationalResultsTable: React.FC = () => {
-  const { lang, parties, activeScope, projection, baselineProjection } = useElectionStore();
+  const {
+    lang,
+    parties,
+    activeScope,
+    activeArchiveId,
+    archiveComparisonId,
+    projection,
+    baselineProjection,
+  } = useElectionStore();
   const [forceNational, setForceNational] = useState(false);
   const t = translations[lang];
+  const activeArchiveCfg = activeArchiveId ? ARCHIVE_ELECTIONS[activeArchiveId] : undefined;
+  const deltaYearLabel = activeArchiveCfg
+    ? getArchiveComparisonLabel(
+        archiveComparisonId,
+        lang,
+        lang === 'tr' ? activeArchiveCfg.deltaLabelTr : activeArchiveCfg.deltaLabelEn
+      )
+    : 2023;
 
   useEffect(() => {
     setForceNational(false);
@@ -291,7 +311,9 @@ export const NationalResultsTable: React.FC = () => {
           shares: pRes.partyShares,
           votes: pRes.partyVotes,
           seats: pRes.partySeats,
-          baseSeats: OFFICIAL_2023_PROVINCE_SEATS[pRes.id] ?? basePRes?.partySeats ?? {},
+          baseSeats: activeArchiveId
+            ? basePRes?.partySeats ?? {}
+            : OFFICIAL_2023_PROVINCE_SEATS[pRes.id] ?? basePRes?.partySeats ?? {},
           totalSeats: totalMps,
           hasSeats: true,
           turnout: pRes.turnout,
@@ -392,14 +414,14 @@ export const NationalResultsTable: React.FC = () => {
       shares: projection.nationalPartyShares,
       votes: projection.nationalPartyVotes,
       seats: projection.partyTotalSeats,
-      baseSeats: OFFICIAL_2023_NATIONAL_SEATS,
+      baseSeats: activeArchiveId ? baselineProjection.partyTotalSeats : OFFICIAL_2023_NATIONAL_SEATS,
       totalSeats: projection.totalSeatsAllocated || 600,
       hasSeats: true,
       turnout: projection.totalTurnout,
       validVotes: projection.totalValidVotes,
       flipCallouts: [],
     };
-  }, [effectiveType, activeScope, projection, baselineProjection, lang, partyById]);
+  }, [effectiveType, activeScope, activeArchiveId, projection, baselineProjection, lang, partyById]);
 
   return (
     <div className="studio-panel p-5 flex flex-col gap-4">
@@ -454,7 +476,7 @@ export const NationalResultsTable: React.FC = () => {
                 <>
                   <th className="py-2.5 px-2 text-right">{t.seatsCol}</th>
                   <th className="py-2.5 px-2 text-right">{lang === 'tr' ? 'Meclis %' : 'Seat %'}</th>
-                  <th className="py-2.5 px-2 text-right">±2023</th>
+                  <th className="py-2.5 px-2 text-right">±{deltaYearLabel}</th>
                 </>
               )}
             </tr>
@@ -464,7 +486,9 @@ export const NationalResultsTable: React.FC = () => {
               const share = scopeView.shares[p.id] || 0;
               const votes = scopeView.votes[p.id] || 0;
               const seats = scopeView.seats[p.id] || 0;
-              const baseSeats = scopeView.baseSeats[p.id] ?? baselineProjection.partyTotalSeats[p.id] ?? 0;
+              const baseSeats = scopeView.isScoped
+                ? scopeView.baseSeats[p.id] ?? 0
+                : scopeView.baseSeats[p.id] ?? baselineProjection.partyTotalSeats[p.id] ?? 0;
               const seatDiff = seats - baseSeats;
 
               return (

@@ -1,0 +1,65 @@
+/**
+ * Single source of truth for party, alliance, presidential candidate, and referendum hex colors
+ * across live simulation, historical archive maps/tables, infographic export, and trend charts.
+ */
+export const PARTY_COLORS = {
+  AKP: '#F59300',
+  YENI: '#ED1C24',
+  CHP: '#ED1C24',
+  CHP_LIVE: '#F25F5C',
+  MHP: '#991B1B',
+  DEM: '#7C3AED',
+  IYI: '#0EA5E9',
+  YRP: '#10B981',
+  SAADET: '#047857',
+  HUDAPAR: '#166534',
+  A: '#3B4CCA',
+  ZP: '#5B6472',
+  TIP: '#BE123C',
+  BBP: '#854D27',
+  DEVA: '#0E7490',
+  DP: '#4338CA',
+  ANAP: '#EAB308',
+  DSP: '#0891B2',
+  GP: '#EC4899',
+  YTP: '#14B8A6',
+  VP: '#B91C1C',
+  TKP: '#881337',
+  BTP: '#92400E',
+  HAS: '#0F766E',
+  ODP: '#EA580C',
+  MP: '#2563EB',
+  IDP: '#B45309',
+  IND: '#475569',
+  OTHER: '#64748B',
+  EVET: '#16A34A',
+  HAYIR: '#DC2626',
+} as const;
+
+export const CANDIDATE_COLORS = {
+  ERDOGAN: PARTY_COLORS.AKP,
+  IMAMOGLU: PARTY_COLORS.YENI,
+  KILICDAROGLU: PARTY_COLORS.CHP,
+  KILICDAROGLU_LIVE: PARTY_COLORS.CHP_LIVE,
+  INCE_CHP: PARTY_COLORS.CHP,
+  INCE_MP: PARTY_COLORS.MP,
+  IHSANOGLU: '#DC2626',
+  DEMIRTAS: PARTY_COLORS.DEM,
+  AKSENER: PARTY_COLORS.IYI,
+  DERVISOGLU: PARTY_COLORS.IYI,
+  KARAMOLLAOGLU: PARTY_COLORS.SAADET,
+  ERBAKAN: PARTY_COLORS.YRP,
+  AGIRALIOGLU: PARTY_COLORS.A,
+  PERINCEK: PARTY_COLORS.VP,
+  OGAN: '#334155',
+  EVET: PARTY_COLORS.EVET,
+  HAYIR: PARTY_COLORS.HAYIR,
+  OTHER: PARTY_COLORS.OTHER,
+} as const;
+
+export const ALLIANCE_COLORS = {
+  cumhur: PARTY_COLORS.AKP,
+  emek: PARTY_COLORS.DEM,
+  millet: PARTY_COLORS.CHP,
+  ata: PARTY_COLORS.ZP,
+} as const;

@@ -1,10 +1,34 @@
 export type ElectionMode = 'parliamentary' | 'presidential' | 'local';
+export type ArchiveCategory = 'general' | 'presidential' | 'local' | 'referendum';
+export type ArchiveElectionId =
+  | '2024_local'
+  | '2023_pres_r2'
+  | '2023_pres_r1'
+  | '2023_general'
+  | '2019_local'
+  | '2018_pres'
+  | '2018_general'
+  | '2017_ref'
+  | '2015_nov'
+  | '2015_june'
+  | '2014_pres'
+  | '2014_local'
+  | '2011_general'
+  | '2010_ref'
+  | '2009_local'
+  | '2007_general'
+  | '2002_general'
+  | '1999_general'
+  | '1995_general'
+  | '1991_general'
+  | '1987_general';
+export type ArchiveComparisonRef = ArchiveElectionId | 'self';
 export type BaselineId = 'blended_90_10' | '2023_general' | 'custom';
 export type LocalBaselineId = '2024_local' | 'local_50_30_20' | 'local_50_50';
 export type LocalProvinceMode = 'merkez_ilce' | 'province_wide';
 export type PresidentialRoundView = 'round1' | 'round2';
 export type SwingMode = 'proportional' | 'uniform';
-export type DHondtMode = '2022_separate' | '2018_alliance';
+export type DHondtMode = '2022_separate' | '2018_alliance' | '1987_kontenjan';
 export type MapLayerMode = '81_il' | '87_district' | '973_ilce' | 'abroad_world';
 export type MapColorMode =
   | 'leader'
@@ -27,6 +51,7 @@ export interface PartyConfig {
   proxyWeights?: Record<string, number>;
   isCustom?: boolean;
   isOther?: boolean;
+  thresholdExempt?: boolean;
 }
 
 export interface AllianceConfig {
@@ -70,10 +95,23 @@ export interface IlceData {
   turnout: number; // 0..100 (%)
   validVoteRatio: number; // 0..100 (%), ratio of valid votes to total cast votes
   partyShares: Record<string, number>; // partyId -> percentage (0..100)
+  /** Optional official mayoral race party shares for Archive Mayoral Mode */
+  mayorPartyShares?: Record<string, number>;
+  /** Ratio (0..1) of top single candidate inside OTHER to total OTHER bucket, preventing fragmented losing OTHER candidates from falsely beating #1 */
+  otherMaxCandidateRatio?: number;
+  mayorOtherMaxCandidateRatio?: number;
   isLocked?: boolean;
   // Geometric coordinates for rapid map rendering and fallback polygons
   lat: number;
   lng: number;
+}
+
+export interface HistoricalSubCircleConfig {
+  mpCount: number;
+  kontenjanSeats: number;
+  constituencyThresholdPct: number;
+  weight: number;
+  partyRelFactors?: Record<string, number>;
 }
 
 export interface ElectoralDistrictConfig {
@@ -81,10 +119,14 @@ export interface ElectoralDistrictConfig {
   ilId: string; // "01".."81"
   name: string; // e.g., "İstanbul 1. Bölge", "Adana"
   mpCount: number; // Number of MPs allocated to this electoral district
+  kontenjanSeats?: number;
+  constituencyThresholdPct?: number;
+  subCircles?: HistoricalSubCircleConfig[];
   isLocked?: boolean;
   lockedShares?: Record<string, number>;
   lockedTurnout?: number;
   lockedRegisteredVoters?: number;
+  independentSplitWeights?: Record<string, number[]>;
 }
 
 export interface ProvinceConfig {
@@ -93,6 +135,9 @@ export interface ProvinceConfig {
   name: string; // e.g., "Adana", "İstanbul"
   region: string; // Marmara, Ege, İç Anadolu, Akdeniz, Karadeniz, Doğu Anadolu, Güneydoğu Anadolu
   districtIds: string[]; // Usually [id], or ["34-1", "34-2", "34-3"]
+  /** Optional official Büyükşehir mayoral vote shares for Archive Mayoral Mode */
+  mayorPartyShares?: Record<string, number>;
+  mayorOtherMaxCandidateRatio?: number;
   lat: number;
   lng: number;
 }
@@ -153,6 +198,8 @@ export interface BaselineDataset {
   ilceler: IlceData[];
   abroad: AbroadVoteConfig;
   nationalBaseShares: Record<string, number>;
+  /** Optional weighted national mayoral baseline shares for Archive Mayoral Mode */
+  mayorNationalBaseShares?: Record<string, number>;
   nationalBaseTurnout: number;
 }
 
@@ -269,6 +316,7 @@ export interface PresidentialCandidateConfig {
   name: string;
   shortName: string;
   color: string;
+  logoUrl?: string;
   backingPartyIds: string[];
   isOther?: boolean;
 }
@@ -480,6 +528,8 @@ export interface LocalPartySeatSummary {
 
 export interface ComputedLocalProjection {
   referenceBaseline: LocalReferenceBaseline;
+  /** Optional historical election year displayed on delta labels (defaults to 2024) */
+  referenceYear?: 2009 | 2014 | 2019 | 2024;
   totalRegisteredVoters: number;
   totalVotesCast: number;
   totalValidVotes: number;

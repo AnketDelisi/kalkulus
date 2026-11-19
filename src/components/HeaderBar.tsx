@@ -3,6 +3,7 @@ import {
   BarChart3,
   Download,
   Globe,
+  History,
   Image as ImageIcon,
   Lock,
   Map,
@@ -44,10 +45,13 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
     localIlceOverrides,
     canUndo,
     canRedo,
+    activeArchiveId,
     undo,
     redo,
     setLanguage,
     setElectionMode,
+    enterArchiveElection,
+    exitArchiveMode,
     resetAllLocks,
     resetAllToBaseline,
   } = useElectionStore();
@@ -191,11 +195,14 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         </div>
 
         {/* Center / Mobile Row 2: Workspace Tabs */}
-        <nav className="grid grid-cols-3 md:flex items-center border-[1.5px] border-[#090A0F] bg-white text-micro sm:text-body font-medium w-full md:w-auto shrink-0">
+        <nav className="grid grid-cols-4 md:flex items-center border-[1.5px] border-[#090A0F] bg-white text-micro sm:text-body font-medium w-full md:w-auto shrink-0">
           <button
-            onClick={() => onChangeTab('studio')}
+            onClick={() => {
+              if (activeArchiveId) exitArchiveMode();
+              onChangeTab('studio');
+            }}
             className={`flex items-center justify-center gap-1.5 px-2.5 py-2 md:py-1 border-r border-[#090A0F] whitespace-nowrap transition-colors ${
-              activeTab === 'studio'
+              activeTab === 'studio' && !activeArchiveId
                 ? 'bg-[#090A0F] text-white'
                 : 'text-[#090A0F] hover:bg-slate-100'
             }`}
@@ -218,7 +225,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 
           <button
             onClick={() => onChangeTab('infographic')}
-            className={`flex items-center justify-center gap-1.5 px-2.5 py-2 md:py-1 whitespace-nowrap transition-colors ${
+            className={`flex items-center justify-center gap-1.5 px-2.5 py-2 md:py-1 border-r border-[#090A0F] whitespace-nowrap transition-colors ${
               activeTab === 'infographic'
                 ? 'bg-[#090A0F] text-white'
                 : 'text-[#090A0F] hover:bg-slate-100'
@@ -226,6 +233,28 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           >
             <ImageIcon className="w-3.5 h-3.5" />
             <span>{lang === 'tr' ? 'İnfografik' : 'Infographic'}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              onChangeTab('studio');
+              if (!activeArchiveId) {
+                void enterArchiveElection('2023_general');
+              }
+            }}
+            className={`flex items-center justify-center gap-1.5 px-2.5 py-2 md:py-1 whitespace-nowrap transition-colors ${
+              activeArchiveId && activeTab === 'studio'
+                ? 'bg-[#090A0F] text-white font-semibold'
+                : activeArchiveId
+                ? 'bg-slate-100 text-[#090A0F] font-bold'
+                : 'text-[#090A0F] hover:bg-slate-100'
+            }`}
+          >
+            <History className="w-3.5 h-3.5" />
+            <span>{lang === 'tr' ? 'Arşiv' : 'Archive'}</span>
+            {activeArchiveId && activeTab !== 'studio' && (
+              <span className="w-1.5 h-1.5 bg-[#090A0F] inline-block" />
+            )}
           </button>
         </nav>
 

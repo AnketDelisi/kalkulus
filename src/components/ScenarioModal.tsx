@@ -24,6 +24,7 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose })
 
   if (!isOpen) return null;
   const t = translations[lang];
+  const districtCount = Object.keys(projection.districtResults).length || 87;
 
   const handleCopyScenario = () => {
     const data = exportScenarioJson();
@@ -72,7 +73,7 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose })
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `kalkulus-87-bolge-sonuclar.csv`;
+    a.download = `kalkulus-${districtCount}-bolge-sonuclar.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -154,7 +155,7 @@ export const ScenarioModal: React.FC<ScenarioModalProps> = ({ isOpen, onClose })
 
             <button onClick={handleDownloadCsv} className="studio-btn py-2.5 px-3">
               <Download className="w-4 h-4 text-emerald-700" />
-              <span>{lang === 'tr' ? '87 bölge (.csv)' : '87 districts (.csv)'}</span>
+              <span>{lang === 'tr' ? `${districtCount} bölge (.csv)` : `${districtCount} districts (.csv)`}</span>
             </button>
           </div>
 

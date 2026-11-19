@@ -1,5 +1,3 @@
-import { PartyConfig } from '../types/election';
-
 const rawSvgTextCache: Partial<Record<string, string>> = {};
 const logoPromiseCache: Partial<Record<string, Promise<string | null>>> = {};
 const coloredDataUriCache: Partial<Record<string, string>> = {};
@@ -110,10 +108,10 @@ export function getKalkulusLogoDataUri(isDark: boolean): string | null {
   return isDark ? kalkulusLogoDarkDataUri || kalkulusLogoLightDataUri : kalkulusLogoLightDataUri;
 }
 
-export async function preloadAllPartyLogos(parties: PartyConfig[]): Promise<void> {
+export async function preloadAllPartyLogos(items: Array<{ logoUrl?: string }>): Promise<void> {
   await Promise.all([
     loadKalkulusLogo(),
-    ...parties.filter((p) => Boolean(p.logoUrl)).map((p) => loadPartyLogoRaw(p.logoUrl!)),
+    ...items.filter((p) => Boolean(p.logoUrl)).map((p) => loadPartyLogoRaw(p.logoUrl!)),
   ]);
 }
 

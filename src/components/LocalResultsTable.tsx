@@ -5,6 +5,7 @@ import { formatInt, formatPct } from '../utils/format';
 export const LocalResultsTable: React.FC = () => {
   const { lang, parties, activeScope, localProjection, localProvinceMode } = useElectionStore();
   const [forceNational, setForceNational] = useState(false);
+  const refYear = localProjection.referenceYear ?? 2024;
 
   useEffect(() => {
     setForceNational(false);
@@ -176,8 +177,8 @@ export const LocalResultsTable: React.FC = () => {
                       ? '±Mevcut İl'
                       : '±Cur Prov'
                     : lang === 'tr'
-                    ? '±2024 İl'
-                    : '±2024 Prov'}
+                    ? `±${refYear} İl`
+                    : `±${refYear} Prov`}
                 </th>
                 <th className="py-2.5 px-3 text-right">{lang === 'tr' ? 'İlçe (973)' : 'Dist (973)'}</th>
                 <th className="py-2.5 px-4 text-right">
@@ -186,8 +187,8 @@ export const LocalResultsTable: React.FC = () => {
                       ? '±Mevcut İlçe'
                       : '±Cur Dist'
                     : lang === 'tr'
-                    ? '±2024 İlçe'
-                    : '±2024 Dist'}
+                    ? `±${refYear} İlçe`
+                    : `±${refYear} Dist`}
                 </th>
               </tr>
             )}

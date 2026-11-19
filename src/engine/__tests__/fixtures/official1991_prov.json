@@ -1,0 +1,520 @@
+{
+  "10": {
+    "DP": 7,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "11": {
+    "DP": 1,
+    "ANAP": 1,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "12": {
+    "DP": 1,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 2,
+    "DSP": 0
+  },
+  "13": {
+    "DP": 0,
+    "ANAP": 2,
+    "CHP": 0,
+    "SAADET": 1,
+    "DSP": 0
+  },
+  "14": {
+    "DP": 3,
+    "ANAP": 2,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "15": {
+    "DP": 3,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "16": {
+    "DP": 8,
+    "ANAP": 4,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "17": {
+    "DP": 4,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "18": {
+    "DP": 1,
+    "ANAP": 1,
+    "CHP": 0,
+    "SAADET": 1,
+    "DSP": 0
+  },
+  "19": {
+    "DP": 1,
+    "ANAP": 1,
+    "CHP": 1,
+    "SAADET": 2,
+    "DSP": 0
+  },
+  "20": {
+    "DP": 3,
+    "ANAP": 2,
+    "CHP": 1,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "21": {
+    "DP": 1,
+    "ANAP": 0,
+    "CHP": 7,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "22": {
+    "DP": 2,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 2
+  },
+  "23": {
+    "DP": 2,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 2,
+    "DSP": 0
+  },
+  "24": {
+    "DP": 0,
+    "ANAP": 1,
+    "CHP": 2,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "25": {
+    "DP": 2,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 5,
+    "DSP": 0
+  },
+  "26": {
+    "DP": 3,
+    "ANAP": 2,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "27": {
+    "DP": 4,
+    "ANAP": 0,
+    "CHP": 5,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "28": {
+    "DP": 0,
+    "ANAP": 4,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "29": {
+    "DP": 0,
+    "ANAP": 1,
+    "CHP": 0,
+    "SAADET": 1,
+    "DSP": 0
+  },
+  "30": {
+    "DP": 1,
+    "ANAP": 1,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "31": {
+    "DP": 3,
+    "ANAP": 0,
+    "CHP": 5,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "32": {
+    "DP": 4,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "33": {
+    "DP": 4,
+    "ANAP": 2,
+    "CHP": 3,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "34": {
+    "DP": 5,
+    "ANAP": 33,
+    "CHP": 5,
+    "SAADET": 4,
+    "DSP": 3
+  },
+  "35": {
+    "DP": 7,
+    "ANAP": 8,
+    "CHP": 4,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "36": {
+    "DP": 2,
+    "ANAP": 0,
+    "CHP": 3,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "37": {
+    "DP": 2,
+    "ANAP": 2,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "38": {
+    "DP": 0,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 7,
+    "DSP": 0
+  },
+  "39": {
+    "DP": 1,
+    "ANAP": 1,
+    "CHP": 1,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "40": {
+    "DP": 0,
+    "ANAP": 0,
+    "CHP": 3,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "41": {
+    "DP": 5,
+    "ANAP": 1,
+    "CHP": 0,
+    "SAADET": 1,
+    "DSP": 0
+  },
+  "42": {
+    "DP": 6,
+    "ANAP": 1,
+    "CHP": 0,
+    "SAADET": 6,
+    "DSP": 0
+  },
+  "43": {
+    "DP": 2,
+    "ANAP": 2,
+    "CHP": 0,
+    "SAADET": 1,
+    "DSP": 0
+  },
+  "44": {
+    "DP": 0,
+    "ANAP": 4,
+    "CHP": 1,
+    "SAADET": 1,
+    "DSP": 0
+  },
+  "45": {
+    "DP": 7,
+    "ANAP": 2,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "46": {
+    "DP": 1,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 6,
+    "DSP": 0
+  },
+  "47": {
+    "DP": 0,
+    "ANAP": 0,
+    "CHP": 5,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "48": {
+    "DP": 3,
+    "ANAP": 1,
+    "CHP": 1,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "49": {
+    "DP": 0,
+    "ANAP": 0,
+    "CHP": 3,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "50": {
+    "DP": 2,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 1,
+    "DSP": 0
+  },
+  "51": {
+    "DP": 3,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "52": {
+    "DP": 2,
+    "ANAP": 4,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "53": {
+    "DP": 0,
+    "ANAP": 3,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "54": {
+    "DP": 3,
+    "ANAP": 2,
+    "CHP": 0,
+    "SAADET": 1,
+    "DSP": 0
+  },
+  "55": {
+    "DP": 7,
+    "ANAP": 2,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "56": {
+    "DP": 0,
+    "ANAP": 0,
+    "CHP": 3,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "57": {
+    "DP": 3,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "58": {
+    "DP": 0,
+    "ANAP": 0,
+    "CHP": 2,
+    "SAADET": 4,
+    "DSP": 0
+  },
+  "59": {
+    "DP": 4,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "60": {
+    "DP": 1,
+    "ANAP": 0,
+    "CHP": 2,
+    "SAADET": 3,
+    "DSP": 0
+  },
+  "61": {
+    "DP": 1,
+    "ANAP": 3,
+    "CHP": 0,
+    "SAADET": 2,
+    "DSP": 0
+  },
+  "62": {
+    "DP": 0,
+    "ANAP": 0,
+    "CHP": 2,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "63": {
+    "DP": 5,
+    "ANAP": 2,
+    "CHP": 0,
+    "SAADET": 1,
+    "DSP": 0
+  },
+  "64": {
+    "DP": 0,
+    "ANAP": 0,
+    "CHP": 3,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "65": {
+    "DP": 2,
+    "ANAP": 1,
+    "CHP": 1,
+    "SAADET": 1,
+    "DSP": 0
+  },
+  "66": {
+    "DP": 0,
+    "ANAP": 2,
+    "CHP": 0,
+    "SAADET": 3,
+    "DSP": 0
+  },
+  "67": {
+    "DP": 6,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 1
+  },
+  "68": {
+    "DP": 2,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 1,
+    "DSP": 0
+  },
+  "69": {
+    "DP": 0,
+    "ANAP": 1,
+    "CHP": 0,
+    "SAADET": 1,
+    "DSP": 0
+  },
+  "70": {
+    "DP": 0,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 2,
+    "DSP": 0
+  },
+  "71": {
+    "DP": 3,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "72": {
+    "DP": 0,
+    "ANAP": 0,
+    "CHP": 3,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "73": {
+    "DP": 0,
+    "ANAP": 0,
+    "CHP": 3,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "74": {
+    "DP": 1,
+    "ANAP": 0,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 1
+  },
+  "01": {
+    "DP": 10,
+    "ANAP": 1,
+    "CHP": 3,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "02": {
+    "DP": 0,
+    "ANAP": 0,
+    "CHP": 4,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "03": {
+    "DP": 4,
+    "ANAP": 2,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "04": {
+    "DP": 2,
+    "ANAP": 2,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "05": {
+    "DP": 0,
+    "ANAP": 0,
+    "CHP": 3,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "06": {
+    "DP": 7,
+    "ANAP": 7,
+    "CHP": 7,
+    "SAADET": 2,
+    "DSP": 0
+  },
+  "07": {
+    "DP": 6,
+    "ANAP": 1,
+    "CHP": 2,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "08": {
+    "DP": 1,
+    "ANAP": 1,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  },
+  "09": {
+    "DP": 4,
+    "ANAP": 2,
+    "CHP": 0,
+    "SAADET": 0,
+    "DSP": 0
+  }
+}

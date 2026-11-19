@@ -15,6 +15,7 @@ export const LocalRacesTable: React.FC<LocalRacesTableProps> = ({ onSelectAndGoT
 
   const [tab, setTab] = useState<LocalTableTab>('buyuksehir');
   const [search, setSearch] = useState('');
+  const refYear = localProjection.referenceYear ?? 2024;
 
   const partyById = useMemo(() => {
     const m: Record<string, (typeof parties)[0]> = {};
@@ -129,8 +130,8 @@ export const LocalRacesTable: React.FC<LocalRacesTableProps> = ({ onSelectAndGoT
                       ? 'Mevcut → Projeksiyon'
                       : 'Current → Projected'
                     : lang === 'tr'
-                    ? '2024 → Projeksiyon'
-                    : '2024 → Projected'}
+                    ? `${refYear} → Projeksiyon`
+                    : `${refYear} → Projected`}
                 </th>
                 <th className="py-2.5 px-3 text-left">{lang === 'tr' ? '2. Parti' : 'Runner-up'}</th>
                 <th className="py-2.5 px-3 text-right">{lang === 'tr' ? 'Fark (Oy / %)' : 'Margin'}</th>

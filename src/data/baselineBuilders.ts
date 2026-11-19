@@ -193,10 +193,12 @@ function splitChpIntoYeniAndChp(shares: Record<string, number>): Record<string, 
 }
 
 export function split2024ChpForYeni(base24: BaselineDataset): BaselineDataset {
-  const ilceler: IlceData[] = base24.ilceler.map((i24) => ({
-    ...i24,
-    partyShares: splitChpIntoYeniAndChp(i24.partyShares),
-  }));
+  const ilceler: IlceData[] = base24.ilceler.map(
+    ({ mayorPartyShares: _mDrop, mayorOtherMaxCandidateRatio: _rDrop, ...i24 }) => ({
+      ...i24,
+      partyShares: splitChpIntoYeniAndChp(i24.partyShares),
+    })
+  );
 
   const { nationalBaseShares, nationalBaseTurnout } = summarizeNationalFromIlceler(ilceler);
 
@@ -205,6 +207,7 @@ export function split2024ChpForYeni(base24: BaselineDataset): BaselineDataset {
     id: '2024_local',
     nameTr: '31 Mart 2024 Yerel Seçim bazı',
     nameEn: 'March 31, 2024 Local Election baseline',
+    provinces: base24.provinces.map(({ mayorPartyShares: _pDrop, ...rest }) => rest),
     ilceler,
     abroad: {
       ...base24.abroad,

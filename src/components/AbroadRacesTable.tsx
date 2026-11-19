@@ -21,15 +21,20 @@ export const AbroadRacesTable: React.FC<AbroadRacesTableProps> = ({
 }) => {
   const {
     lang,
+    activeArchiveId,
     parties,
     projection,
     presCandidates,
-    presRoundView,
+    presRoundView: storedRoundView,
     presidentialProjection,
     setActiveScope,
     setMapLayer,
     setZoomedProvinceId,
   } = useElectionStore();
+  const presRoundView =
+    presidentialProjection.decidedInRound === 2 && !activeArchiveId?.endsWith('_ref')
+      ? storedRoundView
+      : 'round1';
 
   const [sortBy, setSortBy] = useState<SortKey>('validVotes');
   const [sortAsc, setSortAsc] = useState(false);

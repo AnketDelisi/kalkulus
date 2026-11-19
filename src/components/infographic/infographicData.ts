@@ -35,7 +35,8 @@ export function buildDefaultInfographicTexts(
   mode: ElectionMode,
   presRound: PresidentialRoundView,
   localRef: 'current' | '2024',
-  lang: Language
+  lang: Language,
+  districtCount = 87
 ): { title: string; subtitle: string; footerNote: string } {
   if (mode === 'presidential') {
     return {
@@ -74,8 +75,8 @@ export function buildDefaultInfographicTexts(
         : 'Parliamentary Election Projection',
     subtitle:
       lang === 'tr'
-        ? "87 Seçim Çevresi · D'Hondt Sistemi"
-        : "87 Electoral Districts · D'Hondt Method",
+        ? `${districtCount} Seçim Çevresi · D'Hondt Sistemi`
+        : `${districtCount} Electoral Districts · D'Hondt Method`,
     footerNote: '',
   };
 }
@@ -93,6 +94,7 @@ export interface BuildInfographicInput {
   presidentialProjection: ComputedPresidentialProjection;
   localProjection: ComputedLocalProjection;
   localDefections: LocalDefectionConfig;
+  activeArchiveId?: string | null;
 }
 
 export function buildInfographicDataModel(input: BuildInfographicInput): InfographicDataModel {
@@ -105,10 +107,16 @@ export function buildInfographicDataModel(input: BuildInfographicInput): Infogra
     projection,
     baselineProjection,
     presCandidates,
-    presRoundView,
+    presRoundView: rawPresRoundView,
     presidentialProjection,
     localProjection,
   } = input;
+  const presRoundView: PresidentialRoundView =
+    rawPresRoundView === 'round2' &&
+    presidentialProjection?.decidedInRound === 2 &&
+    !(input.activeArchiveId ?? '').endsWith('_ref')
+      ? 'round2'
+      : 'round1';
 
   const partyById: Record<string, PartyConfig> = {};
   const partyColorMap: Record<string, string> = {};
@@ -142,6 +150,7 @@ export function buildInfographicDataModel(input: BuildInfographicInput): Infogra
           shortName: c.shortName,
           fullName: c.name,
           color: c.color,
+          logoUrl: c.logoUrl,
           votes: sum.votes,
           share: sum.share,
           primaryStat: sum.provincesWon,
@@ -191,6 +200,7 @@ export function buildInfographicDataModel(input: BuildInfographicInput): Infogra
             shortName: c.shortName,
             fullName: c.name,
             color: c.color,
+            logoUrl: c.logoUrl,
             votes,
             share,
             isWinner: spotProv.leadingCandidateId === c.id,
@@ -243,7 +253,7 @@ export function buildInfographicDataModel(input: BuildInfographicInput): Infogra
       majorityTarget: 50,
       decidedLabel,
       rows,
-      totalPrimaryCount: 81,
+      totalPrimaryCount: Object.keys(activeRound.provinceResults).length || 81,
       provinceFillById,
       districtFillById,
       ilceFillById,
@@ -400,7 +410,7 @@ export function buildInfographicDataModel(input: BuildInfographicInput): Infogra
           ? `${localProjection.flippedProvinceIds.length} İl · ${localProjection.flippedIlceIds.length} İlçe El Değiştirdi`
           : `${localProjection.flippedProvinceIds.length} Provinces · ${localProjection.flippedIlceIds.length} Districts Flipped`,
       rows: rawRows,
-      totalPrimaryCount: 81,
+      totalPrimaryCount: Object.keys(localProjection.provinceResults).length || 81,
       provinceFillById,
       districtFillById,
       ilceFillById,
@@ -423,6 +433,9 @@ export function buildInfographicDataModel(input: BuildInfographicInput): Infogra
   }
 
   // Parliamentary Mode
+  const isCustomOrArchiveBaseline =
+    baselineProjection.totalSeatsAllocated !== 600 ||
+    Math.abs((baselineProjection.nationalPartyShares.AKP ?? 0) - 35.62) > 0.1;
   const rows: InfographicRow[] = [];
   if (config.grouping === 'alliance' && config.template !== 'top_cards') {
     const grouped: Record<string, InfographicRow> = {};
@@ -437,8 +450,9 @@ export function buildInfographicDataModel(input: BuildInfographicInput): Infogra
       const share = projection.nationalPartyShares[p.id] || 0;
       const seats = projection.partyTotalSeats[p.id] || 0;
       const baseShare = baselineProjection.nationalPartyShares[p.id] || 0;
-      const baseSeats =
-        OFFICIAL_2023_NATIONAL_SEATS[p.id] ?? baselineProjection.partyTotalSeats[p.id] ?? 0;
+      const baseSeats = isCustomOrArchiveBaseline
+        ? baselineProjection.partyTotalSeats[p.id] ?? 0
+        : OFFICIAL_2023_NATIONAL_SEATS[p.id] ?? baselineProjection.partyTotalSeats[p.id] ?? 0;
       const alliance = p.allianceId ? allianceById[p.allianceId] : undefined;
 
       if (p.isOther || (!alliance && share < config.minVoteCutoffPct && seats === 0)) {
@@ -502,8 +516,9 @@ export function buildInfographicDataModel(input: BuildInfographicInput): Infogra
       const share = projection.nationalPartyShares[p.id] || 0;
       const seats = projection.partyTotalSeats[p.id] || 0;
       const baseShare = baselineProjection.nationalPartyShares[p.id] || 0;
-      const baseSeats =
-        OFFICIAL_2023_NATIONAL_SEATS[p.id] ?? baselineProjection.partyTotalSeats[p.id] ?? 0;
+      const baseSeats = isCustomOrArchiveBaseline
+        ? baselineProjection.partyTotalSeats[p.id] ?? 0
+        : OFFICIAL_2023_NATIONAL_SEATS[p.id] ?? baselineProjection.partyTotalSeats[p.id] ?? 0;
 
       if (!p.isOther && (share >= config.minVoteCutoffPct || seats > 0)) {
         const alliance = p.allianceId ? allianceById[p.allianceId] : undefined;
@@ -580,7 +595,9 @@ export function buildInfographicDataModel(input: BuildInfographicInput): Infogra
   // Province Spotlight shows full selected İl party & MV seat results (using official 2023 YSK provincial seats for delta)
   const spotProv = projection.provinceResults[config.spotlightProvinceId];
   const baseSpotProv = baselineProjection.provinceResults[config.spotlightProvinceId];
-  const officialSpotSeats = OFFICIAL_2023_PROVINCE_SEATS[config.spotlightProvinceId];
+  const officialSpotSeats = isCustomOrArchiveBaseline
+    ? undefined
+    : OFFICIAL_2023_PROVINCE_SEATS[config.spotlightProvinceId];
   if (spotProv) {
     let otherV = 0;
     let otherS = 0;

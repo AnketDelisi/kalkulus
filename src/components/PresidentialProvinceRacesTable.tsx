@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Globe2, MapPin, Search, Table2, ZoomIn } from 'lucide-react';
+import { ARCHIVE_ELECTIONS } from '../data/archiveRegistry';
 import { useElectionStore } from '../store/useElectionStore';
 import { formatInt, formatPct } from '../utils/format';
 import { AbroadRacesTable } from './AbroadRacesTable';
@@ -15,12 +16,31 @@ export const PresidentialProvinceRacesTable: React.FC<PresidentialProvinceRacesT
 }) => {
   const {
     lang,
+    activeArchiveId,
     presCandidates,
-    presRoundView,
+    presRoundView: storedRoundView,
     presidentialProjection,
     setActiveScope,
     setZoomedProvinceId,
   } = useElectionStore();
+
+  const isReferendum = Boolean(
+    activeArchiveId && ARCHIVE_ELECTIONS[activeArchiveId]?.category === 'referendum'
+  );
+  const isPresR2Archive = activeArchiveId === '2023_pres_r2';
+  const hasRunoff = !isReferendum && presidentialProjection.decidedInRound === 2;
+  const presRoundView = hasRunoff ? storedRoundView : 'round1';
+  const provincesTabLabel = !hasRunoff
+    ? isPresR2Archive
+      ? lang === 'tr'
+        ? '81 İl (2. Tur)'
+        : '81 Provinces (R2)'
+      : lang === 'tr'
+      ? '81 İl'
+      : '81 Provinces'
+    : lang === 'tr'
+    ? `81 İl (${presRoundView === 'round2' ? '2. Tur' : '1. Tur'})`
+    : '81 Provinces';
 
   const [tab, setTab] = useState<Tab>('provinces');
   const [search, setSearch] = useState('');
@@ -68,7 +88,7 @@ export const PresidentialProvinceRacesTable: React.FC<PresidentialProvinceRacesT
             }`}
           >
             <Table2 className="w-3.5 h-3.5 inline mr-1.5" />
-            {lang === 'tr' ? `81 İl (${presRoundView === 'round2' ? '2. Tur' : '1. Tur'})` : '81 Provinces'}
+            {provincesTabLabel}
           </button>
 
           <button
